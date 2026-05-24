@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  LayoutDashboard,
-  Building2,
-  Settings,
-  LogOut,
-  LogIn,
-} from "lucide-react";
+import { LayoutDashboard, Building2, LogIn, Megaphone } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -15,20 +9,10 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
 import { useAuth } from "../contexts/auth-context";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import { UserMenu } from "./user-menu";
 
 export function Menu() {
-  const queryClient = useQueryClient();
-  const { user, logout } = useAuth();
-  const router = useRouter();
-
-  function handleLogout() {
-    logout();
-    queryClient.clear();
-    router.push("/portal/auth/login");
-  }
+  const { user } = useAuth();
 
   return (
     <header className="border-b bg-white px-6 py-4 shadow-sm">
@@ -56,11 +40,23 @@ export function Menu() {
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
                 <Link
-                  href="/portal"
+                  href="/imoveis"
                   className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
                 >
                   <Building2 className="mr-2 h-4 w-4" />
                   Imóveis
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link
+                  href="/anuncie"
+                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
+                >
+                  <Megaphone className="mr-2 h-4 w-4" />
+                  Anúncie
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
