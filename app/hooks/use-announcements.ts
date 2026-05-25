@@ -1,3 +1,5 @@
+"use client";
+
 import { useQuery } from "@tanstack/react-query";
 import { getAnnouncements } from "../services/announcement.service";
 import { Announcement } from "../types/announcement";

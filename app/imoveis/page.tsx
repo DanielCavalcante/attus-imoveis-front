@@ -1,50 +1,13 @@
+"use client";
+
+import { useAnnouncements } from "../hooks/use-announcements";
+
 export default function PropertiesPage() {
-  const properties = [
-    {
-      id: 1,
-      title: "Casa moderna com piscina",
-      price: "R$ 850.000",
-      city: "João Pessoa - PB",
-      bedrooms: 4,
-      bathrooms: 3,
-      area: "240m²",
-      image:
-        "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200&auto=format&fit=crop",
-    },
-    {
-      id: 2,
-      title: "Apartamento alto padrão",
-      price: "R$ 620.000",
-      city: "Campina Grande - PB",
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "120m²",
-      image:
-        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1200&auto=format&fit=crop",
-    },
-    {
-      id: 3,
-      title: "Cobertura duplex luxuosa",
-      price: "R$ 1.250.000",
-      city: "Recife - PE",
-      bedrooms: 5,
-      bathrooms: 4,
-      area: "380m²",
-      image:
-        "https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1200&auto=format&fit=crop",
-    },
-    {
-      id: 4,
-      title: "Casa em condomínio fechado",
-      price: "R$ 540.000",
-      city: "Natal - RN",
-      bedrooms: 3,
-      bathrooms: 2,
-      area: "180m²",
-      image:
-        "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=1200&auto=format&fit=crop",
-    },
-  ];
+  const { data, isLoading } = useAnnouncements();
+
+  if (isLoading) {
+    return <p>Carregando imóveis...</p>;
+  }
 
   return (
     <div className="min-h-screen bg-muted/40">
@@ -75,15 +38,15 @@ export default function PropertiesPage() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {properties.map((property) => (
+          {data?.map((item) => (
             <div
-              key={property.id}
+              key={item.id}
               className="overflow-hidden rounded-2xl border bg-background shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="relative h-60 overflow-hidden">
                 <img
-                  src={property.image}
-                  alt={property.title}
+                  src={item.image}
+                  alt={item.title}
                   className="h-full w-full object-cover transition duration-300 hover:scale-105"
                 />
 
@@ -95,33 +58,31 @@ export default function PropertiesPage() {
               <div className="space-y-4 p-5">
                 <div>
                   <h2 className="line-clamp-1 text-xl font-semibold">
-                    {property.title}
+                    {item.title}
                   </h2>
 
-                  <p className="text-sm text-muted-foreground">
-                    {property.city}
-                  </p>
+                  <p className="text-sm text-muted-foreground">{item.city}</p>
                 </div>
 
                 <div>
-                  <span className="text-2xl font-bold">{property.price}</span>
+                  <span className="text-2xl font-bold">{item.price}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 rounded-xl bg-muted/50 p-3 text-center text-sm">
                   <div>
-                    <p className="font-semibold">{property.bedrooms}</p>
+                    <p className="font-semibold">{item.rooms}</p>
 
                     <span className="text-muted-foreground">Quartos</span>
                   </div>
 
                   <div>
-                    <p className="font-semibold">{property.bathrooms}</p>
+                    <p className="font-semibold">{item.bathRooms}</p>
 
                     <span className="text-muted-foreground">Banheiros</span>
                   </div>
 
                   <div>
-                    <p className="font-semibold">{property.area}</p>
+                    <p className="font-semibold">{item.area}</p>
 
                     <span className="text-muted-foreground">Área</span>
                   </div>
