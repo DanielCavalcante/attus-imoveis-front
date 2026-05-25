@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { getAnnouncements } from "../services/announcement.service";
+import { getAnnouncements } from "../services/announcements.service";
 import { Announcement } from "../types/announcement";
 
 export function useAnnouncements() {
