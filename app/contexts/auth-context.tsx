@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
 import { jwtDecode } from "jwt-decode";
 
 type User = {
@@ -25,6 +24,8 @@ type Props = {
 type AuthContextType = {
   user: User | null;
   token: string | null;
+  loading: boolean;
+
   login: (token: string) => void;
   logout: () => void;
   updateUserSession: (user: User) => void;
@@ -35,10 +36,10 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   function login(token: string) {
     const decoded = jwtDecode<User>(token);
-
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(decoded));
 
@@ -79,6 +80,8 @@ export function AuthProvider({ children }: Props) {
       setUser(decoded);
       localStorage.setItem("user", JSON.stringify(decoded));
     }
+
+    setLoading(false);
   }, []);
 
   return (
@@ -86,6 +89,7 @@ export function AuthProvider({ children }: Props) {
       value={{
         user,
         token,
+        loading,
         login,
         logout,
         updateUserSession,

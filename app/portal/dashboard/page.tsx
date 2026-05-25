@@ -1,5 +1,6 @@
 "use client";
 
+import { useAuth } from "@/app/contexts/auth-context";
 import { useMyAnnouncements } from "@/app/hooks/use-my-announcements";
 
 export default function DashboardPage() {
@@ -8,6 +9,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return <p>Carregando imóveis...</p>;
   }
+
   return (
     <div className="min-h-screen bg-muted/40">
       <div className="container mx-auto px-4 py-8">

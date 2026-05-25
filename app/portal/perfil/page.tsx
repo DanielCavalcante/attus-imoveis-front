@@ -19,6 +19,7 @@ import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/app/contexts/auth-context";
 import { useEffect } from "react";
+import { PrivateRoute } from "@/app/components/private-route";
 
 export default function ProfilePage() {
   const { user, updateUserSession } = useAuth();
@@ -61,99 +62,105 @@ export default function ProfilePage() {
   }, [user, reset]);
 
   return (
-    <div className="container mx-auto flex justify-center py-10">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <CardTitle>Meu Perfil</CardTitle>
+    <PrivateRoute>
+      <div className="container mx-auto flex justify-center py-10">
+        <Card className="w-full max-w-2xl">
+          <CardHeader>
+            <CardTitle>Meu Perfil</CardTitle>
 
-          <CardDescription>Atualize suas informações pessoais.</CardDescription>
-        </CardHeader>
+            <CardDescription>
+              Atualize suas informações pessoais.
+            </CardDescription>
+          </CardHeader>
 
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex flex-col items-center gap-4">
-              <div className="relative">
-                <Avatar className="h-28 w-28 border">
-                  <AvatarImage src={watch("photo")} />
-                  <AvatarFallback>DC</AvatarFallback>
-                </Avatar>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <div className="flex flex-col items-center gap-4">
+                <div className="relative">
+                  <Avatar className="h-28 w-28 border">
+                    <AvatarImage src={watch("photo")} />
+                    <AvatarFallback>DC</AvatarFallback>
+                  </Avatar>
 
-                <label
-                  htmlFor="photo"
-                  className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border bg-background shadow-sm transition hover:bg-muted"
-                >
-                  <Camera className="h-4 w-4" />
-                </label>
+                  <label
+                    htmlFor="photo"
+                    className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border bg-background shadow-sm transition hover:bg-muted"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </label>
+                </div>
+
+                <div className="w-full space-y-2">
+                  <Label htmlFor="photo">URL da Foto</Label>
+
+                  <Input
+                    id="photo"
+                    placeholder="https://..."
+                    {...register("photo")}
+                  />
+                </div>
               </div>
 
-              <div className="w-full space-y-2">
-                <Label htmlFor="photo">URL da Foto</Label>
+              <div className="grid gap-5 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="fullname">Nome completo</Label>
 
-                <Input
-                  id="photo"
-                  placeholder="https://..."
-                  {...register("photo")}
-                />
+                  <Input
+                    id="fullname"
+                    placeholder="Seu nome"
+                    {...register("fullname")}
+                  />
+
+                  {errors.fullname && (
+                    <p className="text-sm text-red-500">
+                      {errors.fullname.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-mail</Label>
+
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="email@exemplo.com"
+                    {...register("email")}
+                  />
+
+                  {errors.email && (
+                    <p className="text-sm text-red-500">
+                      {errors.email.message}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div className="grid gap-5 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="fullname">Nome completo</Label>
+                <Label htmlFor="phone">Telefone</Label>
 
                 <Input
-                  id="fullname"
-                  placeholder="Seu nome"
-                  {...register("fullname")}
+                  id="phone"
+                  placeholder="(00) 00000-0000"
+                  {...register("phone")}
                 />
 
-                {errors.fullname && (
-                  <p className="text-sm text-red-500">
-                    {errors.fullname.message}
-                  </p>
+                {errors.phone && (
+                  <p className="text-sm text-red-500">{errors.phone.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="email@exemplo.com"
-                  {...register("email")}
-                />
-
-                {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Telefone</Label>
-
-              <Input
-                id="phone"
-                placeholder="(00) 00000-0000"
-                {...register("phone")}
-              />
-
-              {errors.phone && (
-                <p className="text-sm text-red-500">{errors.phone.message}</p>
-              )}
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-black text-white hover:bg-black/90"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Salvando..." : "Salvar alterações"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+              <Button
+                type="submit"
+                className="w-full bg-black text-white hover:bg-black/90"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Salvando..." : "Salvar alterações"}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </PrivateRoute>
   );
 }

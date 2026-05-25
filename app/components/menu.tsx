@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useAuth } from "../contexts/auth-context";
 import { UserMenu } from "./user-menu";
+import { PrivateRoute } from "./private-route";
 
 export function Menu() {
   const { user } = useAuth();
@@ -25,17 +26,19 @@ export function Menu() {
 
         <NavigationMenu>
           <NavigationMenuList className="flex gap-2">
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/portal/dashboard"
-                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+            <PrivateRoute>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/portal/dashboard"
+                    className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
+                  >
+                    <LayoutDashboard className="h-4 w-4" />
+                    Dashboard
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </PrivateRoute>
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
@@ -48,18 +51,19 @@ export function Menu() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/anuncie"
-                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
-                >
-                  <Megaphone className="mr-2 h-4 w-4" />
-                  Anúncie
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+            <PrivateRoute>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/anuncie"
+                    className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
+                  >
+                    <Megaphone className="mr-2 h-4 w-4" />
+                    Anúncie
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </PrivateRoute>
           </NavigationMenuList>
         </NavigationMenu>
 
