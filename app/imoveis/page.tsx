@@ -1,13 +1,20 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { useAnnouncements } from "../hooks/use-announcements";
+import { useRouter } from "next/navigation";
 
 export default function PropertiesPage() {
   const { data, isLoading } = useAnnouncements();
+  const router = useRouter();
 
   if (isLoading) {
     return <p>Carregando imóveis...</p>;
   }
+
+  const goToDetail = (id: number) => {
+    router.push(`/anuncie/detail/${id}`);
+  };
 
   return (
     <div className="min-h-screen bg-muted/40">
@@ -23,7 +30,7 @@ export default function PropertiesPage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="flex flex-col gap-+3 sm:flex-row">
             <input
               placeholder="Buscar imóvel..."
               className="h-10 rounded-md border bg-background px-4 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
@@ -65,7 +72,7 @@ export default function PropertiesPage() {
                 </div>
 
                 <div>
-                  <span className="text-2xl font-bold">{item.price}</span>
+                  <span className="text-2xl font-bold">R$ {item.price}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 rounded-xl bg-muted/50 p-3 text-center text-sm">
@@ -88,7 +95,10 @@ export default function PropertiesPage() {
                   </div>
                 </div>
 
-                <button className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90">
+                <button
+                  onClick={() => goToDetail(item.id)}
+                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+                >
                   Ver detalhes
                 </button>
               </div>

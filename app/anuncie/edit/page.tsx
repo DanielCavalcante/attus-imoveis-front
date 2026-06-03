@@ -1,12 +1,9 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateAnnouncement } from "@/app/hooks/use-create-announcement";
-import {
-  announcementSchema,
-  AnnouncementFormData,
-} from "../../schemas/announcement";
+import { useState } from "react";
+
+import { ImagePlus, Save } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -24,196 +21,66 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from "sonner";
+import { Separator } from "@/components/ui/separator";
 
-export default function CreateAnnouncementPage() {
-  const createAnnouncementMutation = useCreateAnnouncement();
+export default function RealEstatePages() {
+  return (
+    <div className="min-h-screen bg-zinc-100 p-6">
+      <div className="mx-auto max-w-7xl space-y-12">
+        <AnnouncementEditPage />
 
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<AnnouncementFormData>({
-    resolver: zodResolver(announcementSchema),
+        <Separator />
+      </div>
+    </div>
+  );
+}
 
-    defaultValues: {
-      propertyType: "HOUSE",
-      reason: "SALE",
-    },
-  });
-
-  async function onSubmit(data: AnnouncementFormData) {
-    try {
-      console.log(data);
-      console.log("Xuxinha");
-      await createAnnouncementMutation.mutateAsync(data);
-
-      toast.success("Anúncio criado com sucesso!");
-    } catch (error: any) {
-      console.error(error);
-
-      toast.error(error?.message || "Erro ao criar anúncio");
-    }
-  }
+function AnnouncementEditPage() {
+  const [gallery] = useState([
+    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=1200&auto=format&fit=crop",
+    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
+  ]);
 
   return (
-    <div className="min-h-screen bg-muted/40 p-6">
-      <div className="mx-auto max-w-3xl">
-        <Card className="rounded-2xl shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-2xl">Criar anúncio</CardTitle>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">Editar anúncio</h1>
 
-            <CardDescription>
-              Preencha as informações do imóvel.
-            </CardDescription>
-          </CardHeader>
+        <p className="text-muted-foreground">
+          Atualize as informações do imóvel.
+        </p>
+      </div>
 
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid gap-5 md:grid-cols-2">
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="title">Título</Label>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <Card className="rounded-3xl border-0 shadow-sm">
+            <CardHeader>
+              <CardTitle>Informações principais</CardTitle>
+              <CardDescription>Dados principais do imóvel.</CardDescription>
+            </CardHeader>
 
-                  <Input
-                    id="title"
-                    placeholder="Casa moderna em condomínio"
-                    {...register("title")}
-                  />
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label>Título do anúncio</Label>
+                <Input defaultValue="Casa moderna com piscina" />
+              </div>
 
-                  {errors.title && (
-                    <p className="text-sm text-red-500">
-                      {errors.title.message}
-                    </p>
-                  )}
-                </div>
+              <div className="space-y-2">
+                <Label>Descrição</Label>
+                <Textarea
+                  rows={6}
+                  defaultValue="Linda casa moderna localizada em condomínio fechado."
+                />
+              </div>
 
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="description">Imagem</Label>
-
-                  <Input
-                    id="description"
-                    placeholder="Link da imagem do imóvel"
-                    {...register("image")}
-                  />
-
-                  {errors.image && (
-                    <p className="text-sm text-red-500">
-                      {errors.image.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="city">Cidade</Label>
-
-                  <Input
-                    id="city"
-                    placeholder="João Pessoa"
-                    {...register("city")}
-                  />
-
-                  {errors.city && (
-                    <p className="text-sm text-red-500">
-                      {errors.city.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="state">Estado</Label>
-
-                  <Input
-                    id="state"
-                    placeholder="Paraíba"
-                    {...register("state")}
-                  />
-
-                  {errors.state && (
-                    <p className="text-sm text-red-500">
-                      {errors.state.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="street">Rua</Label>
-
-                  <Input
-                    id="street"
-                    placeholder="Rua das Flores"
-                    {...register("street")}
-                  />
-
-                  {errors.street && (
-                    <p className="text-sm text-red-500">
-                      {errors.street.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="streetNumber">Número</Label>
-
-                  <Input
-                    id="streetNumber"
-                    type="number"
-                    placeholder="123"
-                    {...register("streetNumber", {
-                      valueAsNumber: true,
-                    })}
-                  />
-
-                  {errors.streetNumber && (
-                    <p className="text-sm text-red-500">
-                      {errors.streetNumber.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cep">CEP</Label>
-
-                  <Input
-                    id="cep"
-                    placeholder="58000-000"
-                    {...register("cep")}
-                  />
-
-                  {errors.cep && (
-                    <p className="text-sm text-red-500">{errors.cep.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="complement">Complemento</Label>
-
-                  <Input
-                    id="complement"
-                    placeholder="Apartamento, bloco..."
-                    {...register("complement")}
-                  />
-
-                  {errors.complement && (
-                    <p className="text-sm text-red-500">
-                      {errors.complement.message}
-                    </p>
-                  )}
-                </div>
-
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Tipo do imóvel</Label>
 
-                  <Select
-                    onValueChange={(value) =>
-                      setValue(
-                        "propertyType",
-                        value as AnnouncementFormData["propertyType"],
-                      )
-                    }
-                  >
+                  <Select defaultValue="HOUSE">
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
+                      <SelectValue />
                     </SelectTrigger>
 
                     <SelectContent>
@@ -223,27 +90,14 @@ export default function CreateAnnouncementPage() {
                       <SelectItem value="LAND">Terreno</SelectItem>
                     </SelectContent>
                   </Select>
-
-                  {errors.propertyType && (
-                    <p className="text-sm text-red-500">
-                      {errors.propertyType.message}
-                    </p>
-                  )}
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Razão</Label>
+                  <Label>Finalidade</Label>
 
-                  <Select
-                    onValueChange={(value) =>
-                      setValue(
-                        "reason",
-                        value as AnnouncementFormData["reason"],
-                      )
-                    }
-                  >
+                  <Select defaultValue="SALE">
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
+                      <SelectValue />
                     </SelectTrigger>
 
                     <SelectContent>
@@ -251,102 +105,120 @@ export default function CreateAnnouncementPage() {
                       <SelectItem value="RENT">Aluguel</SelectItem>
                     </SelectContent>
                   </Select>
-
-                  {errors.reason && (
-                    <p className="text-sm text-red-500">
-                      {errors.reason.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="rooms">Quartos</Label>
-
-                  <Input
-                    id="rooms"
-                    type="number"
-                    placeholder="3"
-                    {...register("rooms", {
-                      valueAsNumber: true,
-                    })}
-                  />
-
-                  {errors.rooms && (
-                    <p className="text-sm text-red-500">
-                      {errors.rooms.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="bathRooms">Banheiros</Label>
-
-                  <Input
-                    id="bathRooms"
-                    type="number"
-                    placeholder="2"
-                    {...register("bathRooms", {
-                      valueAsNumber: true,
-                    })}
-                  />
-
-                  {errors.bathRooms && (
-                    <p className="text-sm text-red-500">
-                      {errors.bathRooms.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="area">Área (m²)</Label>
-
-                  <Input
-                    id="area"
-                    type="number"
-                    placeholder="120"
-                    {...register("area", {
-                      valueAsNumber: true,
-                    })}
-                  />
-
-                  {errors.area && (
-                    <p className="text-sm text-red-500">
-                      {errors.area.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price">Preço</Label>
-
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    placeholder="350000"
-                    {...register("price", {
-                      valueAsNumber: true,
-                    })}
-                  />
-
-                  {errors.price && (
-                    <p className="text-sm text-red-500">
-                      {errors.price.message}
-                    </p>
-                  )}
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-black text-white hover:bg-black/90"
-              >
-                {isSubmitting ? "Criando anúncio..." : "Criar anúncio"}
+              <div className="grid gap-4 md:grid-cols-4">
+                <div className="space-y-2">
+                  <Label>Quartos</Label>
+                  <Input type="number" defaultValue={3} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Banheiros</Label>
+                  <Input type="number" defaultValue={2} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Área</Label>
+                  <Input type="number" defaultValue={180} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Preço</Label>
+                  <Input type="number" defaultValue={850000} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl border-0 shadow-sm">
+            <CardHeader>
+              <CardTitle>Endereço</CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-5">
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>CEP</Label>
+                  <Input defaultValue="01010-000" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Rua</Label>
+                  <Input defaultValue="Rua das Palmeiras" />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Número</Label>
+                  <Input defaultValue={120} />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Cidade</Label>
+                  <Input defaultValue="São Paulo" />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Estado</Label>
+                  <Input defaultValue="SP" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl border-0 shadow-sm">
+            <CardHeader>
+              <CardTitle>Imagens</CardTitle>
+              <CardDescription>
+                Faça upload das fotos do imóvel.
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-3">
+                {gallery.map((image, index) => (
+                  <div
+                    key={index}
+                    className="overflow-hidden rounded-2xl border"
+                  >
+                    <img
+                      src={image}
+                      alt="Imóvel"
+                      className="h-40 w-full object-cover"
+                    />
+                  </div>
+                ))}
+
+                <button className="flex h-40 flex-col items-center justify-center rounded-2xl border border-dashed bg-muted transition hover:bg-zinc-200">
+                  <ImagePlus className="mb-2 h-8 w-8" />
+                  <span className="text-sm font-medium">Adicionar imagem</span>
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div>
+          <Card className="sticky top-24 rounded-3xl border-0 shadow-sm">
+            <CardHeader>
+              <CardTitle>Publicação</CardTitle>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              <Button className="w-full gap-2 rounded-2xl">
+                <Save className="h-4 w-4" />
+                Salvar alterações
               </Button>
-            </form>
-          </CardContent>
-        </Card>
+
+              <Button variant="outline" className="w-full rounded-2xl">
+                Visualizar anúncio
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
