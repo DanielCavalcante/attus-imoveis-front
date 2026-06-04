@@ -22,8 +22,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { useRouter } from "next/navigation";
 
 export default function RealEstatePages() {
+  const router = useRouter();
+
+  const goToDetail = (id: number) => {
+    router.push(`/anuncie/detail/${id}`);
+  };
+
   return (
     <div className="min-h-screen bg-zinc-100 p-6">
       <div className="mx-auto max-w-7xl space-y-12">
@@ -164,6 +171,13 @@ function AnnouncementEditPage() {
                 <div className="space-y-2">
                   <Label>Estado</Label>
                   <Input defaultValue="SP" />
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label>Complemento</Label>
+                  <Input defaultValue="Apartamento 203" />
                 </div>
               </div>
             </CardContent>
