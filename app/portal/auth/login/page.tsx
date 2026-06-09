@@ -44,75 +44,99 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted/40 px-4">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="space-y-2 text-center">
-          <CardTitle className="text-3xl font-bold">Entrar</CardTitle>
+    <div className="min-h-screen grid lg:grid-cols-2">
+      <div className="relative hidden lg:flex">
+        <img
+          src="/login.jpg"
+          alt="Imóveis"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
 
-          <CardDescription>Faça login para acessar sua conta</CardDescription>
-        </CardHeader>
+        <div className="absolute inset-0 bg-black/60" />
 
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
+          <h1 className="text-5xl font-bold leading-tight">
+            Encontre o imóvel
+            <br />
+            ideal para você
+          </h1>
 
-              <Input
-                {...register("email")}
-                id="email"
-                type="email"
-                placeholder="seuemail@exemplo.com"
-              />
-              {errors.email && (
-                <p className="text-red-500 text-sm font-semibold mt-1">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+          <p className="mt-6 max-w-md text-lg text-zinc-200">
+            Compre, venda ou alugue imóveis de forma simples, rápida e segura.
+          </p>
+        </div>
+      </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Senha</Label>
-                <a
-                  href="#"
-                  className="text-sm text-muted-foreground hover:underline"
-                >
-                  Esqueceu a senha?
-                </a>
+      <div className="flex items-center justify-center bg-background px-4 py-8">
+        <Card className="w-full max-w-md border-none shadow-none">
+          <CardHeader className="space-y-2 text-center">
+            <CardTitle className="text-3xl font-bold">Entrar</CardTitle>
+
+            <CardDescription>Faça login para acessar sua conta</CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+
+                <Input
+                  {...register("email")}
+                  id="email"
+                  type="email"
+                  placeholder="seuemail@exemplo.com"
+                />
+
+                {errors.email && (
+                  <p className="text-sm font-semibold text-red-500">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
-              <Input
-                {...register("password")}
-                id="password"
-                type="password"
-                placeholder="********"
-              />
-              {errors.password && (
-                <p className="text-red-500 text-sm font-semibold mt-1">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Senha</Label>
 
-            <Button
-              disabled={loginMutation.isPending}
-              className="w-full bg-black text-white hover:bg-black/90"
-            >
-              {loginMutation.isPending ? "Entrando..." : "Entrar"}
-            </Button>
+                  <Link
+                    href="/portal/auth/forgot-password"
+                    className="text-sm text-muted-foreground hover:underline"
+                  >
+                    Esqueceu a senha?
+                  </Link>
+                </div>
 
-            <p className="text-center text-sm text-muted-foreground">
-              Não possui uma conta?{" "}
-              <Link
-                href="/portal/auth/register"
-                className="font-medium hover:underline"
-              >
-                Criar conta
-              </Link>
-            </p>
-          </form>
-        </CardContent>
-      </Card>
+                <Input
+                  {...register("password")}
+                  id="password"
+                  type="password"
+                  placeholder="********"
+                />
+
+                {errors.password && (
+                  <p className="text-sm font-semibold text-red-500">
+                    {errors.password.message}
+                  </p>
+                )}
+              </div>
+
+              <Button disabled={loginMutation.isPending} className="w-full">
+                {loginMutation.isPending ? "Entrando..." : "Entrar"}
+              </Button>
+
+              <p className="text-center text-sm text-muted-foreground">
+                Não possui uma conta?{" "}
+                <Link
+                  href="/portal/auth/register"
+                  className="font-medium hover:underline"
+                >
+                  Criar conta
+                </Link>
+              </p>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

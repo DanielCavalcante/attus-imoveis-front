@@ -1,6 +1,9 @@
 "use client";
 
 import { useMyAnnouncements } from "@/app/hooks/use-my-announcements";
+import { Button } from "@/components/ui/button";
+import { Home, Plus } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
@@ -18,27 +21,59 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-muted/40">
       <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Meus anúncios</h1>
+        {!data?.length && (
+          <div className="flex min-h-[70vh] flex-col items-center justify-center px-4">
+            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
+              <Home className="h-12 w-12 text-muted-foreground" />
+            </div>
 
-            <p className="text-muted-foreground">Veja sua lista de anúncios</p>
+            <h1 className="mt-8 text-3xl font-bold">
+              Seu portfólio está vazio
+            </h1>
+
+            <p className="mt-3 max-w-lg text-center text-muted-foreground">
+              Você ainda não cadastrou nenhum imóvel. Crie seu primeiro anúncio
+              e comece a receber contatos de interessados.
+            </p>
+
+            <Button asChild className="mt-8 " size="lg">
+              <Link href="/anuncie">Criar anúncio</Link>
+            </Button>
+            <div className="mt-8 grid gap-3 text-sm text-muted-foreground">
+              <div>✓ Publique gratuitamente</div>
+              <div>✓ Fotos ilimitadas</div>
+              <div>✓ Gerencie seus imóveis em um único lugar</div>
+              <div>✓ Receba contatos de interessados</div>
+            </div>
           </div>
+        )}
 
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              placeholder="Buscar imóvel..."
-              className="h-10 rounded-md border bg-background px-4 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            />
+        {data?.length && (
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">
+                Meus anúncios
+              </h1>
 
-            <select className="h-10 rounded-md border bg-background px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
-              <option>Mais recentes</option>
-              <option>Maior preço</option>
-              <option>Menor preço</option>
-            </select>
+              <p className="text-muted-foreground">
+                Veja sua lista de anúncios
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <input
+                placeholder="Buscar imóvel..."
+                className="h-10 rounded-md border bg-background px-4 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              />
+
+              <select className="h-10 rounded-md border bg-background px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <option>Mais recentes</option>
+                <option>Maior preço</option>
+                <option>Menor preço</option>
+              </select>
+            </div>
           </div>
-        </div>
-
+        )}
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
           {data?.map((item) => (
             <div
