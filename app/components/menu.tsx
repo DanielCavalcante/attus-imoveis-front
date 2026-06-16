@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { LayoutDashboard, Building2, LogIn, Megaphone } from "lucide-react";
 import {
   NavigationMenu,
@@ -18,10 +19,17 @@ export function Menu() {
   return (
     <header className="border-b bg-white px-6 py-4 shadow-sm">
       <div className="mx-auto flex max-w-7xl items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Building2 className="h-6 w-6" />
-
-          <span className="text-lg font-bold">Imobiliária</span>
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logotipo.png"
+              alt="Encontrei"
+              width={320}
+              height={60}
+              priority
+              className="h-11 w-auto"
+            />
+          </Link>
         </div>
 
         <NavigationMenu>

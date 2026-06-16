@@ -158,7 +158,7 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 disabled={createUserMutation.isPending}
-                className="w-full bg-black text-white hover:bg-black/90"
+                className="w-full"
               >
                 {createUserMutation.isPending
                   ? "Criando conta..."

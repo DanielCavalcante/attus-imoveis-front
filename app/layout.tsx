@@ -1,24 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Menu } from "./components/menu";
 import { Toaster } from "sonner";
 import { AuthProvider } from "./contexts/auth-context";
 import { QueryProvider } from "./providers/query-provider";
+import { Footer } from "./components/footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Imobiliária",
-  description: "Site da imobiliária.",
+  title: "Encontrei",
+  description: "Encontrei - melhor site de anúncios de imóveis",
 };
 
 export default function RootLayout({
@@ -27,15 +26,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
+    <html lang="en" className={`${inter} ${plusJakarta} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         <QueryProvider>
           <AuthProvider>
             <Menu />
             <main>{children}</main>
+            <Footer />
             <Toaster position="top-right" richColors closeButton />
           </AuthProvider>
         </QueryProvider>

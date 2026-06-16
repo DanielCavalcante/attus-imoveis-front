@@ -16,6 +16,13 @@ export default function PropertiesPage() {
     router.push(`/anuncie/detail/${id}`);
   };
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  };
+
   return (
     <div className="min-h-screen bg-muted/40">
       <div className="container mx-auto px-4 py-8">
@@ -58,7 +65,7 @@ export default function PropertiesPage() {
                 />
 
                 <span className="absolute left-4 top-4 rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                  Destaque
+                  {item.reason == "RENT" ? "Alugar" : "Vender"}
                 </span>
               </div>
 
@@ -72,7 +79,7 @@ export default function PropertiesPage() {
                 </div>
 
                 <div>
-                  <span className="text-2xl font-bold">R$ {item.price}</span>
+                  <span className="text-2xl font-bold">{formatCurrency(item.price)}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 rounded-xl bg-muted/50 p-3 text-center text-sm">
@@ -95,12 +102,12 @@ export default function PropertiesPage() {
                   </div>
                 </div>
 
-                <button
+                <Button
                   onClick={() => goToDetail(item.id)}
-                  className="w-full rounded-lg bg-black px-4 py-2 text-sm font-medium text-white transition hover:opacity-90"
+                  className="w-full"
                 >
                   Ver detalhes
-                </button>
+                </Button>
               </div>
             </div>
           ))}

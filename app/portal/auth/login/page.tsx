@@ -55,7 +55,7 @@ export default function LoginForm() {
         <div className="absolute inset-0 bg-black/60" />
 
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <h1 className="text-5xl font-bold leading-tight">
+          <h1 className="text-5xl font-bold leading-tight text-brand">
             Encontre o imóvel
             <br />
             ideal para você
