@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Home, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PrivateRoute } from "@/components/private-route";
 
 export default function DashboardPage() {
   const { data, isLoading } = useMyAnnouncements();
@@ -26,6 +27,7 @@ export default function DashboardPage() {
   };
 
   return (
+      <PrivateRoute>
     <div className="min-h-screen bg-muted/40">
       <div className="container mx-auto px-4 py-8">
         {!data?.length && (
@@ -143,5 +145,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+      </PrivateRoute>
   );
 }
