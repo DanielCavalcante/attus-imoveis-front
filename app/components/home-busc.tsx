@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { ChevronDown, Search } from 'lucide-react'
+import { useAuth } from '@/app/contexts/auth-context' // hook próprio do projeto (AuthProvider)
+import { ChevronDown, Loader2, Search } from 'lucide-react'
+import { z } from 'zod'
 
 import { cn } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
@@ -11,22 +13,27 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 
-type DesejoOption = {
+// Endpoint que vai receber os filtros de busca.
+// Ainda não existe — quando estiver pronto, é só apontar a URL certa aqui
+// (ou trocar por process.env.NEXT_PUBLIC_API_URL + '/properties/search').
+const SEARCH_ENDPOINT = '/api/properties/search'
+
+type PropertySearchOption = {
   value: string
   label: string
 }
 
-const DESEJO_OPTIONS: DesejoOption[] = [
+const Property_OPTIONS: PropertySearchOption[] = [
   { value: 'alugar', label: 'Alugar um imóvel' },
   { value: 'comprar', label: 'Comprar um imóvel' },
 ]
 
-type TipoImovelOption = {
+type TypePropertyOption = {
   id: string
   label: string
 }
 
-const TIPO_IMOVEL_OPTIONS: TipoImovelOption[] = [
+const TYPE_PROPERTY_OPTIONS: TypePropertyOption[] = [
   { id: 'apartamento', label: 'Apartamento' },
   { id: 'casas-sobrados', label: 'Casas & Sobrados' },
   { id: 'casa-condominio', label: 'Casa em condomínio' },
@@ -36,33 +43,102 @@ const TIPO_IMOVEL_OPTIONS: TipoImovelOption[] = [
   { id: 'cobertura', label: 'Cobertura' },
 ]
 
+// ---------------------------------------------------------------------------
+// Validação do payload com Zod, antes de disparar o POST.
+// `userId` é opcional (null) pra permitir busca de visitante não logado.
+// ---------------------------------------------------------------------------
+const searchPayloadSchema = z.object({
+  finalidade: z.enum(['alugar', 'comprar'], {
+    message: 'Selecione se você quer alugar ou comprar.',
+  }),
+  tiposImovel: z.array(z.string()).min(1, 'Selecione ao menos um tipo de imóvel.'),
+  userId: z.number().nullable(), // User.id é number no AuthProvider do projeto
+})
+
+type PropertySearchPayload = z.infer<typeof searchPayloadSchema>
+
 export default function BuscaHero() {
+  const { user, token } = useAuth() // user?.id e token vêm do AuthProvider (JWT decodificado)
+
   // "O que você deseja" — seleção única
-  const [desejoOpen, setDesejoOpen] = useState(false)
-  const [desejoSelected, setDesejoSelected] = useState<string>('alugar')
+  const [propertyOpen, setPropertyOpen] = useState(false)
+  const [propertySelected, setPropertySelected] = useState<string>('alugar')
 
   // "Tipo de Imóvel" — seleção múltipla
-  const [tipoOpen, setTipoOpen] = useState(false)
-  const [tipoSelected, setTipoSelected] = useState<string[]>(['apartamento'])
+  const [typeOpen, setTypeOpen] = useState(false)
+  const [typeSelected, setTypeSelected] = useState<string[]>(['apartamento'])
 
-  function toggleTipoImovel(id: string) {
-    setTipoSelected((prev) =>
+  // Estado da busca (loading/erro do POST)
+  const [isSearching, setIsSearching] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
+
+  function toggleTypeProperty(id: string) {
+    setTypeSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     )
   }
 
-  const desejoLabel =
-    DESEJO_OPTIONS.find((opt) => opt.value === desejoSelected)?.label ?? 'Selecione'
+  const propertyLabel =
+    Property_OPTIONS.find((opt) => opt.value === propertySelected)?.label ?? 'Selecione'
 
-  const tipoLabel =
-    tipoSelected.length === 0
+  const typeLabel =
+    typeSelected.length === 0
       ? 'Selecione'
-      : tipoSelected.length === 1
-        ? TIPO_IMOVEL_OPTIONS.find((opt) => opt.id === tipoSelected[0])?.label
-        : `${tipoSelected.length} tipos selecionados`
+      : typeSelected.length === 1
+        ? TYPE_PROPERTY_OPTIONS.find((opt) => opt.id === typeSelected[0])?.label
+        : `${typeSelected.length} tipos selecionados`
 
-  function handleBuscar() {
-    console.log({ desejoSelected, tipoSelected })
+  async function handleBuscar() {
+    setSearchError(null)
+
+    // Monta o payload cru a partir do estado da tela.
+    const rawPayload = {
+      finalidade: propertySelected,
+      tiposImovel: typeSelected,
+      // Se tiver usuário logado (via AuthProvider), manda o id. Se não, vai
+      // null e a busca segue liberada normalmente (visitante).
+      userId: user?.id ?? null,
+    }
+
+    // Valida com Zod antes de qualquer chamada à API.
+    const parsed = searchPayloadSchema.safeParse(rawPayload)
+    if (!parsed.success) {
+      setSearchError(parsed.error.issues[0]?.message ?? 'Verifique os filtros selecionados.')
+      return
+    }
+
+    const payload: PropertySearchPayload = parsed.data
+
+    setIsSearching(true)
+    try {
+      const response = await fetch(SEARCH_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // Se o backend exigir autenticação na própria rota de busca
+          // (ex: pra personalizar resultado por usuário), o token do
+          // AuthProvider já vai pronto aqui.
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Busca falhou com status ${response.status}`)
+      }
+
+      const data = await response.json()
+
+      // TODO: quando o endpoint estiver pronto, decidir o que fazer com o
+      // retorno aqui (redirecionar pra página de resultados, guardar num
+      // estado global, etc.)
+      console.log('Resultado da busca:', data)
+    } catch (error) {
+      console.error('Erro ao buscar imóveis:', error)
+      setSearchError('Não foi possível buscar agora. Tenta de novo em instantes.')
+    } finally {
+      setIsSearching(false)
+    }
   }
 
   return (
@@ -83,7 +159,7 @@ export default function BuscaHero() {
 
             <div className="space-y-4">
               {/* Popover: O que você deseja */}
-              <Popover open={desejoOpen} onOpenChange={setDesejoOpen}>
+              <Popover open={propertyOpen} onOpenChange={setPropertyOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -91,11 +167,11 @@ export default function BuscaHero() {
                   >
                     <span className="block text-xs text-gray-500">O que você deseja?</span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
-                      <span className="text-base font-semibold text-gray-900">{desejoLabel}</span>
+                      <span className="text-base font-semibold text-gray-900">{propertyLabel}</span>
                       <ChevronDown
                         className={cn(
                           'h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200',
-                          desejoOpen && 'rotate-180'
+                          propertyOpen && 'rotate-180'
                         )}
                       />
                     </span>
@@ -107,24 +183,24 @@ export default function BuscaHero() {
                   className="w-[var(--radix-popover-trigger-width)] rounded-xl p-2 shadow-2xl"
                 >
                   <RadioGroup
-                    value={desejoSelected}
+                    value={propertySelected}
                     onValueChange={(value) => {
-                      setDesejoSelected(value)
-                      setDesejoOpen(false)
+                      setPropertySelected(value)
+                      setPropertyOpen(false)
                     }}
                   >
-                    {DESEJO_OPTIONS.map((opt) => {
-                      const checked = desejoSelected === opt.value
+                    {Property_OPTIONS.map((opt) => {
+                      const checked = propertySelected === opt.value
                       return (
                         <Label
                           key={opt.value}
-                          htmlFor={`desejo-${opt.value}`}
+                          htmlFor={`property-${opt.value}`}
                           className={cn(
                             'group flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 font-normal transition-colors hover:bg-primary',
                             checked ? 'bg-primary/50' : ''
                           )}
                         >
-                          <RadioGroupItem value={opt.value} id={`desejo-${opt.value}`} />
+                          <RadioGroupItem value={opt.value} id={`property-${opt.value}`} />
                           <span
                             className={cn(
                               'text-sm transition-colors group-hover:text-[#FFFFFF]',
@@ -141,7 +217,7 @@ export default function BuscaHero() {
               </Popover>
 
               {/* Popover: Tipo de Imóvel */}
-              <Popover open={tipoOpen} onOpenChange={setTipoOpen}>
+              <Popover open={typeOpen} onOpenChange={setTypeOpen}>
                 <PopoverTrigger asChild>
                   <button
                     type="button"
@@ -150,12 +226,12 @@ export default function BuscaHero() {
                     <span className="block text-xs text-gray-500">Tipo de Imóvel</span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
                       <span className="truncate text-base font-semibold text-gray-900">
-                        {tipoLabel}
+                        {typeLabel}
                       </span>
                       <ChevronDown
                         className={cn(
                           'h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200',
-                          tipoOpen && 'rotate-180'
+                          typeOpen && 'rotate-180'
                         )}
                       />
                     </span>
@@ -170,21 +246,21 @@ export default function BuscaHero() {
                     <p className="px-4 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
                       Residencial
                     </p>
-                    {TIPO_IMOVEL_OPTIONS.map((opt) => {
-                      const checked = tipoSelected.includes(opt.id)
+                    {TYPE_PROPERTY_OPTIONS.map((opt) => {
+                      const checked = typeSelected.includes(opt.id)
                       return (
                         <Label
                           key={opt.id}
-                          htmlFor={`tipo-${opt.id}`}
+                          htmlFor={`type-${opt.id}`}
                           className={cn(
                             'group flex cursor-pointer items-center gap-3 border-t border-gray-100 px-4 py-3 font-normal transition-colors first:border-t-0 hover:bg-primary',
                             checked ? 'bg-primary/50' : ''
                           )}
                         >
                           <Checkbox
-                            id={`tipo-${opt.id}`}
+                            id={`type-${opt.id}`}
                             checked={checked}
-                            onCheckedChange={() => toggleTipoImovel(opt.id)}
+                            onCheckedChange={() => toggleTypeProperty(opt.id)}
                           />
                           <span
                             className={cn(
@@ -202,25 +278,36 @@ export default function BuscaHero() {
                   <div className="border-t border-gray-100 p-3">
                     <Button
                       type="button"
-                      onClick={() => setTipoOpen(false)}
+                      onClick={() => setTypeOpen(false)}
                       className="w-full bg-primary hover:bg-primary/80"
                     >
-                      Aplicar {tipoSelected.length} selecionado
-                      {tipoSelected.length !== 1 ? 's' : ''}
+                      Aplicar {typeSelected.length} selecionado
+                      {typeSelected.length !== 1 ? 's' : ''}
                     </Button>
                   </div>
                 </PopoverContent>
               </Popover>
             </div>
 
+            {searchError && (
+              <p className="text-sm font-medium text-primary" role="alert">
+                {searchError}
+              </p>
+            )}
+
             <Button
               type="button"
               onClick={handleBuscar}
+              disabled={isSearching}
               size="lg"
-              className="w-full gap-2 bg-primary py-3.5 text-base hover:bg-primary/80"
+              className="w-full gap-2 bg-primary py-3.5 text-base hover:bg-primary/80 disabled:opacity-70"
             >
-              <Search className="h-5 w-5" />
-              Buscar
+              {isSearching ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Search className="h-5 w-5" />
+              )}
+              {isSearching ? 'Buscando...' : 'Buscar'}
             </Button>
           </CardContent>
         </Card>

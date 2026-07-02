@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Home, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PrivateRoute } from "@/components/private-route";
+import { PrivateRoute } from "@/app/components/private-route";
 
 export default function DashboardPage() {
   const { data, isLoading } = useMyAnnouncements();
