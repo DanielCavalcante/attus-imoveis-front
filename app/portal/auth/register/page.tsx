@@ -16,6 +16,7 @@ import { useForm } from "react-hook-form";
 import { useCreateUser } from "@/app/hooks/use-create-user";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -33,18 +34,24 @@ export default function RegisterPage() {
       await createUserMutation.mutateAsync(data);
       toast.success("Conta criada com sucesso!");
       router.push("/portal/auth/login");
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
-      toast.error(error?.message || "Erro ao criar conta");
+
+      const message =
+        error instanceof Error ? error.message : "Erro ao criar conta";
+
+      toast.error(message);
     }
   }
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="relative hidden lg:flex">
-        <img
+        <Image
           src="/register.jpg"
           alt="Imóveis"
+          fill
+          priority
           className="absolute inset-0 h-full w-full object-cover"
         />
 

@@ -42,7 +42,7 @@ const properties = [
     bathrooms: 3,
     area: 180,
     image:
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
+      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6",
   },
   {
     id: 3,
@@ -53,7 +53,7 @@ const properties = [
     bathrooms: 4,
     area: 250,
     image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750",
   },
   {
     id: 4,
@@ -75,7 +75,7 @@ const properties = [
     bathrooms: 2,
     area: 80,
     image:
-      "https://images.unsplash.com/photo-1494526585095-c41746248156",
+      "https://images.unsplash.com/photo-1493809842364-78817add7ffb",
   },
 ];
 
@@ -101,7 +101,7 @@ export function FeaturedProperties() {
         className="w-full"
       >
         <CarouselContent>
-          {properties.map((property) => (
+          {properties.map((property, index) => (
             <CarouselItem
               key={property.id}
               className="md:basis-1/2 lg:basis-1/4"
@@ -112,7 +112,9 @@ export function FeaturedProperties() {
                     src={property.image}
                     alt={property.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="object-cover"
+                    priority={index === 0}
                   />
                 </div>
 

@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useAuth } from "../contexts/auth-context";
 import { UserMenu } from "./user-menu";
-import { PrivateRoute } from "./private-route";
 
 export function Menu() {
   const { user } = useAuth();
@@ -34,7 +33,7 @@ export function Menu() {
 
         <NavigationMenu>
           <NavigationMenuList className="flex gap-2">
-            <PrivateRoute>
+            {user && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
@@ -46,7 +45,7 @@ export function Menu() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-            </PrivateRoute>
+            )}
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild>
@@ -59,7 +58,8 @@ export function Menu() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-            <PrivateRoute>
+
+            {user && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
@@ -71,7 +71,7 @@ export function Menu() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-            </PrivateRoute>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
