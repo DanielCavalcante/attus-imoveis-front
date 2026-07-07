@@ -3,11 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
 
@@ -40,8 +36,7 @@ const properties = [
     bedrooms: 4,
     bathrooms: 3,
     area: 180,
-    image:
-      "/images/hero-property-facade-01.jpg",
+    image: "/images/hero-property-facade-01.jpg",
   },
   {
     id: 3,
@@ -51,8 +46,7 @@ const properties = [
     bedrooms: 4,
     bathrooms: 4,
     area: 250,
-    image:
-      "/images/hero-property-facade-02.jpg",
+    image: "/images/hero-property-facade-02.jpg",
   },
   {
     id: 4,
@@ -62,8 +56,7 @@ const properties = [
     bedrooms: 2,
     bathrooms: 1,
     area: 60,
-    image:
-      "/images/hero-property-facade-03.jpg",
+    image: "/images/hero-property-facade-03.jpg",
   },
   {
     id: 5,
@@ -73,8 +66,7 @@ const properties = [
     bedrooms: 3,
     bathrooms: 2,
     area: 80,
-    image:
-      "/images/hero-property-facade-04.jpg",
+    image: "/images/hero-property-facade-04.jpg",
   },
 ];
 
@@ -83,9 +75,7 @@ export function FeaturedProperties() {
     <section className="container py-16 mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold">
-            Imóveis em destaque
-          </h2>
+          <h2 className="text-3xl font-bold">Imóveis em destaque</h2>
 
           <p className="text-muted-foreground">
             Confira os imóveis mais visitados da semana.
@@ -111,6 +101,7 @@ export function FeaturedProperties() {
                     src={property.image}
                     alt={property.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     className="object-cover"
                   />
                 </div>
@@ -121,9 +112,7 @@ export function FeaturedProperties() {
                       {property.price}
                     </p>
 
-                    <h3 className="mt-2 font-semibold">
-                      {property.title}
-                    </h3>
+                    <h3 className="mt-2 font-semibold">{property.title}</h3>
 
                     <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
                       <MapPin className="w-4 h-4" />
@@ -150,15 +139,8 @@ export function FeaturedProperties() {
                 </CardContent>
 
                 <CardFooter>
-                  <Button
-                    asChild
-                    className="w-full"
-                  >
-                    <Link
-                      href={`/imoveis/${property.id}`}
-                    >
-                      Ver detalhes
-                    </Link>
+                  <Button asChild className="w-full">
+                    <Link href={`/imoveis/${property.id}`}>Ver detalhes</Link>
                   </Button>
                 </CardFooter>
               </Card>

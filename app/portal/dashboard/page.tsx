@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Home, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PrivateRoute } from "@/app/components/private-route";
 
 export default function DashboardPage() {
   const { data, isLoading } = useMyAnnouncements();
@@ -26,19 +27,20 @@ export default function DashboardPage() {
   };
 
   return (
+    <PrivateRoute>
     <div className="min-h-screen bg-muted/40">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container px-4 py-8 mx-auto">
         {!data?.length && (
           <div className="flex min-h-[70vh] flex-col items-center justify-center px-4">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
-              <Home className="h-12 w-12 text-muted-foreground" />
+            <div className="flex items-center justify-center w-24 h-24 rounded-full bg-muted">
+              <Home className="w-12 h-12 text-muted-foreground" />
             </div>
 
             <h1 className="mt-8 text-3xl font-bold">
               Seu portfólio está vazio
             </h1>
 
-            <p className="mt-3 max-w-lg text-center text-muted-foreground">
+            <p className="max-w-lg mt-3 text-center text-muted-foreground">
               Você ainda não cadastrou nenhum imóvel. Crie seu primeiro anúncio
               e comece a receber contatos de interessados.
             </p>
@@ -46,7 +48,7 @@ export default function DashboardPage() {
             <Button asChild className="mt-8 " size="lg">
               <Link href="/anuncie">Criar anúncio</Link>
             </Button>
-            <div className="mt-8 grid gap-3 text-sm text-muted-foreground">
+            <div className="grid gap-3 mt-8 text-sm text-muted-foreground">
               <div>✓ Publique gratuitamente</div>
               <div>✓ Fotos ilimitadas</div>
               <div>✓ Gerencie seus imóveis em um único lugar</div>
@@ -56,7 +58,7 @@ export default function DashboardPage() {
         )}
 
         {data?.length && (
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-4 mb-8 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight">
                 Meus anúncios
@@ -70,10 +72,10 @@ export default function DashboardPage() {
             <div className="flex flex-col gap-3 sm:flex-row">
               <input
                 placeholder="Buscar imóvel..."
-                className="h-10 rounded-md border bg-background px-4 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
+                className="h-10 px-4 text-sm border rounded-md outline-none bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
               />
 
-              <select className="h-10 rounded-md border bg-background px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
+              <select className="h-10 px-4 text-sm border rounded-md outline-none bg-background focus-visible:ring-2 focus-visible:ring-ring">
                 <option>Mais recentes</option>
                 <option>Maior preço</option>
                 <option>Menor preço</option>
@@ -85,23 +87,23 @@ export default function DashboardPage() {
           {data?.map((item) => (
             <div
               key={item.id}
-              className="overflow-hidden rounded-2xl border bg-background shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+              className="overflow-hidden transition-all border shadow-sm rounded-2xl bg-background hover:-translate-y-1 hover:shadow-lg"
             >
-              <div className="relative h-60 overflow-hidden">
+              <div className="relative overflow-hidden h-60">
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="h-full w-full object-cover transition duration-300 hover:scale-105"
+                  className="object-cover w-full h-full transition duration-300 hover:scale-105"
                 />
 
-                <span className="absolute left-4 top-4 rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                <span className="absolute px-3 py-1 text-xs font-medium text-white rounded-full left-4 top-4 bg-black/80 backdrop-blur-sm">
                   {item.reason == "RENT" ? "Alugar" : "Vender"}
                 </span>
               </div>
 
-              <div className="space-y-4 p-5">
+              <div className="p-5 space-y-4">
                 <div>
-                  <h2 className="line-clamp-1 text-xl font-semibold">
+                  <h2 className="text-xl font-semibold line-clamp-1">
                     {item.title}
                   </h2>
 
@@ -112,7 +114,7 @@ export default function DashboardPage() {
                   <span className="text-2xl font-bold">{formatCurrency(item.price)}</span>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 rounded-xl bg-muted/50 p-3 text-center text-sm">
+                <div className="grid grid-cols-3 gap-3 p-3 text-sm text-center rounded-xl bg-muted/50">
                   <div>
                     <p className="font-semibold">{item.rooms}</p>
 
@@ -143,5 +145,6 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+    </PrivateRoute>
   );
 }
