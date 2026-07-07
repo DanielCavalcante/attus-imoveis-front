@@ -30,8 +30,7 @@ const properties = [
     bedrooms: 3,
     bathrooms: 2,
     area: 85,
-    image:
-      "https://images.unsplash.com/photo-1560185007-cde436f6a4d0",
+    image: "/images/hero-property-facade.jpg",
   },
   {
     id: 2,
@@ -42,7 +41,7 @@ const properties = [
     bathrooms: 3,
     area: 180,
     image:
-      "https://images.unsplash.com/photo-1570129477492-45c003edd2be",
+      "/images/hero-property-facade-01.jpg",
   },
   {
     id: 3,
@@ -53,7 +52,7 @@ const properties = [
     bathrooms: 4,
     area: 250,
     image:
-      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85",
+      "/images/hero-property-facade-02.jpg",
   },
   {
     id: 4,
@@ -64,7 +63,7 @@ const properties = [
     bathrooms: 1,
     area: 60,
     image:
-      "https://images.unsplash.com/photo-1494526585095-c41746248156",
+      "/images/hero-property-facade-03.jpg",
   },
   {
     id: 5,
@@ -75,14 +74,14 @@ const properties = [
     bathrooms: 2,
     area: 80,
     image:
-      "https://images.unsplash.com/photo-1494526585095-c41746248156",
+      "/images/hero-property-facade-04.jpg",
   },
 ];
 
 export function FeaturedProperties() {
   return (
-    <section className="container mx-auto py-16">
-      <div className="mb-8 flex items-center justify-between">
+    <section className="container py-16 mx-auto">
+      <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="text-3xl font-bold">
             Imóveis em destaque
@@ -107,7 +106,7 @@ export function FeaturedProperties() {
               className="md:basis-1/2 lg:basis-1/4"
             >
               <Card className="overflow-hidden">
-                <div className="relative h-52 w-full">
+                <div className="relative w-full h-52">
                   <Image
                     src={property.image}
                     alt={property.title}
@@ -116,7 +115,7 @@ export function FeaturedProperties() {
                   />
                 </div>
 
-                <CardContent className="space-y-4 p-4">
+                <CardContent className="p-4 space-y-4">
                   <div>
                     <p className="text-2xl font-bold text-primary">
                       {property.price}
@@ -126,25 +125,25 @@ export function FeaturedProperties() {
                       {property.title}
                     </h3>
 
-                    <div className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
+                    <div className="flex items-center gap-1 mt-2 text-sm text-muted-foreground">
+                      <MapPin className="w-4 h-4" />
                       {property.city}
                     </div>
                   </div>
 
                   <div className="flex justify-between text-sm">
                     <div className="flex items-center gap-1">
-                      <BedDouble className="h-4 w-4" />
+                      <BedDouble className="w-4 h-4" />
                       {property.bedrooms}
                     </div>
 
                     <div className="flex items-center gap-1">
-                      <Bath className="h-4 w-4" />
+                      <Bath className="w-4 h-4" />
                       {property.bathrooms}
                     </div>
 
                     <div className="flex items-center gap-1">
-                      <Square className="h-4 w-4" />
+                      <Square className="w-4 h-4" />
                       {property.area}m²
                     </div>
                   </div>
