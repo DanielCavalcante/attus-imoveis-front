@@ -43,10 +43,14 @@ export default function ProfilePage() {
       });
       updateUserSession(updatedUser);
       toast.success("Perfil atualizado com sucesso!");
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error?.message || "Erro ao atualizar perfil");
-    }
+    } catch (error) {
+    console.error(error);
+
+    const message =
+      error instanceof Error ? error.message : "Erro ao criar conta";
+
+    toast.error(message);
+  }
   }
 
   useEffect(() => {
@@ -63,7 +67,7 @@ export default function ProfilePage() {
 
   return (
     <PrivateRoute>
-      <div className="container mx-auto flex justify-center py-10">
+      <div className="container flex justify-center py-10 mx-auto">
         <Card className="w-full max-w-2xl">
           <CardHeader>
             <CardTitle>Meu Perfil</CardTitle>
@@ -77,16 +81,16 @@ export default function ProfilePage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="flex flex-col items-center gap-4">
                 <div className="relative">
-                  <Avatar className="h-28 w-28 border">
+                  <Avatar className="border h-28 w-28">
                     <AvatarImage src={watch("photo")} />
                     <AvatarFallback>DC</AvatarFallback>
                   </Avatar>
 
                   <label
                     htmlFor="photo"
-                    className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border bg-background shadow-sm transition hover:bg-muted"
+                    className="absolute bottom-0 right-0 flex items-center justify-center transition border rounded-full shadow-sm cursor-pointer h-9 w-9 bg-background hover:bg-muted"
                   >
-                    <Camera className="h-4 w-4" />
+                    <Camera className="w-4 h-4" />
                   </label>
                 </div>
 
@@ -152,7 +156,7 @@ export default function ProfilePage() {
 
               <Button
                 type="submit"
-                className="w-full bg-black text-white hover:bg-black/90"
+                className="w-full text-white bg-black hover:bg-black/90"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Salvando..." : "Salvar alterações"}
