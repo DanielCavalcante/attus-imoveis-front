@@ -25,8 +25,8 @@ type PropertySearchOption = {
 };
 
 const PROPERTY_OPTIONS: PropertySearchOption[] = [
-  { value: "rent", label: "Rent a property" },
-  { value: "buy", label: "Buy a property" },
+  { value: "RENT", label: "Alugar" },
+  { value: "BUY", label: "Comprar" },
 ];
 
 type TypePropertyOption = {
@@ -35,23 +35,20 @@ type TypePropertyOption = {
 };
 
 const TYPE_PROPERTY_OPTIONS: TypePropertyOption[] = [
-  { id: "apartment", label: "Apartment" },
-  { id: "houses-townhouses", label: "Houses & Townhouses" },
-  { id: "condo-house", label: "Gated community house" },
-  { id: "studios", label: "Studios" },
-  { id: "flat", label: "Flat" },
-  { id: "loft", label: "Loft" },
-  { id: "penthouse", label: "Penthouse" },
+  { id: "APARTMENT", label: "Apartamento" },
+  { id: "LAND", label: "Terreno" },
+  { id: "HOUSE", label: "Casa" },
+  { id: "STUDIOS", label: "Estúdios" }
 ];
 
 const searchPayloadSchema = z.object({
-  purpose: z.enum(["rent", "buy"], {
-    message: "Select whether you want to rent or buy.",
+  purpose: z.enum(["RENT", "BUY"], {
+    message: "Selecione uma finalidade válida (alugar ou comprar).",
   }),
   propertyTypes: z
     .array(z.string())
-    .min(1, "Select at least one property type."),
-  userId: z.number().nullable(), // User.id is a number in the project's AuthProvider
+    .min(1, "Selecione pelo menos um tipo de imóvel."),
+  userId: z.number().nullable(),
 });
 
 type PropertySearchPayload = z.infer<typeof searchPayloadSchema>;
@@ -60,13 +57,11 @@ export default function SearchHero() {
   const { user, token } = useAuth(); // user?.id and token come from AuthProvider (decoded JWT)
 
   const [propertyOpen, setPropertyOpen] = useState(false);
-  const [propertySelected, setPropertySelected] = useState<string>("rent");
+  const [propertySelected, setPropertySelected] = useState<string>("RENT");
 
-  // "Property Type" — multiple selection
   const [typeOpen, setTypeOpen] = useState(false);
-  const [typeSelected, setTypeSelected] = useState<string[]>(["apartment"]);
+  const [typeSelected, setTypeSelected] = useState<string[]>(["APARTMENT"]);
 
-  // Search state (POST loading/error)
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
@@ -78,14 +73,14 @@ export default function SearchHero() {
 
   const propertyLabel =
     PROPERTY_OPTIONS.find((opt) => opt.value === propertySelected)?.label ??
-    "Select";
+    "Selecione";
 
   const typeLabel =
     typeSelected.length === 0
-      ? "Select"
+      ? "Selecione"
       : typeSelected.length === 1
         ? TYPE_PROPERTY_OPTIONS.find((opt) => opt.id === typeSelected[0])?.label
-        : `${typeSelected.length} types selected`;
+        : `${typeSelected.length} tipos selecionados`;
 
   async function handleSearch() {
     setSearchError(null);
@@ -122,11 +117,9 @@ export default function SearchHero() {
       }
 
       const data = await response.json();
-
-      console.log("Search result:", data);
     } catch (error) {
       console.error("Error searching for properties:", error);
-      setSearchError("Could not search right now. Try again in a few moments.");
+      setSearchError("Não encontramos imóveis com os filtros selecionados. Tente novamente.");
     } finally {
       setIsSearching(false);
     }
@@ -149,11 +142,10 @@ export default function SearchHero() {
         <Card className="p-6 shadow-xl rounded-2xl sm:p-8">
           <CardContent className="p-0 space-y-6">
             <h1 className="text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
-              Millions of property, car, and motorcycle listings
+              Encontre o imóvel dos seus sonhos
             </h1>
 
             <div className="space-y-4">
-              {/* Popover: What do you want? */}
               <Popover open={propertyOpen} onOpenChange={setPropertyOpen}>
                 <PopoverTrigger asChild>
                   <button
@@ -161,7 +153,7 @@ export default function SearchHero() {
                     className="w-full px-4 py-3 text-left transition-colors border border-gray-200 rounded-xl hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     <span className="block text-xs text-gray-500">
-                      What do you want?
+                      O que você deseja?
                     </span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
                       <span className="text-base font-semibold text-gray-900">
@@ -220,7 +212,6 @@ export default function SearchHero() {
                 </PopoverContent>
               </Popover>
 
-              {/* Popover: Property Type */}
               <Popover open={typeOpen} onOpenChange={setTypeOpen}>
                 <PopoverTrigger asChild>
                   <button
@@ -228,7 +219,7 @@ export default function SearchHero() {
                     className="w-full px-4 py-3 text-left transition-colors border border-gray-200 rounded-xl hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     <span className="block text-xs text-gray-500">
-                      Property Type
+                      Tipo de imóvel
                     </span>
                     <span className="mt-0.5 flex items-center justify-between gap-2">
                       <span className="text-base font-semibold text-gray-900 truncate">
@@ -310,11 +301,10 @@ export default function SearchHero() {
               className="w-full gap-2 bg-primary py-3.5 text-base hover:bg-primary/80 disabled:opacity-70"
             >
               {isSearching ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                "Buscando..."
               ) : (
-                <Search className="w-5 h-5" />
+                "Buscar imóveis"
               )}
-              {isSearching ? "Searching..." : "Search"}
             </Button>
           </CardContent>
         </Card>
