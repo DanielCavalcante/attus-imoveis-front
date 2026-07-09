@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/app/contexts/auth-context"; // project's own hook (AuthProvider)
+import Image from "next/image";
 import { ChevronDown, Loader2, Search } from "lucide-react";
-import { z } from "zod";
 
 import { cn } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,123 +15,42 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
-const SEARCH_ENDPOINT = "/api/properties/search";
-
-type PropertySearchOption = {
-  value: string;
-  label: string;
-};
-
-const PROPERTY_OPTIONS: PropertySearchOption[] = [
-  { value: "RENT", label: "Alugar" },
-  { value: "BUY", label: "Comprar" },
-];
-
-type TypePropertyOption = {
-  id: string;
-  label: string;
-};
-
-const TYPE_PROPERTY_OPTIONS: TypePropertyOption[] = [
-  { id: "APARTMENT", label: "Apartamento" },
-  { id: "LAND", label: "Terreno" },
-  { id: "HOUSE", label: "Casa" },
-  { id: "STUDIOS", label: "Estúdios" }
-];
-
-const searchPayloadSchema = z.object({
-  purpose: z.enum(["RENT", "BUY"], {
-    message: "Selecione uma finalidade válida (alugar ou comprar).",
-  }),
-  propertyTypes: z
-    .array(z.string())
-    .min(1, "Selecione pelo menos um tipo de imóvel."),
-  userId: z.number().nullable(),
-});
-
-type PropertySearchPayload = z.infer<typeof searchPayloadSchema>;
+import {
+  usePropertySearch,
+  PROPERTY_OPTIONS,
+  TYPE_PROPERTY_OPTIONS,
+} from "@/app/hooks/use-property-search";
 
 export default function SearchHero() {
-  const { user, token } = useAuth(); // user?.id and token come from AuthProvider (decoded JWT)
+  const {
+    propertyOpen,
+    setPropertyOpen,
+    propertySelected,
+    setPropertySelected,
+    propertyLabel,
 
-  const [propertyOpen, setPropertyOpen] = useState(false);
-  const [propertySelected, setPropertySelected] = useState<string>("RENT");
+    typeOpen,
+    setTypeOpen,
+    typeSelected,
+    toggleTypeProperty,
+    typeLabel,
 
-  const [typeOpen, setTypeOpen] = useState(false);
-  const [typeSelected, setTypeSelected] = useState<string[]>(["APARTMENT"]);
-
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchError, setSearchError] = useState<string | null>(null);
-
-  function toggleTypeProperty(id: string) {
-    setTypeSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
-    );
-  }
-
-  const propertyLabel =
-    PROPERTY_OPTIONS.find((opt) => opt.value === propertySelected)?.label ??
-    "Selecione";
-
-  const typeLabel =
-    typeSelected.length === 0
-      ? "Selecione"
-      : typeSelected.length === 1
-        ? TYPE_PROPERTY_OPTIONS.find((opt) => opt.id === typeSelected[0])?.label
-        : `${typeSelected.length} tipos selecionados`;
-
-  async function handleSearch() {
-    setSearchError(null);
-
-    const rawPayload = {
-      purpose: propertySelected,
-      propertyTypes: typeSelected,
-      userId: user?.id ?? null,
-    };
-
-    const parsed = searchPayloadSchema.safeParse(rawPayload);
-    if (!parsed.success) {
-      setSearchError(
-        parsed.error.issues[0]?.message ?? "Check the selected filters.",
-      );
-      return;
-    }
-
-    const payload: PropertySearchPayload = parsed.data;
-
-    setIsSearching(true);
-    try {
-      const response = await fetch(SEARCH_ENDPOINT, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Search failed with status ${response.status}`);
-      }
-
-      const data = await response.json();
-    } catch (error) {
-      console.error("Error searching for properties:", error);
-      setSearchError("Não encontramos imóveis com os filtros selecionados. Tente novamente.");
-    } finally {
-      setIsSearching(false);
-    }
-  }
+    isSearching,
+    searchError,
+    handleSearch,
+  } = usePropertySearch();
 
   return (
     <section className="relative flex items-center w-full min-h-screen bg-transparent">
       {/* Background image */}
       <div className="absolute inset-0 overflow-hidden -z-10">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src="/images/register.jpg"
           alt=""
-          className="object-cover w-full h-full"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
         />
       </div>
 
@@ -150,6 +67,8 @@ export default function SearchHero() {
                 <PopoverTrigger asChild>
                   <button
                     type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded={propertyOpen}
                     className="w-full px-4 py-3 text-left transition-colors border border-gray-200 rounded-xl hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     <span className="block text-xs text-gray-500">
@@ -216,6 +135,8 @@ export default function SearchHero() {
                 <PopoverTrigger asChild>
                   <button
                     type="button"
+                    aria-haspopup="listbox"
+                    aria-expanded={typeOpen}
                     className="w-full px-4 py-3 text-left transition-colors border border-gray-200 rounded-xl hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     <span className="block text-xs text-gray-500">
@@ -301,9 +222,15 @@ export default function SearchHero() {
               className="w-full gap-2 bg-primary py-3.5 text-base hover:bg-primary/80 disabled:opacity-70"
             >
               {isSearching ? (
-                "Buscando..."
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Buscando...
+                </>
               ) : (
-                "Buscar imóveis"
+                <>
+                  <Search className="w-4 h-4" />
+                  Buscar imóveis
+                </>
               )}
             </Button>
           </CardContent>
