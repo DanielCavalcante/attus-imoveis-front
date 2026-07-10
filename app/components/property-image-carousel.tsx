@@ -23,8 +23,6 @@ export function PropertyImageCarousel({
   const [api, setApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // useState com inicializador lazy: cria a instância do plugin uma
-  // única vez, sem ler .current durante o render.
   const [autoplay] = useState(() =>
     Autoplay({ delay: 3000, stopOnInteraction: true }),
   );
@@ -68,7 +66,7 @@ export function PropertyImageCarousel({
         </CarouselContent>
       </Carousel>
 
-      {/* Dots — shadcn não tem indicador nativo, então continuam manuais */}
+      
       {images.length > 1 && (
         <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-2">
           {images.map((img, i) => (
