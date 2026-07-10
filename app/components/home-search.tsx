@@ -42,7 +42,7 @@ export default function SearchHero() {
 
   return (
     <section className="relative flex items-center w-full min-h-screen bg-transparent">
-      {/* Background image */}
+      
       <div className="absolute inset-0 overflow-hidden -z-10">
         <Image
           src="/images/register.jpg"
@@ -54,8 +54,7 @@ export default function SearchHero() {
         />
       </div>
 
-      {/* Search card */}
-      <div className="relative z-50 w-full max-w-md mx-4 sm:ml-12 lg:ml-24">
+      <div className="relative z-50 w-full max-w-md mx-4 sm:ml-12 md:mx-auto lg:ml-24">
         <Card className="p-6 shadow-xl rounded-2xl sm:p-8">
           <CardContent className="p-0 space-y-6">
             <h1 className="text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">

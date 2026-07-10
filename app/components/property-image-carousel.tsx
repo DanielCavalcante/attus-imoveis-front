@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
+
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 
 interface PropertyImageCarouselProps {
   images: string[];
@@ -14,47 +20,57 @@ export function PropertyImageCarousel({
   images,
   alt,
 }: PropertyImageCarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
-    Autoplay({ delay: 3000, stopOnInteraction: true }),
-  ]);
-
+  const [api, setApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
 
+  // useState com inicializador lazy: cria a instância do plugin uma
+  // única vez, sem ler .current durante o render.
+  const [autoplay] = useState(() =>
+    Autoplay({ delay: 3000, stopOnInteraction: true }),
+  );
+
   useEffect(() => {
-    if (!emblaApi) return;
+    if (!api) return;
 
-    const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
+    const onSelect = () => setSelectedIndex(api.selectedScrollSnap());
 
-    emblaApi.on("select", onSelect);
+    api.on("select", onSelect);
     onSelect();
 
     return () => {
-      emblaApi.off("select", onSelect);
+      api.off("select", onSelect);
     };
-  }, [emblaApi]);
+  }, [api]);
 
   return (
     <div className="relative">
-      <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex">
+      <Carousel
+        setApi={setApi}
+        opts={{ loop: true }}
+        plugins={[autoplay]}
+        className="w-full"
+      >
+        <CarouselContent>
           {images.map((img, i) => (
-            <div key={img} className="relative h-52 w-full flex-[0_0_100%]">
-              <Image
-                src={img}
-                alt={alt}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                className="object-cover"
-                priority={i === 0}
-              />
-            </div>
+            <CarouselItem key={img}>
+              <div className="relative h-52 w-full">
+                <Image
+                  src={img}
+                  alt={alt}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  className="object-cover"
+                  priority={i === 0}
+                />
+              </div>
+            </CarouselItem>
           ))}
-        </div>
-      </div>
+        </CarouselContent>
+      </Carousel>
 
-      {/* Indicadores (bolinhas) — só aparecem se houver mais de 1 imagem */}
+      {/* Dots — shadcn não tem indicador nativo, então continuam manuais */}
       {images.length > 1 && (
-        <div className="absolute flex gap-2 -translate-x-1/2 bottom-2 left-1/2">
+        <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-2">
           {images.map((img, i) => (
             <button
               key={img}
@@ -63,7 +79,7 @@ export function PropertyImageCarousel({
               className={`h-2 w-2 rounded-full transition ${
                 i === selectedIndex ? "bg-white" : "bg-gray-400"
               }`}
-              onClick={() => emblaApi?.scrollTo(i)}
+              onClick={() => api?.scrollTo(i)}
             />
           ))}
         </div>
