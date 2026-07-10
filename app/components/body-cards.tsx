@@ -1,10 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-
 import { Button } from "@/components/ui/button";
 
 import {
@@ -16,6 +14,7 @@ import {
 } from "@/components/ui/carousel";
 
 import { Bath, BedDouble, MapPin, Square } from "lucide-react";
+import { PropertyImageCarousel } from "@/app/components/property-image-carousel";
 
 const properties = [
   {
@@ -26,7 +25,10 @@ const properties = [
     bedrooms: 3,
     bathrooms: 2,
     area: 85,
-    image: "/images/hero-property-facade.jpg",
+    images: [
+      "/images/hero-property-facade.jpg",
+      "/images/hero-property-facade-01.jpg",
+    ],
   },
   {
     id: 2,
@@ -36,7 +38,10 @@ const properties = [
     bedrooms: 4,
     bathrooms: 3,
     area: 180,
-    image: "/images/hero-property-facade-01.jpg",
+    images: [
+      "/images/hero-property-facade-01.jpg",
+      "/images/hero-property-facade-02.jpg",
+    ],
   },
   {
     id: 3,
@@ -46,7 +51,10 @@ const properties = [
     bedrooms: 4,
     bathrooms: 4,
     area: 250,
-    image: "/images/hero-property-facade-02.jpg",
+    images: [
+      "/images/hero-property-facade-02.jpg",
+      "/images/hero-property-facade-03.jpg",
+    ],
   },
   {
     id: 4,
@@ -56,7 +64,10 @@ const properties = [
     bedrooms: 2,
     bathrooms: 1,
     area: 60,
-    image: "/images/hero-property-facade-03.jpg",
+    images: [
+      "/images/hero-property-facade-03.jpg",
+      "/images/hero-property-facade-04.jpg",
+    ],
   },
   {
     id: 5,
@@ -66,7 +77,36 @@ const properties = [
     bedrooms: 3,
     bathrooms: 2,
     area: 80,
-    image: "/images/hero-property-facade-04.jpg",
+    images: [
+      "/images/hero-property-facade-04.jpg",
+      "/images/hero-property-facade.jpg",
+    ],
+  },
+  {
+    id: 6,
+    title: "Apartamento em Jacumã",
+    city: "Bayeux - PB",
+    price: "R$ 220.000",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 80,
+    images: [
+      "/images/hero-property-facade-04.jpg",
+      "/images/hero-property-facade.jpg",
+    ],
+  },
+  {
+    id: 7,
+    title: "Apartamento em Jacumã",
+    city: "Bayeux - PB",
+    price: "R$ 220.000",
+    bedrooms: 3,
+    bathrooms: 2,
+    area: 80,
+    images: [
+      "/images/hero-property-facade-04.jpg",
+      "/images/hero-property-facade.jpg",
+    ],
   },
 ];
 
@@ -74,7 +114,7 @@ export function FeaturedProperties() {
   return (
     <section className="container py-16 mx-auto">
       <div className="flex items-center justify-between mb-8">
-        <div>
+        <div className="w-full text-center lg:text-left">
           <h2 className="text-3xl font-bold">Imóveis em destaque</h2>
 
           <p className="text-muted-foreground">
@@ -93,18 +133,13 @@ export function FeaturedProperties() {
           {properties.map((property) => (
             <CarouselItem
               key={property.id}
-              className="md:basis-1/2 lg:basis-1/4"
+              className="sm:basis-1/2 md:basis-1/2 lg:basis-1/4"
             >
               <Card className="overflow-hidden">
-                <div className="relative w-full h-52">
-                  <Image
-                    src={property.image}
-                    alt={property.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover"
-                  />
-                </div>
+                <PropertyImageCarousel
+                  images={property.images}
+                  alt={property.title}
+                />
 
                 <CardContent className="p-4 space-y-4">
                   <div>
@@ -148,8 +183,8 @@ export function FeaturedProperties() {
           ))}
         </CarouselContent>
 
-        <CarouselPrevious />
-        <CarouselNext />
+        <CarouselPrevious className="left-2 lg:-left-12" />
+        <CarouselNext className="right-2 lg:-right-12" />
       </Carousel>
     </section>
   );
