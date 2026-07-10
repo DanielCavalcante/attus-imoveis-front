@@ -123,17 +123,25 @@ export function FeaturedProperties() {
         </div>
       </div>
 
+      {/* Respiro interno consistente em TODOS os breakpoints — não só
+          até o lg. Empurrar a seta pra fora do container com valores
+          negativos (-left-12) depende de sobrar margem entre o
+          container e a borda da tela, e isso falha exatamente nas
+          larguras onde o container bate no max-width mas a tela
+          ainda não é muito maior que ele (ex: 1559px com container
+          de 1536px). Com padding interno fixo, a seta sempre tem
+          espaço garantido, não importa a largura da tela. */}
       <Carousel
         opts={{
           align: "start",
         }}
-        className="w-full"
+        className="relative w-full px-8 sm:px-10 lg:px-12"
       >
         <CarouselContent>
           {properties.map((property) => (
             <CarouselItem
               key={property.id}
-              className="sm:basis-1/2 md:basis-1/2 lg:basis-1/4"
+              className="basis-full sm:basis-1/2 lg:basis-1/4 xl:basis-1/5"
             >
               <Card className="overflow-hidden">
                 <PropertyImageCarousel
@@ -175,7 +183,9 @@ export function FeaturedProperties() {
 
                 <CardFooter>
                   <Button asChild className="w-full">
-                    <Link href={`/imoveis/${property.id}`}>Ver detalhes</Link>
+                    <Link href={`/imoveis/${property.id}`}>
+                      Ver detalhes
+                    </Link>
                   </Button>
                 </CardFooter>
               </Card>
@@ -183,8 +193,8 @@ export function FeaturedProperties() {
           ))}
         </CarouselContent>
 
-        <CarouselPrevious className="left-2 lg:-left-12" />
-        <CarouselNext className="right-2 lg:-right-12" />
+        <CarouselPrevious className="left-0" />
+        <CarouselNext className="right-0" />
       </Carousel>
     </section>
   );

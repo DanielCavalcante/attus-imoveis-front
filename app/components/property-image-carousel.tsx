@@ -51,7 +51,8 @@ export function PropertyImageCarousel({
         <CarouselContent>
           {images.map((img, i) => (
             <CarouselItem key={img}>
-              <div className="relative h-52 w-full">
+             
+              <div className="relative h-44 sm:h-48 md:h-52 w-full">
                 <Image
                   src={img}
                   alt={alt}
@@ -66,7 +67,6 @@ export function PropertyImageCarousel({
         </CarouselContent>
       </Carousel>
 
-      
       {images.length > 1 && (
         <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-2">
           {images.map((img, i) => (
