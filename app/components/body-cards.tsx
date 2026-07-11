@@ -123,14 +123,6 @@ export function FeaturedProperties() {
         </div>
       </div>
 
-      {/* Respiro interno consistente em TODOS os breakpoints — não só
-          até o lg. Empurrar a seta pra fora do container com valores
-          negativos (-left-12) depende de sobrar margem entre o
-          container e a borda da tela, e isso falha exatamente nas
-          larguras onde o container bate no max-width mas a tela
-          ainda não é muito maior que ele (ex: 1559px com container
-          de 1536px). Com padding interno fixo, a seta sempre tem
-          espaço garantido, não importa a largura da tela. */}
       <Carousel
         opts={{
           align: "start",
