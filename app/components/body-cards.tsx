@@ -113,7 +113,7 @@ const properties = [
 export function FeaturedProperties() {
   return (
     <section className="container py-16 mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 px-8 sm:px-10 lg:px-12">
         <div className="w-full text-center lg:text-left">
           <h2 className="text-3xl font-bold">Imóveis em destaque</h2>
 
@@ -188,6 +188,6 @@ export function FeaturedProperties() {
         <CarouselPrevious className="left-0" />
         <CarouselNext className="right-0" />
       </Carousel>
-    </section>
+    </section> 
   );
 }
