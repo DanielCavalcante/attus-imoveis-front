@@ -13,7 +13,6 @@ export const searchPayloadSchema = z.object({
 
 export type PropertySearchPayload = z.infer<typeof searchPayloadSchema>;
 
-
 export function buildPropertySearchUrl(payload: PropertySearchPayload): string {
   const params = new URLSearchParams();
   params.set("purpose", payload.purpose);

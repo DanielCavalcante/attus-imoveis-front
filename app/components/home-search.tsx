@@ -19,6 +19,7 @@ import {
   usePropertySearch,
   PROPERTY_OPTIONS,
   TYPE_PROPERTY_OPTIONS,
+  type PropertyPurpose,
 } from "@/app/hooks/use-property-search";
 
 export default function SearchHero() {
@@ -28,21 +29,18 @@ export default function SearchHero() {
     propertySelected,
     setPropertySelected,
     propertyLabel,
-
     typeOpen,
     setTypeOpen,
     typeSelected,
     toggleTypeProperty,
     typeLabel,
-
     isSearching,
     searchError,
     handleSearch,
   } = usePropertySearch();
 
   return (
-    <section className="relative flex min-h-screen w-full items-center bg-transparent">
-      {/* Background image */}
+    <section className="relative flex min-h-screen w-full items-center justify-center bg-transparent px-4 lg:justify-start lg:px-24">
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <Image
           src="/images/register.jpg"
@@ -54,8 +52,7 @@ export default function SearchHero() {
         />
       </div>
 
-      {/* Search card */}
-      <div className="relative z-50 mx-4 w-full max-w-md sm:ml-12 lg:ml-24">
+      <div className="relative z-50 w-full max-w-md">
         <Card className="rounded-2xl p-6 shadow-xl sm:p-8">
           <CardContent className="space-y-6 p-0">
             <h1 className="text-3xl font-extrabold leading-tight text-gray-900 sm:text-4xl">
@@ -67,7 +64,7 @@ export default function SearchHero() {
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    aria-haspopup="listbox"
+                    aria-haspopup="dialog"
                     aria-expanded={propertyOpen}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 text-left transition-colors hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
@@ -94,8 +91,8 @@ export default function SearchHero() {
                 >
                   <RadioGroup
                     value={propertySelected}
-                    onValueChange={(value: string) => {
-                      setPropertySelected(value);
+                    onValueChange={(value) => {
+                      setPropertySelected(value as PropertyPurpose);
                       setPropertyOpen(false);
                     }}
                   >
@@ -116,7 +113,7 @@ export default function SearchHero() {
                           />
                           <span
                             className={cn(
-                              "text-sm transition-colors group-hover:text-[#FFFFFF]",
+                              "text-sm transition-colors group-hover:text-white",
                               checked
                                 ? "font-semibold text-gray-900"
                                 : "text-gray-700",
@@ -135,7 +132,7 @@ export default function SearchHero() {
                 <PopoverTrigger asChild>
                   <button
                     type="button"
-                    aria-haspopup="listbox"
+                    aria-haspopup="dialog"
                     aria-expanded={typeOpen}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 text-left transition-colors hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
@@ -182,7 +179,7 @@ export default function SearchHero() {
                           />
                           <span
                             className={cn(
-                              "text-sm transition-colors group-hover:text-[#FFFFFF]",
+                              "text-sm transition-colors group-hover:text-white",
                               checked
                                 ? "font-semibold text-gray-900"
                                 : "text-gray-700",

@@ -20,19 +20,25 @@ export const TYPE_PROPERTY_OPTIONS = [
   { id: "STUDIOS", label: "Estúdios" },
 ] as const;
 
+export type PropertyPurpose = (typeof PROPERTY_OPTIONS)[number]["value"];
+export type PropertyType = (typeof TYPE_PROPERTY_OPTIONS)[number]["id"];
+
 export function usePropertySearch() {
   const router = useRouter();
 
   const [propertyOpen, setPropertyOpen] = useState(false);
-  const [propertySelected, setPropertySelected] = useState<string>("RENT");
+  const [propertySelected, setPropertySelected] =
+    useState<PropertyPurpose>("RENT");
 
   const [typeOpen, setTypeOpen] = useState(false);
-  const [typeSelected, setTypeSelected] = useState<string[]>(["APARTMENT"]);
+  const [typeSelected, setTypeSelected] = useState<PropertyType[]>([
+    "APARTMENT",
+  ]);
 
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  function toggleTypeProperty(id: string) {
+  function toggleTypeProperty(id: PropertyType) {
     setTypeSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
@@ -46,7 +52,8 @@ export function usePropertySearch() {
     typeSelected.length === 0
       ? "Selecione"
       : typeSelected.length === 1
-        ? TYPE_PROPERTY_OPTIONS.find((opt) => opt.id === typeSelected[0])?.label
+        ? (TYPE_PROPERTY_OPTIONS.find((opt) => opt.id === typeSelected[0])
+            ?.label ?? "Selecione")
         : `${typeSelected.length} tipos selecionados`;
 
   function handleSearch() {
@@ -73,6 +80,7 @@ export function usePropertySearch() {
     } catch (error) {
       console.error("Erro ao montar a busca de imóveis:", error);
       setSearchError("Não foi possível iniciar a busca. Tente novamente.");
+    } finally {
       setIsSearching(false);
     }
   }
@@ -83,13 +91,11 @@ export function usePropertySearch() {
     propertySelected,
     setPropertySelected,
     propertyLabel,
-
     typeOpen,
     setTypeOpen,
     typeSelected,
     toggleTypeProperty,
     typeLabel,
-
     isSearching,
     searchError,
     handleSearch,
