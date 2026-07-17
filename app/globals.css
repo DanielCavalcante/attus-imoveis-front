@@ -102,6 +102,7 @@
   --color-brand-dark: #5b21b6;
   --color-brand-light: #a78bfa;
   --color-accent-brand: #f97316;
+  --color-brand-white: #ffffffff;
 }
 
 @layer base {
@@ -113,7 +114,9 @@
     @apply bg-background text-foreground;
   }
 }
-
+html {
+  overflow-y: scroll;
+}
 html,
 body {
   width: 100%;
