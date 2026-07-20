@@ -1,9 +1,9 @@
-import { AnuncioFormProvider } from "./_context/anuncio-form-context";
+import { AnnouncementFormProvider } from "./_context/announcement-form-context";
 
 export default function AnuncieLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AnuncioFormProvider>{children}</AnuncioFormProvider>;
+  return <AnnouncementFormProvider>{children}</AnnouncementFormProvider>;
 }

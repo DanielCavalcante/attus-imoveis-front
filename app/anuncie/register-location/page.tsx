@@ -11,40 +11,47 @@ import { ChevronRight, ArrowLeft } from "lucide-react";
 
 export default function RegisterLocation() {
   const [formData, setFormData] = useState({
-    cep: "",
-    rua: "",
-    numero: "",
-    cidade: "",
-    estado: "",
+    zipCode: "",
+    street: "",
+    number: "",
+    city: "",
+    state: "",
   });
+
   const router = useRouter();
 
-  const handleSalvarESair = () => {
+  const handleSaveAndExit = () => {
     router.push("/");
   };
 
   useEffect(() => {
     const fetchAddress = async () => {
-      const cleanCep = formData.cep.replace(/\D/g, "");
-      if (cleanCep.length === 8) {
+      const cleanZipCode = formData.zipCode.replace(/\D/g, "");
+
+      if (cleanZipCode.length === 8) {
         try {
-          const res = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
-          const data = await res.json();
-          if (!data.erro) {
-            setFormData((prev) => ({
-              ...prev,
-              rua: data.logradouro,
-              cidade: data.localidade,
-              estado: data.uf,
+          const response = await fetch(
+            `https://viacep.com.br/ws/${cleanZipCode}/json/`,
+          );
+
+          const addressData = await response.json();
+
+          if (!addressData.erro) {
+            setFormData((previousData) => ({
+              ...previousData,
+              street: addressData.logradouro,
+              city: addressData.localidade,
+              state: addressData.uf,
             }));
           }
         } catch (error) {
-          console.error("Erro ao buscar CEP:", error);
+          console.error("Error fetching ZIP Code:", error);
         }
       }
     };
+
     fetchAddress();
-  }, [formData.cep]);
+  }, [formData.zipCode]);
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
@@ -59,14 +66,17 @@ export default function RegisterLocation() {
               className="object-cover"
             />
           </div>
+
           <h1 className="text-4xl font-bold leading-tight tracking-tight max-w-sm">
             Onde fica seu imóvel?
           </h1>
         </div>
+
         <div className="flex items-center gap-6 text-slate-500 text-sm">
           <button className="flex items-center gap-2 hover:text-white transition-colors">
             Precisa de ajuda?
           </button>
+
           <span>© 2026 Encontrei</span>
         </div>
       </aside>
@@ -79,14 +89,16 @@ export default function RegisterLocation() {
                 <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
                   Etapa 3 de 4
                 </span>
+
                 <div className="h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden">
                   <div className="h-full w-[50%] bg-brand rounded-full"></div>
                 </div>
               </div>
+
               <Button
                 variant="outline"
                 className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50"
-                 onClick={handleSalvarESair}
+                onClick={handleSaveAndExit}
               >
                 Salvar e Sair
               </Button>
@@ -99,6 +111,7 @@ export default function RegisterLocation() {
                 <h2 className="text-3xl font-semibold tracking-tight">
                   Endereço
                 </h2>
+
                 <p className="text-slate-600 mt-1.5">
                   Informe os dados de localização para facilitar a busca.
                 </p>
@@ -107,19 +120,25 @@ export default function RegisterLocation() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>CEP</Label>
+
                   <Input
-                    value={formData.cep}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cep: e.target.value })
+                    value={formData.zipCode}
+                    onChange={(event) =>
+                      setFormData({
+                        ...formData,
+                        zipCode: event.target.value,
+                      })
                     }
                     placeholder="01010-000"
                     className="border-slate-200 h-12"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label>Rua</Label>
+
                   <Input
-                    value={formData.rua}
+                    value={formData.street}
                     readOnly
                     className="border-slate-200 h-12 bg-slate-50"
                   />
@@ -129,20 +148,35 @@ export default function RegisterLocation() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Número</Label>
-                  <Input placeholder="123" className="border-slate-200 h-12" />
+
+                  <Input
+                    value={formData.number}
+                    onChange={(event) =>
+                      setFormData({
+                        ...formData,
+                        number: event.target.value,
+                      })
+                    }
+                    placeholder="123"
+                    className="border-slate-200 h-12"
+                  />
                 </div>
+
                 <div className="space-y-2">
                   <Label>Cidade</Label>
+
                   <Input
-                    value={formData.cidade}
+                    value={formData.city}
                     readOnly
                     className="border-slate-200 h-12 bg-slate-50"
                   />
                 </div>
+
                 <div className="space-y-2">
                   <Label>Estado</Label>
+
                   <Input
-                    value={formData.estado}
+                    value={formData.state}
                     readOnly
                     className="border-slate-200 h-12 bg-slate-50"
                   />
@@ -158,15 +192,18 @@ export default function RegisterLocation() {
               className="gap-2 text-slate-600 hover:bg-brand-white border border-slate-700 px-8 h-12 rounded-xl"
             >
               <Link href="/anuncie/register-info-hero">
-                <ArrowLeft className="w-5 h-5" /> Voltar
+                <ArrowLeft className="w-5 h-5" />
+                Voltar
               </Link>
             </Button>
+
             <Button
               asChild
               className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light"
             >
               <Link href="/anuncie/register-image">
-                Continuar <ChevronRight className="w-4 h-4" />
+                Continuar
+                <ChevronRight className="w-4 h-4" />
               </Link>
             </Button>
           </footer>

@@ -31,7 +31,13 @@ import {
   LandPlot,
 } from "lucide-react";
 import Link from "next/link";
-import { useAnuncioForm, PropertyType } from "../_context/anuncio-form-context";
+import {
+  useAnnouncementForm,
+  PropertyType,
+  LocalFormData,
+  
+ 
+} from "../_context/announcement-form-context";
 
 const propertyTypes: {
   id: PropertyType;
@@ -60,30 +66,42 @@ const propertyTypes: {
   },
 ];
 
-type CounterField = "quartos" | "banheiros" | "suites" | "vagasGaragem";
+type CounterField = "bedrooms" | "bathrooms" | "suites" | "garageSpaces";
 
 export default function CadastroImovelPage() {
-  const { formData, setFormData } = useAnuncioForm();
+  const { formData, setFormData } = useAnnouncementForm();
   const router = useRouter();
+
   const handleSelectPropertyType = (id: PropertyType) => {
-    setFormData((prev) => ({ ...prev, tipoImovel: id }));
+    setFormData((prev: LocalFormData) => ({
+      ...prev,
+      propertyType: id,
+    }));
   };
 
   const handleCounterChange = (field: CounterField, delta: number) => {
-    setFormData((prev) => ({
+    setFormData((prev: LocalFormData) => ({
       ...prev,
       [field]: Math.max(0, prev[field] + delta),
     }));
   };
 
-  const handleAreaChange = (field: "areaUtil" | "areaTotal", value: string) => {
+  const handleAreaChange = (
+    field: "usableArea" | "totalArea",
+    value: string,
+  ) => {
     const onlyNumbers = value.replace(/\D/g, "");
-    setFormData((prev) => ({ ...prev, [field]: onlyNumbers }));
+    setFormData((prev: LocalFormData) => ({
+      ...prev,
+      [field]: onlyNumbers,
+    }));
   };
+
   const handleSalvarESair = () => {
     router.push("/");
   };
-  const areaPreenchida = formData.areaUtil.length > 0;
+
+  const areaPreenchida = formData.usableArea.length > 0;
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
@@ -146,11 +164,12 @@ export default function CadastroImovelPage() {
                   </div>
                   <div className="w-[160px] h-11 shrink-0">
                     <Select
-                      value={formData.tipoTransacao}
+                      value={formData.transactionType}
                       onValueChange={(val) =>
-                        setFormData((prev) => ({
+                        setFormData((prev: LocalFormData) => ({
                           ...prev,
-                          tipoTransacao: val as "vender" | "alugar",
+                          transactionType:
+                            val as LocalFormData["transactionType"],
                         }))
                       }
                     >
@@ -163,8 +182,8 @@ export default function CadastroImovelPage() {
                         sideOffset={6}
                         className="z-50"
                       >
-                        <SelectItem value="vender">Vender</SelectItem>
-                        <SelectItem value="alugar">Alugar</SelectItem>
+                        <SelectItem value="sell">Vender</SelectItem>
+                        <SelectItem value="rent">Alugar</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -172,7 +191,7 @@ export default function CadastroImovelPage() {
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                   {propertyTypes.map((type) => {
-                    const isActive = formData.tipoImovel === type.id;
+                    const isActive = formData.propertyType === type.id;
                     return (
                       <button
                         key={type.id}
@@ -205,7 +224,7 @@ export default function CadastroImovelPage() {
                 </div>
               </section>
 
-              {formData.tipoImovel && (
+              {formData.propertyType && (
                 <>
                   <section className="space-y-6 pt-8 border-t border-slate-100">
                     <div>
@@ -220,42 +239,42 @@ export default function CadastroImovelPage() {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 pb-6 border-b border-slate-100">
-                      <CounterField
+                      <CounterFieldItem
                         label="Quartos"
                         icon={<Bed className="w-5 h-5" />}
                         required
-                        value={formData.quartos}
-                        onDecrease={() => handleCounterChange("quartos", -1)}
-                        onIncrease={() => handleCounterChange("quartos", 1)}
+                        value={formData.bedrooms}
+                        onDecrease={() => handleCounterChange("bedrooms", -1)}
+                        onIncrease={() => handleCounterChange("bedrooms", 1)}
                       />
-                      <CounterField
+                      <CounterFieldItem
                         label="Banheiros"
                         icon={<ShowerHead className="w-5 h-5" />}
-                        value={formData.banheiros}
-                        onDecrease={() => handleCounterChange("banheiros", -1)}
-                        onIncrease={() => handleCounterChange("banheiros", 1)}
+                        value={formData.bathrooms}
+                        onDecrease={() => handleCounterChange("bathrooms", -1)}
+                        onIncrease={() => handleCounterChange("bathrooms", 1)}
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
-                      <CounterField
+                      <CounterFieldItem
                         label="Suítes"
                         icon={<Bed className="w-5 h-5" />}
                         info
-                        disabled={formData.quartos === 0}
+                        disabled={formData.bedrooms === 0}
                         value={formData.suites}
                         onDecrease={() => handleCounterChange("suites", -1)}
                         onIncrease={() => handleCounterChange("suites", 1)}
                       />
-                      <CounterField
+                      <CounterFieldItem
                         label="Vagas de garagem"
                         icon={<Car className="w-5 h-5" />}
-                        value={formData.vagasGaragem}
+                        value={formData.garageSpaces}
                         onDecrease={() =>
-                          handleCounterChange("vagasGaragem", -1)
+                          handleCounterChange("garageSpaces", -1)
                         }
                         onIncrease={() =>
-                          handleCounterChange("vagasGaragem", 1)
+                          handleCounterChange("garageSpaces", 1)
                         }
                       />
                     </div>
@@ -290,9 +309,9 @@ export default function CadastroImovelPage() {
                           <input
                             type="text"
                             inputMode="numeric"
-                            value={formData.areaUtil}
+                            value={formData.usableArea}
                             onChange={(e) =>
-                              handleAreaChange("areaUtil", e.target.value)
+                              handleAreaChange("usableArea", e.target.value)
                             }
                             className="w-full h-12 rounded-lg border border-slate-300 px-4 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
                           />
@@ -311,9 +330,9 @@ export default function CadastroImovelPage() {
                           <input
                             type="text"
                             inputMode="numeric"
-                            value={formData.areaTotal}
+                            value={formData.totalArea}
                             onChange={(e) =>
-                              handleAreaChange("areaTotal", e.target.value)
+                              handleAreaChange("totalArea", e.target.value)
                             }
                             className="w-full h-12 rounded-lg border border-slate-300 px-4 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
                           />
@@ -354,7 +373,7 @@ export default function CadastroImovelPage() {
   );
 }
 
-function CounterField({
+function CounterFieldItem({
   label,
   icon,
   value,

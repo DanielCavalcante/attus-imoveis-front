@@ -7,12 +7,13 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronRight, ArrowLeft, Banknote, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useAnuncioForm } from "../_context/anuncio-form-context";
+import { useAnnouncementForm } from "../_context/announcement-form-context";
 
-export default function DescricaoImovelPage() {
-  const { formData, setFormData } = useAnuncioForm();
-  const [valorTocado, setValorTocado] = useState(false);
+export default function PropertyDescriptionPage() {
+  const { formData, setFormData } = useAnnouncementForm();
+  const [isPriceTouched, setIsPriceTouched] = useState(false);
   const router = useRouter();
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -20,27 +21,27 @@ export default function DescricaoImovelPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleValorChange = (value: string) => {
+  const handlePriceChange = (value: string) => {
     const onlyNumbers = value.replace(/\D/g, "");
-    setFormData((prev) => ({ ...prev, valor: onlyNumbers }));
+    setFormData((prev) => ({ ...prev, price: onlyNumbers }));
   };
 
-  const valorFormatado = formData.valor
-    ? Number(formData.valor).toLocaleString("pt-BR")
+  const formattedPrice = formData.price
+    ? Number(formData.price).toLocaleString("pt-BR")
     : "0";
 
-  const isAluguel = formData.tipoTransacao === "alugar";
+  const isRental = formData.transactionType === "rent";
 
-  const tituloSecao = isAluguel ? "Valor de aluguel" : "Valor de venda";
-  const labelCampo = isAluguel ? "Valor do aluguel" : "Valor da venda";
-  const mensagemErro = isAluguel
+  const sectionTitle = isRental ? "Valor de aluguel" : "Valor de venda";
+  const fieldLabel = isRental ? "Valor do aluguel" : "Valor da venda";
+  const errorMessage = isRental
     ? "Preencha o valor do aluguel"
     : "Preencha o valor da venda";
 
-  const valorInvalido =
-    valorTocado && (!formData.valor || Number(formData.valor) === 0);
+  const isPriceInvalid =
+    isPriceTouched && (!formData.price || Number(formData.price) === 0);
 
-  const handleSalvarESair = () => {
+  const handleSaveAndExit = () => {
     router.push("/");
   };
 
@@ -86,7 +87,7 @@ export default function DescricaoImovelPage() {
               <Button
                 variant="outline"
                 className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50"
-                onClick={handleSalvarESair}
+                onClick={handleSaveAndExit}
               >
                 Salvar e sair
               </Button>
@@ -98,21 +99,21 @@ export default function DescricaoImovelPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label
-                    htmlFor="titulo"
+                    htmlFor="title"
                     className="text-sm font-medium text-slate-900"
                   >
                     Título <span className="text-red-500">*</span>
                   </label>
                   <span className="text-sm text-slate-500">
-                    {formData.titulo.length}/100
+                    {formData.title?.length || 0}/100
                   </span>
                 </div>
                 <input
-                  id="titulo"
-                  name="titulo"
+                  id="title"
+                  name="title"
                   type="text"
                   maxLength={100}
-                  value={formData.titulo}
+                  value={formData.title || ""}
                   onChange={handleInputChange}
                   className="w-full h-12 rounded-lg border border-slate-300 px-4 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
                 />
@@ -121,20 +122,20 @@ export default function DescricaoImovelPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <label
-                    htmlFor="descricao"
+                    htmlFor="description"
                     className="text-sm font-medium text-slate-900"
                   >
                     Descrição <span className="text-red-500">*</span>
                   </label>
                   <span className="text-sm text-slate-500">
-                    {formData.descricao.length}/3000
+                    {formData.description?.length || 0}/3000
                   </span>
                 </div>
                 <textarea
-                  id="descricao"
-                  name="descricao"
+                  id="description"
+                  name="description"
                   maxLength={3000}
-                  value={formData.descricao}
+                  value={formData.description || ""}
                   onChange={handleInputChange}
                   rows={10}
                   className="w-full rounded-lg border border-slate-300 px-4 py-3 text-base resize-y focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
@@ -145,7 +146,7 @@ export default function DescricaoImovelPage() {
                 <div>
                   <h3 className="flex items-center gap-2 text-xl font-semibold">
                     <Banknote className="w-5 h-5" />
-                    {tituloSecao}
+                    {sectionTitle}
                   </h3>
                   <p className="text-slate-600 mt-1.5">
                     Defina o preço de anúncio do imóvel. Você pode alterá-lo
@@ -155,38 +156,38 @@ export default function DescricaoImovelPage() {
 
                 <div className="space-y-1.5 max-w-sm">
                   <label
-                    htmlFor="valor"
+                    htmlFor="price"
                     className={cn(
                       "text-sm font-medium",
-                      valorInvalido ? "text-orange-600" : "text-slate-900",
+                      isPriceInvalid ? "text-orange-600" : "text-slate-900",
                     )}
                   >
-                    {labelCampo} <span className="text-red-500">*</span>
+                    {fieldLabel} <span className="text-red-500">*</span>
                   </label>
                   <div
                     className={cn(
                       "flex items-center h-12 rounded-lg border px-4 gap-2 focus-within:ring-2",
-                      valorInvalido
+                      isPriceInvalid
                         ? "border-orange-500 focus-within:ring-orange-200"
                         : "border-slate-300 focus-within:ring-brand/40 focus-within:border-brand",
                     )}
                   >
                     <span className="font-semibold text-slate-700">R$</span>
                     <input
-                      id="valor"
-                      name="valor"
+                      id="price"
+                      name="price"
                       type="text"
                       inputMode="numeric"
-                      value={valorFormatado}
-                      onChange={(e) => handleValorChange(e.target.value)}
-                      onBlur={() => setValorTocado(true)}
+                      value={formattedPrice}
+                      onChange={(e) => handlePriceChange(e.target.value)}
+                      onBlur={() => setIsPriceTouched(true)}
                       className="flex-1 bg-transparent outline-none text-base text-slate-700"
                     />
                   </div>
-                  {valorInvalido && (
+                  {isPriceInvalid && (
                     <p className="flex items-center gap-1.5 text-sm text-orange-600">
                       <AlertCircle className="w-3.5 h-3.5" />
-                      {mensagemErro}
+                      {errorMessage}
                     </p>
                   )}
                 </div>
