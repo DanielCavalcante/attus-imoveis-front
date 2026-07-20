@@ -101,7 +101,7 @@ export default function CadastroImovelPage() {
     router.push("/");
   };
 
-  const areaPreenchida = formData.usableArea.length > 0;
+  const filledArea = formData.usableArea.length > 0;
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
@@ -292,7 +292,7 @@ export default function CadastroImovelPage() {
                           encontrar seu imóvel.
                         </p>
                       </div>
-                      {areaPreenchida && (
+                      {filledArea && (
                         <span className="shrink-0 w-6 h-6 rounded-full border-2 border-emerald-500 flex items-center justify-center">
                           <Check className="w-3.5 h-3.5 text-emerald-500" />
                         </span>
