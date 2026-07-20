@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -15,34 +13,77 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { ChevronRight, ArrowLeft } from "lucide-react";
+import {
+  ChevronRight,
+  ArrowLeft,
+  Minus,
+  Plus,
+  SlidersHorizontal,
+  Ruler,
+  Bed,
+  ShowerHead,
+  Car,
+  Info,
+  Check,
+  Building2,
+  Home,
+  Building,
+  LandPlot,
+} from "lucide-react";
 import Link from "next/link";
+import { useAnuncioForm, PropertyType } from "../_context/anuncio-form-context";
 
-const propertyTypes = [
-  { id: "apartamento", name: "Apartamento", icon: "🏢" },
-  { id: "casas-sobrados", name: "Casas &\nSobrados", icon: "🏠" },
-  { id: "condominio", name: "Casa em\ncondomínio", icon: "🏘️" },
-  { id: "kitnets-studios", name: "Kitnets &\nStúdios", icon: "🏢" },
+const propertyTypes: {
+  id: PropertyType;
+  name: string;
+  icon: React.ReactNode;
+}[] = [
+  {
+    id: "APARTMENT",
+    name: "Apartamento",
+    icon: <Building2 className="w-7 h-7" strokeWidth={1.5} />,
+  },
+  {
+    id: "HOUSE",
+    name: "Casas &\nSobrados",
+    icon: <Home className="w-7 h-7" strokeWidth={1.5} />,
+  },
+  {
+    id: "CONDOMINIUM",
+    name: "Casa em\ncondomínio",
+    icon: <Building className="w-7 h-7" strokeWidth={1.5} />,
+  },
+  {
+    id: "LAND",
+    name: "Terreno",
+    icon: <LandPlot className="w-7 h-7" strokeWidth={1.5} />,
+  },
 ];
 
+type CounterField = "quartos" | "banheiros" | "suites" | "vagasGaragem";
+
 export default function CadastroImovelPage() {
-  const [formData, setFormData] = useState({
-    titulo: "",
-    descricao: "",
-    tipoTransacao: "",
-    tipoImovel: null as string | null,
-  });
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectPropertyType = (id: string) => {
+  const { formData, setFormData } = useAnuncioForm();
+  const router = useRouter();
+  const handleSelectPropertyType = (id: PropertyType) => {
     setFormData((prev) => ({ ...prev, tipoImovel: id }));
   };
+
+  const handleCounterChange = (field: CounterField, delta: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: Math.max(0, prev[field] + delta),
+    }));
+  };
+
+  const handleAreaChange = (field: "areaUtil" | "areaTotal", value: string) => {
+    const onlyNumbers = value.replace(/\D/g, "");
+    setFormData((prev) => ({ ...prev, [field]: onlyNumbers }));
+  };
+  const handleSalvarESair = () => {
+    router.push("/");
+  };
+  const areaPreenchida = formData.areaUtil.length > 0;
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
@@ -70,13 +111,13 @@ export default function CadastroImovelPage() {
         </div>
       </aside>
 
-      <main className="flex-1 bg-brand-white p-10 md:p-16 flex flex-col">
-        <div className="max-w-6xl w-full mx-auto">
-          <header className="mb-12">
+      <main className="flex-1 bg-brand-white p-10 md:p-16 flex flex-col min-h-screen">
+        <div className="max-w-6xl w-full mx-auto flex flex-col flex-1 min-h-0">
+          <header className="mb-12 shrink-0">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
-                  Etapa 1 de 3
+                  Etapa 1 de 4
                 </span>
                 <div className="h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden">
                   <div className="h-full w-[25%] bg-brand rounded-full"></div>
@@ -86,111 +127,209 @@ export default function CadastroImovelPage() {
               <Button
                 variant="outline"
                 className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50"
+                onClick={handleSalvarESair}
               >
                 Salvar e sair
               </Button>
             </div>
           </header>
 
-          <div className="max-w-3xl mx-auto space-y-12 flex-grow">
-            <section className="space-y-6">
-              <div>
-                <h2 className="text-3xl font-semibold tracking-tight">
-                  Informações principais
-                </h2>
-                <p className="text-slate-600 mt-1.5">
-                  Dados principais do imóvel.
-                </p>
-              </div>
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <Label htmlFor="titulo">Título do anúncio</Label>
-                  <Input
-                    id="titulo"
-                    name="titulo"
-                    placeholder="Ex: Apartamento 3 quartos no centro"
-                    value={formData.titulo}
-                    onChange={handleInputChange}
-                    className="border-slate-200 h-12"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="descricao">Descrição</Label>
-                  <Textarea
-                    id="descricao"
-                    name="descricao"
-                    placeholder="Descreva os detalhes do imóvel..."
-                    rows={7}
-                    value={formData.descricao}
-                    onChange={handleInputChange}
-                    className="border-slate-200 p-4"
-                  />
-                </div>
-              </div>
-            </section>
-
-            <section className="space-y-8">
-              <div className="flex items-start justify-between gap-6 ">
-                <div>
-                  <h3 className="text-xl font-semibold">Tipo de imóvel</h3>
-                  <p className="text-slate-600 mt-1.5">
-                    Escolha a finalidade do anúncio e a categoria.
-                  </p>
-                </div>
-                <div className="w-[160px] h-11 shrink-0">
-                  <Select
-                    value={formData.tipoTransacao}
-                    onValueChange={(val) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        tipoTransacao: val,
-                      }))
-                    }
-                  >
-                    <SelectTrigger       className=" w-full  h-full border-slate-700 "
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="max-w-3xl mx-auto space-y-12 pb-4">
+              <section className="space-y-8">
+                <div className="flex items-start justify-between gap-6 ">
+                  <div>
+                    <h3 className="text-xl font-semibold">Tipo de imóvel</h3>
+                    <p className="text-slate-600 mt-1.5">
+                      Escolha a finalidade do anúncio e a categoria.
+                    </p>
+                  </div>
+                  <div className="w-[160px] h-11 shrink-0">
+                    <Select
+                      value={formData.tipoTransacao}
+                      onValueChange={(val) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          tipoTransacao: val as "vender" | "alugar",
+                        }))
+                      }
                     >
-                      <SelectValue placeholder="Finalidade" />
-                    </SelectTrigger>
+                      <SelectTrigger className=" w-full  h-full border-slate-700 ">
+                        <SelectValue placeholder="Finalidade" />
+                      </SelectTrigger>
 
-                    <SelectContent
-                      position="popper"
-                      sideOffset={6}
-                      className="z-50"
-                    >
-                      <SelectItem value="vender">Vender</SelectItem>
-                      <SelectItem value="alugar">Alugar</SelectItem>
-                    </SelectContent>
-                  </Select>
+                      <SelectContent
+                        position="popper"
+                        sideOffset={6}
+                        className="z-50"
+                      >
+                        <SelectItem value="vender">Vender</SelectItem>
+                        <SelectItem value="alugar">Alugar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-                {propertyTypes.map((type) => (
-                  <button
-                    key={type.id}
-                    onClick={() => handleSelectPropertyType(type.id)}
-                    className="focus:outline-none"
-                  >
-                    <Card
-                      className={cn(
-                        "p-5 flex flex-col items-center justify-center text-center gap-3 h-36 border-brand-white hover:border-brand-light",
-                        formData.tipoImovel === type.id
-                          ? "border-brand bg-brand-white"
-                          : "",
-                      )}
-                    >
-                      <span className="text-3xl">{type.icon}</span>
-                      <p className="text-sm font-medium whitespace-pre-line">
-                        {type.name}
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {propertyTypes.map((type) => {
+                    const isActive = formData.tipoImovel === type.id;
+                    return (
+                      <button
+                        key={type.id}
+                        type="button"
+                        onClick={() => handleSelectPropertyType(type.id)}
+                        className="focus:outline-none"
+                      >
+                        <Card
+                          className={cn(
+                            "p-5 flex flex-col items-center justify-center text-center gap-3 h-36 border-2 border-brand-white hover:border-brand-light transition-colors",
+                            isActive &&
+                              "border-brand bg-brand-white ring-2 ring-brand/40",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "transition-colors",
+                              isActive ? "text-brand" : "text-slate-700",
+                            )}
+                          >
+                            {type.icon}
+                          </span>
+                          <p className="text-sm font-medium whitespace-pre-line">
+                            {type.name}
+                          </p>
+                        </Card>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+
+              {formData.tipoImovel && (
+                <>
+                  <section className="space-y-6 pt-8 border-t border-slate-100">
+                    <div>
+                      <h3 className="flex items-center gap-2 text-xl font-semibold">
+                        <SlidersHorizontal className="w-5 h-5" />
+                        Detalhes do imóvel
+                      </h3>
+                      <p className="text-slate-600 mt-1.5">
+                        Informe a quantidade de cada ambiente. Esses números
+                        aparecem nos filtros de busca.
                       </p>
-                    </Card>
-                  </button>
-                ))}
-              </div>
-            </section>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 pb-6 border-b border-slate-100">
+                      <CounterField
+                        label="Quartos"
+                        icon={<Bed className="w-5 h-5" />}
+                        required
+                        value={formData.quartos}
+                        onDecrease={() => handleCounterChange("quartos", -1)}
+                        onIncrease={() => handleCounterChange("quartos", 1)}
+                      />
+                      <CounterField
+                        label="Banheiros"
+                        icon={<ShowerHead className="w-5 h-5" />}
+                        value={formData.banheiros}
+                        onDecrease={() => handleCounterChange("banheiros", -1)}
+                        onIncrease={() => handleCounterChange("banheiros", 1)}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
+                      <CounterField
+                        label="Suítes"
+                        icon={<Bed className="w-5 h-5" />}
+                        info
+                        disabled={formData.quartos === 0}
+                        value={formData.suites}
+                        onDecrease={() => handleCounterChange("suites", -1)}
+                        onIncrease={() => handleCounterChange("suites", 1)}
+                      />
+                      <CounterField
+                        label="Vagas de garagem"
+                        icon={<Car className="w-5 h-5" />}
+                        value={formData.vagasGaragem}
+                        onDecrease={() =>
+                          handleCounterChange("vagasGaragem", -1)
+                        }
+                        onIncrease={() =>
+                          handleCounterChange("vagasGaragem", 1)
+                        }
+                      />
+                    </div>
+                  </section>
+
+                  <section className="space-y-6 pt-8 border-t border-slate-100">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="flex items-center gap-2 text-xl font-semibold">
+                          <Ruler className="w-5 h-5" />
+                          Áreas
+                        </h3>
+                        <p className="text-slate-600 mt-1.5">
+                          As medidas em metros quadrados ajudam o comprador a
+                          encontrar seu imóvel.
+                        </p>
+                      </div>
+                      {areaPreenchida && (
+                        <span className="shrink-0 w-6 h-6 rounded-full border-2 border-emerald-500 flex items-center justify-center">
+                          <Check className="w-3.5 h-3.5 text-emerald-500" />
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-1.5 text-sm font-medium text-slate-900">
+                          Área útil <span className="text-red-500">*</span>
+                          <Info className="w-3.5 h-3.5 text-slate-400" />
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={formData.areaUtil}
+                            onChange={(e) =>
+                              handleAreaChange("areaUtil", e.target.value)
+                            }
+                            className="w-full h-12 rounded-lg border border-slate-300 px-4 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
+                            m²
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="flex items-center gap-1.5 text-sm font-medium text-slate-900">
+                          Área total
+                          <Info className="w-3.5 h-3.5 text-slate-400" />
+                        </label>
+                        <div className="relative">
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={formData.areaTotal}
+                            onChange={(e) =>
+                              handleAreaChange("areaTotal", e.target.value)
+                            }
+                            className="w-full h-12 rounded-lg border border-slate-300 px-4 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+                          />
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
+                            m²
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </>
+              )}
+            </div>
           </div>
 
-          <footer className="mt-16 pt-8 border-t border-brand-white flex justify-between items-center">
+          <footer className="mt-8 pt-8 border-t border-brand-white flex justify-between items-center shrink-0">
             <Button
               asChild
               variant="ghost"
@@ -200,14 +339,84 @@ export default function CadastroImovelPage() {
                 <ArrowLeft className="w-5 h-5" /> Voltar
               </Link>
             </Button>
-            <Button asChild className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light">
-            <Link href="/anuncie/register-location">
-            Continuar <ChevronRight className="w-4 h-4" />
-            </Link>
-          </Button>
+            <Button
+              asChild
+              className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light"
+            >
+              <Link href="/anuncie/register-info-hero">
+                Continuar <ChevronRight className="w-4 h-4" />
+              </Link>
+            </Button>
           </footer>
         </div>
       </main>
+    </div>
+  );
+}
+
+function CounterField({
+  label,
+  icon,
+  value,
+  onDecrease,
+  onIncrease,
+  required,
+  info,
+  disabled,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  value: number;
+  onDecrease: () => void;
+  onIncrease: () => void;
+  required?: boolean;
+  info?: boolean;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="flex items-center justify-between">
+      <span
+        className={cn(
+          "flex items-center gap-2 text-sm font-medium",
+          disabled ? "text-slate-400" : "text-slate-900",
+        )}
+      >
+        {icon}
+        {label}
+        {required && <span className="text-red-500">*</span>}
+        {info && <Info className="w-3.5 h-3.5 text-slate-400" />}
+      </span>
+      <div
+        className={cn(
+          "flex items-center gap-4 bg-slate-50 rounded-lg h-11 px-2",
+          disabled && "opacity-60",
+        )}
+      >
+        <button
+          type="button"
+          onClick={onDecrease}
+          className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-200 transition-colors disabled:opacity-40 disabled:pointer-events-none"
+          disabled={disabled || value === 0}
+        >
+          <Minus className="w-4 h-4" />
+        </button>
+        <span
+          className={cn(
+            "w-4 text-center font-medium",
+            disabled ? "text-slate-400" : "text-slate-900",
+          )}
+        >
+          {value}
+        </span>
+        <button
+          type="button"
+          onClick={onIncrease}
+          className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-200 transition-colors disabled:opacity-40 disabled:pointer-events-none"
+          disabled={disabled}
+        >
+          <Plus className="w-4 h-4" />
+        </button>
+      </div>
     </div>
   );
 }

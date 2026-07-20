@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +17,11 @@ export default function RegisterLocation() {
     cidade: "",
     estado: "",
   });
+  const router = useRouter();
+
+  const handleSalvarESair = () => {
+    router.push("/");
+  };
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -42,7 +48,6 @@ export default function RegisterLocation() {
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
-
       <aside className="hidden md:flex flex-col justify-between bg-slate-950 p-12 text-white w-[400px] flex-shrink-0 min-h-screen">
         <div className="space-y-8">
           <div className="w-20 h-20 bg-transparent flex items-center justify-center rounded-xl shadow-lg overflow-hidden">
@@ -72,7 +77,7 @@ export default function RegisterLocation() {
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
-                  Etapa 2 de 3
+                  Etapa 3 de 4
                 </span>
                 <div className="h-1.5 w-32 bg-slate-100 rounded-full overflow-hidden">
                   <div className="h-full w-[50%] bg-brand rounded-full"></div>
@@ -81,6 +86,7 @@ export default function RegisterLocation() {
               <Button
                 variant="outline"
                 className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50"
+                 onClick={handleSalvarESair}
               >
                 Salvar e Sair
               </Button>
@@ -145,14 +151,13 @@ export default function RegisterLocation() {
             </section>
           </div>
 
-         
           <footer className="mt-16 pt-8 border-t border-brand-white flex justify-between items-center">
             <Button
               asChild
               variant="ghost"
               className="gap-2 text-slate-600 hover:bg-brand-white border border-slate-700 px-8 h-12 rounded-xl"
             >
-              <Link href="/anuncie/register-info">
+              <Link href="/anuncie/register-info-hero">
                 <ArrowLeft className="w-5 h-5" /> Voltar
               </Link>
             </Button>
