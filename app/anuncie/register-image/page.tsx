@@ -5,15 +5,46 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Upload, ChevronRight, ArrowLeft } from "lucide-react";
+import { Upload, ChevronRight, ArrowLeft, AlertCircle } from "lucide-react";
+import { useAnnouncementForm } from "../_context/announcement-form-context";
+import { ZodError } from "zod";
 
 export default function RegisterImage() {
-  const [fotos, setFotos] = useState<File[]>([]);
+  const { formData, setFormData } = useAnnouncementForm();
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const router = useRouter();
 
   const handleSalvarESair = () => {
     router.push("/");
   };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+
+    const newImageUrls = files.map((file) => URL.createObjectURL(file));
+
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, ...newImageUrls].slice(0, 30),
+    }));
+  };
+
+  const handleFinalizar = () => {
+    try {
+      setSubmitError(null);
+      router.push("/anuncie/local-user");
+    } catch (error) {
+      if (error instanceof ZodError) {
+        setSubmitError(
+          error.issues[0]?.message ?? "Verifique os dados do anúncio.",
+        );
+      } else {
+        setSubmitError("Não foi possível finalizar o anúncio.");
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-row font-sans">
       <aside className="hidden md:flex flex-col justify-between bg-slate-950 p-12 text-white w-[400px] flex-shrink-0 min-h-screen">
@@ -65,17 +96,28 @@ export default function RegisterImage() {
           <div className="max-w-3xl mx-auto flex-grow space-y-12">
             <div className="flex bg-slate-100 p-1 rounded-lg w-48">
               <button className="flex-1 py-1.5 bg-brand-white shadow rounded text-sm font-medium">
-                Fotos {fotos.length}/30
+                Fotos {formData.images.length}/30
               </button>
               <button className="flex-1 py-1.5 text-slate-500 text-sm">
                 Vídeo
               </button>
             </div>
 
-            <div className="border-2 border-dashed border-slate-400 rounded-xl p-12 flex flex-col items-center justify-center text-center text-slate-500 hover:border-brand transition-colors cursor-pointer h-64">
+            <label
+              htmlFor="file-upload"
+              className="border-2 border-dashed border-slate-400 rounded-xl p-12 flex flex-col items-center justify-center text-center text-slate-500 hover:border-brand transition-colors cursor-pointer h-64"
+            >
               <Upload className="w-8 h-8 mb-4 text-slate-400" />
               <p>Arraste aqui ou carregue da galeria.</p>
-            </div>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
 
             <div className="space-y-4">
               <h4 className="font-semibold text-sm flex items-center gap-2 text-brand-dark">
@@ -88,6 +130,13 @@ export default function RegisterImage() {
                 <li>4. Inclua a fachada</li>
               </ul>
             </div>
+
+            {submitError && (
+              <p className="flex items-center gap-1.5 text-sm text-orange-600">
+                <AlertCircle className="w-3.5 h-3.5" />
+                {submitError}
+              </p>
+            )}
           </div>
 
           <footer className="mt-16 pt-8 border-t border-brand-white flex justify-between items-center">
@@ -101,12 +150,10 @@ export default function RegisterImage() {
               </Link>
             </Button>
             <Button
-              asChild
               className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light"
+              onClick={handleFinalizar}
             >
-              <Link href="/anuncie/local-user">
-                Finalizar o Anúncio <ChevronRight className="w-4 h-4" />
-              </Link>
+              Finalizar o Anúncio <ChevronRight className="w-4 h-4" />
             </Button>
           </footer>
         </div>

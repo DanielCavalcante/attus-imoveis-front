@@ -8,15 +8,22 @@ export type TransactionType = "sell" | "rent" | "";
 export interface LocalFormData {
   transactionType: TransactionType;
   propertyType: PropertyType | null;
-  bedrooms: number;
+  rooms: number;
   bathrooms: number;
   suites: number;
   garageSpaces: number;
-  usableArea: string;
+  area: string;
   totalArea: string;
   title: string;
   description: string;
   price: string;
+  cep: string;
+  street: string;
+  streetNumber: string;
+  city: string;
+  state: string;
+  complement: string;
+  images: string[];
 }
 
 const STORAGE_KEY = "listing-form-data";
@@ -24,15 +31,22 @@ const STORAGE_KEY = "listing-form-data";
 const defaultFormData: LocalFormData = {
   transactionType: "",
   propertyType: null,
-  bedrooms: 0,
+  rooms: 0,
   bathrooms: 0,
   suites: 0,
   garageSpaces: 0,
-  usableArea: "",
+  area: "",
   totalArea: "",
   title: "",
   description: "",
   price: "",
+  cep: "",
+  street: "",
+  streetNumber: "",
+  city: "",
+  state: "",
+  complement: "",
+  images: [],
 };
 
 interface ListingFormContextType {
@@ -40,10 +54,9 @@ interface ListingFormContextType {
   setFormData: React.Dispatch<React.SetStateAction<LocalFormData>>;
 }
 
-
-const AnnouncementFormContext = createContext<ListingFormContextType | undefined>(
-  undefined,
-);
+const AnnouncementFormContext = createContext<
+  ListingFormContextType | undefined
+>(undefined);
 
 export function AnnouncementFormProvider({
   children,
@@ -57,32 +70,27 @@ export function AnnouncementFormProvider({
       const storedData = sessionStorage.getItem(STORAGE_KEY);
 
       if (storedData) {
-        return JSON.parse(storedData);
+        return { ...defaultFormData, ...JSON.parse(storedData) };
       }
     } catch {}
 
     return defaultFormData;
   });
 
-const setFormData: React.Dispatch<
-  React.SetStateAction<LocalFormData>
-> = (action) => {
-  setFormDataState((previousData) => {
-    const updatedData =
-      typeof action === "function"
-        ? action(previousData)
-        : action;
+  const setFormData: React.Dispatch<React.SetStateAction<LocalFormData>> = (
+    action,
+  ) => {
+    setFormDataState((previousData) => {
+      const updatedData =
+        typeof action === "function" ? action(previousData) : action;
 
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(updatedData)
-      );
-    }
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData));
+      }
 
-    return updatedData;
-  });
-};
+      return updatedData;
+    });
+  };
 
   return (
     <AnnouncementFormContext.Provider value={{ formData, setFormData }}>
@@ -96,7 +104,7 @@ export function useAnnouncementForm() {
 
   if (!context) {
     throw new Error(
-      "useAnnouncementForm must be used within an AnnouncementFormProvider",
+      "O `useAnnouncementForm` deve ser utilizado dentro de um `AnnouncementFormProvider`.",
     );
   }
 

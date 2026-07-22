@@ -35,8 +35,6 @@ import {
   useAnnouncementForm,
   PropertyType,
   LocalFormData,
-  
- 
 } from "../_context/announcement-form-context";
 
 const propertyTypes: {
@@ -66,7 +64,7 @@ const propertyTypes: {
   },
 ];
 
-type CounterField = "bedrooms" | "bathrooms" | "suites" | "garageSpaces";
+type CounterField = "rooms" | "bathrooms" | "suites" | "garageSpaces";
 
 export default function CadastroImovelPage() {
   const { formData, setFormData } = useAnnouncementForm();
@@ -87,7 +85,7 @@ export default function CadastroImovelPage() {
   };
 
   const handleAreaChange = (
-    field: "usableArea" | "totalArea",
+    field: "area" | "totalArea",
     value: string,
   ) => {
     const onlyNumbers = value.replace(/\D/g, "");
@@ -101,7 +99,7 @@ export default function CadastroImovelPage() {
     router.push("/");
   };
 
-  const filledArea = formData.usableArea.length > 0;
+  const filledArea = formData.area.length > 0;
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
@@ -243,9 +241,9 @@ export default function CadastroImovelPage() {
                         label="Quartos"
                         icon={<Bed className="w-5 h-5" />}
                         required
-                        value={formData.bedrooms}
-                        onDecrease={() => handleCounterChange("bedrooms", -1)}
-                        onIncrease={() => handleCounterChange("bedrooms", 1)}
+                        value={formData.rooms}
+                        onDecrease={() => handleCounterChange("rooms", -1)}
+                        onIncrease={() => handleCounterChange("rooms", 1)}
                       />
                       <CounterFieldItem
                         label="Banheiros"
@@ -261,7 +259,7 @@ export default function CadastroImovelPage() {
                         label="Suítes"
                         icon={<Bed className="w-5 h-5" />}
                         info
-                        disabled={formData.bedrooms === 0}
+                        disabled={formData.rooms === 0}
                         value={formData.suites}
                         onDecrease={() => handleCounterChange("suites", -1)}
                         onIncrease={() => handleCounterChange("suites", 1)}
@@ -309,9 +307,9 @@ export default function CadastroImovelPage() {
                           <input
                             type="text"
                             inputMode="numeric"
-                            value={formData.usableArea}
+                            value={formData.area}
                             onChange={(e) =>
-                              handleAreaChange("usableArea", e.target.value)
+                              handleAreaChange("area", e.target.value)
                             }
                             className="w-full h-12 rounded-lg border border-slate-300 px-4 pr-12 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
                           />

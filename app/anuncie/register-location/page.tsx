@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -8,50 +8,65 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronRight, ArrowLeft } from "lucide-react";
+import { useAnnouncementForm } from "../_context/announcement-form-context";
+import { announcementSchema } from "@/app/schemas/announcement";
 
 export default function RegisterLocation() {
-  const [formData, setFormData] = useState({
-    zipCode: "",
-    street: "",
-    number: "",
-    city: "",
-    state: "",
-  });
-
+  const { formData, setFormData } = useAnnouncementForm();
   const router = useRouter();
 
   const handleSaveAndExit = () => {
     router.push("/");
   };
 
+  const handleCepChange = (value: string) => {
+    const onlyNumbers = value.replace(/\D/g, "").slice(0, 8);
+    setFormData((prev) => ({
+      ...prev,
+      cep: onlyNumbers,
+    }));
+  };
+
   useEffect(() => {
     const fetchAddress = async () => {
-      const cleanZipCode = formData.zipCode.replace(/\D/g, "");
+      const cleanCep = formData.cep.replace(/\D/g, "");
 
-      if (cleanZipCode.length === 8) {
+      if (cleanCep.length === 8) {
         try {
           const response = await fetch(
-            `https://viacep.com.br/ws/${cleanZipCode}/json/`,
+            `https://viacep.com.br/ws/${cleanCep}/json/`,
           );
-
           const addressData = await response.json();
 
           if (!addressData.erro) {
-            setFormData((previousData) => ({
-              ...previousData,
+            setFormData((prev) => ({
+              ...prev,
               street: addressData.logradouro,
               city: addressData.localidade,
               state: addressData.uf,
             }));
           }
         } catch (error) {
-          console.error("Error fetching ZIP Code:", error);
+          console.error("Erro ao buscar o CEP:", error);
         }
       }
     };
 
     fetchAddress();
-  }, [formData.zipCode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.cep]);
+
+  const locationValidation = announcementSchema
+    .pick({ cep: true, street: true, city: true, state: true })
+    .safeParse({
+      cep: formData.cep,
+      street: formData.street,
+      city: formData.city,
+      state: formData.state,
+    });
+
+  const canContinue =
+    locationValidation.success && formData.streetNumber.trim().length > 0;
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
@@ -117,45 +132,29 @@ export default function RegisterLocation() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>CEP</Label>
+              <div className="space-y-2">
+                <Label htmlFor="street">Rua</Label>
 
-                  <Input
-                    value={formData.zipCode}
-                    onChange={(event) =>
-                      setFormData({
-                        ...formData,
-                        zipCode: event.target.value,
-                      })
-                    }
-                    placeholder="01010-000"
-                    className="border-slate-200 h-12"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Rua</Label>
-
-                  <Input
-                    value={formData.street}
-                    readOnly
-                    className="border-slate-200 h-12 bg-slate-50"
-                  />
-                </div>
+                <Input
+                  id="street"
+                  value={formData.street}
+                  readOnly
+                  className="border-slate-200 h-12 bg-slate-50"
+                />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Número</Label>
+                  <Label htmlFor="streetNumber">Número</Label>
 
                   <Input
-                    value={formData.number}
+                    id="streetNumber"
+                    value={formData.streetNumber}
                     onChange={(event) =>
-                      setFormData({
-                        ...formData,
-                        number: event.target.value,
-                      })
+                      setFormData((prev) => ({
+                        ...prev,
+                        streetNumber: event.target.value,
+                      }))
                     }
                     placeholder="123"
                     className="border-slate-200 h-12"
@@ -163,9 +162,29 @@ export default function RegisterLocation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Cidade</Label>
+                  <Label htmlFor="complement">Complemento (opcional)</Label>
 
                   <Input
+                    id="complement"
+                    value={formData.complement}
+                    onChange={(event) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        complement: event.target.value,
+                      }))
+                    }
+                    placeholder="Apto, bloco, referência..."
+                    className="border-slate-200 h-12"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+
+                  <Input
+                    id="city"
                     value={formData.city}
                     readOnly
                     className="border-slate-200 h-12 bg-slate-50"
@@ -173,14 +192,29 @@ export default function RegisterLocation() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Estado</Label>
+                  <Label htmlFor="state">Estado</Label>
 
                   <Input
+                    id="state"
                     value={formData.state}
                     readOnly
                     className="border-slate-200 h-12 bg-slate-50"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2 max-w-xs">
+                <Label htmlFor="cep">CEP</Label>
+
+                <Input
+                  id="cep"
+                  value={formData.cep}
+                  onChange={(event) => handleCepChange(event.target.value)}
+                  placeholder="01010000"
+                  inputMode="numeric"
+                  maxLength={8}
+                  className="border-slate-200 h-12"
+                />
               </div>
             </section>
           </div>
@@ -198,13 +232,21 @@ export default function RegisterLocation() {
             </Button>
 
             <Button
-              asChild
-              className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light"
+              asChild={canContinue}
+              disabled={!canContinue}
+              className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light disabled:opacity-50 disabled:pointer-events-none"
             >
-              <Link href="/anuncie/register-image">
-                Continuar
-                <ChevronRight className="w-4 h-4" />
-              </Link>
+              {canContinue ? (
+                <Link href="/anuncie/register-image">
+                  Continuar
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <>
+                  Continuar
+                  <ChevronRight className="w-4 h-4" />
+                </>
+              )}
             </Button>
           </footer>
         </div>

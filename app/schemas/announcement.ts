@@ -5,7 +5,7 @@ export const announcementSchema = z.object({
   title: z.string().min(3, "Título é obrigatório"),
   description: z.string().optional(),
   city: z.string().min(3, "Cidade é obrigatório"),
-  state: z.string().min(3, "Estado é obrigatório"),
+  state: z.string().min(2, "Estado é obrigatório"),
   image: z.string().min(3, "Imagem é obrigatório"),
   street: z.string().min(3, "Rua obrigatória"),
   streetNumber: z.number(),

@@ -8,10 +8,12 @@ import { cn } from "@/lib/utils";
 import { ChevronRight, ArrowLeft, Banknote, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useAnnouncementForm } from "../_context/announcement-form-context";
+import { announcementSchema } from "@/app/schemas/announcement"; 
 
 export default function PropertyDescriptionPage() {
   const { formData, setFormData } = useAnnouncementForm();
   const [isPriceTouched, setIsPriceTouched] = useState(false);
+  const [isTitleTouched, setIsTitleTouched] = useState(false);
   const router = useRouter();
 
   const handleInputChange = (
@@ -40,6 +42,16 @@ export default function PropertyDescriptionPage() {
 
   const isPriceInvalid =
     isPriceTouched && (!formData.price || Number(formData.price) === 0);
+
+  const titleValidation = announcementSchema.shape.title.safeParse(
+    formData.title,
+  );
+  const isTitleInvalid = isTitleTouched && !titleValidation.success;
+  const titleErrorMessage = !titleValidation.success
+    ? titleValidation.error.issues[0]?.message
+    : "";
+
+  const canContinue = titleValidation.success && Number(formData.price) > 0;
 
   const handleSaveAndExit = () => {
     router.push("/");
@@ -100,7 +112,10 @@ export default function PropertyDescriptionPage() {
                 <div className="flex justify-between items-center">
                   <label
                     htmlFor="title"
-                    className="text-sm font-medium text-slate-900"
+                    className={cn(
+                      "text-sm font-medium",
+                      isTitleInvalid ? "text-orange-600" : "text-slate-900",
+                    )}
                   >
                     Título <span className="text-red-500">*</span>
                   </label>
@@ -115,8 +130,20 @@ export default function PropertyDescriptionPage() {
                   maxLength={100}
                   value={formData.title || ""}
                   onChange={handleInputChange}
-                  className="w-full h-12 rounded-lg border border-slate-300 px-4 text-base focus:outline-none focus:ring-2 focus:ring-brand/40 focus:border-brand"
+                  onBlur={() => setIsTitleTouched(true)}
+                  className={cn(
+                    "w-full h-12 rounded-lg border px-4 text-base focus:outline-none focus:ring-2",
+                    isTitleInvalid
+                      ? "border-orange-500 focus:ring-orange-200"
+                      : "border-slate-300 focus:ring-brand/40 focus:border-brand",
+                  )}
                 />
+                {isTitleInvalid && (
+                  <p className="flex items-center gap-1.5 text-sm text-orange-600">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    {titleErrorMessage}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -206,12 +233,19 @@ export default function PropertyDescriptionPage() {
               </Link>
             </Button>
             <Button
-              asChild
-              className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light"
+              asChild={canContinue}
+              disabled={!canContinue}
+              className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light disabled:opacity-50 disabled:pointer-events-none"
             >
-              <Link href="/anuncie/register-location">
-                Continuar <ChevronRight className="w-4 h-4" />
-              </Link>
+              {canContinue ? (
+                <Link href="/anuncie/register-location">
+                  Continuar <ChevronRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <>
+                  Continuar <ChevronRight className="w-4 h-4" />
+                </>
+              )}
             </Button>
           </footer>
         </div>
