@@ -14,7 +14,7 @@ export default function RegisterImage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSalvarESair = () => {
+  const handleSaveAndExit = () => {
     router.push("/");
   };
 
@@ -30,7 +30,7 @@ export default function RegisterImage() {
     }));
   };
 
-  const handleFinalizar = () => {
+  const handleFinish = () => {
     try {
       setSubmitError(null);
       router.push("/anuncie/local-user");
@@ -86,7 +86,7 @@ export default function RegisterImage() {
               <Button
                 variant="outline"
                 className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50"
-                onClick={handleSalvarESair}
+                onClick={handleSaveAndExit}
               >
                 Salvar e Sair
               </Button>
@@ -151,7 +151,7 @@ export default function RegisterImage() {
             </Button>
             <Button
               className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light"
-              onClick={handleFinalizar}
+              onClick={handleFinish}
             >
               Finalizar o Anúncio <ChevronRight className="w-4 h-4" />
             </Button>

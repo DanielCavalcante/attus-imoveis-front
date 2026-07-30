@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type PropertyType = "HOUSE" | "APARTMENT" | "CONDOMINIUM" | "LAND";
 export type TransactionType = "sell" | "rent" | "";
@@ -9,7 +10,7 @@ export interface LocalFormData {
   transactionType: TransactionType;
   propertyType: PropertyType | null;
   rooms: number;
-  bathrooms: number;
+  bathRooms: number;
   suites: number;
   garageSpaces: number;
   area: string;
@@ -32,7 +33,7 @@ const defaultFormData: LocalFormData = {
   transactionType: "",
   propertyType: null,
   rooms: 0,
-  bathrooms: 0,
+  bathRooms: 0,
   suites: 0,
   garageSpaces: 0,
   area: "",
@@ -52,6 +53,7 @@ const defaultFormData: LocalFormData = {
 interface ListingFormContextType {
   formData: LocalFormData;
   setFormData: React.Dispatch<React.SetStateAction<LocalFormData>>;
+  isHydrated: boolean;
 }
 
 const AnnouncementFormContext = createContext<
@@ -63,19 +65,24 @@ export function AnnouncementFormProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [formData, setFormDataState] = useState<LocalFormData>(() => {
-    if (typeof window === "undefined") return defaultFormData;
 
-    try {
-      const storedData = sessionStorage.getItem(STORAGE_KEY);
+  const [formData, setFormDataState] = useState<LocalFormData>(defaultFormData);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-      if (storedData) {
-        return { ...defaultFormData, ...JSON.parse(storedData) };
-      }
-    } catch {}
 
-    return defaultFormData;
-  });
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      try {
+        const storedData = sessionStorage.getItem(STORAGE_KEY);
+
+        if (storedData) {
+          setFormDataState({ ...defaultFormData, ...JSON.parse(storedData) });
+        }
+      } catch {}
+
+      setIsHydrated(true);
+    });
+  }, []);
 
   const setFormData: React.Dispatch<React.SetStateAction<LocalFormData>> = (
     action,
@@ -93,7 +100,9 @@ export function AnnouncementFormProvider({
   };
 
   return (
-    <AnnouncementFormContext.Provider value={{ formData, setFormData }}>
+    <AnnouncementFormContext.Provider
+      value={{ formData, setFormData, isHydrated }}
+    >
       {children}
     </AnnouncementFormContext.Provider>
   );

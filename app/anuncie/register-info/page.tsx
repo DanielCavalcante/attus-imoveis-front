@@ -64,10 +64,11 @@ const propertyTypes: {
   },
 ];
 
-type CounterField = "rooms" | "bathrooms" | "suites" | "garageSpaces";
+type CounterField = "rooms" | "bathRooms" | "suites" | "garageSpaces";
 
-export default function CadastroImovelPage() {
+export default function RegisterMovePage() {
   const { formData, setFormData } = useAnnouncementForm();
+  
   const router = useRouter();
 
   const handleSelectPropertyType = (id: PropertyType) => {
@@ -95,7 +96,7 @@ export default function CadastroImovelPage() {
     }));
   };
 
-  const handleSalvarESair = () => {
+  const handleSaveAndExit = () => {
     router.push("/");
   };
 
@@ -143,7 +144,7 @@ export default function CadastroImovelPage() {
               <Button
                 variant="outline"
                 className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50"
-                onClick={handleSalvarESair}
+                onClick={handleSaveAndExit}
               >
                 Salvar e sair
               </Button>
@@ -248,9 +249,9 @@ export default function CadastroImovelPage() {
                       <CounterFieldItem
                         label="Banheiros"
                         icon={<ShowerHead className="w-5 h-5" />}
-                        value={formData.bathrooms}
-                        onDecrease={() => handleCounterChange("bathrooms", -1)}
-                        onIncrease={() => handleCounterChange("bathrooms", 1)}
+                        value={formData.bathRooms}
+                        onDecrease={() => handleCounterChange("bathRooms", -1)}
+                        onIncrease={() => handleCounterChange("bathRooms", 1)}
                       />
                     </div>
 

@@ -1,6 +1,6 @@
-"use client";
+"use client"
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,7 @@ import { announcementSchema } from "@/app/schemas/announcement";
 export default function RegisterLocation() {
   const { formData, setFormData } = useAnnouncementForm();
   const router = useRouter();
+  const [cepNotFound, setCepNotFound] = useState(false);
 
   const handleSaveAndExit = () => {
     router.push("/");
@@ -21,6 +22,7 @@ export default function RegisterLocation() {
 
   const handleCepChange = (value: string) => {
     const onlyNumbers = value.replace(/\D/g, "").slice(0, 8);
+    setCepNotFound(false);
     setFormData((prev) => ({
       ...prev,
       cep: onlyNumbers,
@@ -39,12 +41,15 @@ export default function RegisterLocation() {
           const addressData = await response.json();
 
           if (!addressData.erro) {
+            setCepNotFound(false);
             setFormData((prev) => ({
               ...prev,
               street: addressData.logradouro,
               city: addressData.localidade,
               state: addressData.uf,
             }));
+          } else {
+            setCepNotFound(true);
           }
         } catch (error) {
           console.error("Erro ao buscar o CEP:", error);
@@ -53,8 +58,8 @@ export default function RegisterLocation() {
     };
 
     fetchAddress();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.cep]);
+   
+  }, [formData.cep, setFormData]);
 
   const locationValidation = announcementSchema
     .pick({ cep: true, street: true, city: true, state: true })
@@ -69,7 +74,7 @@ export default function RegisterLocation() {
     locationValidation.success && formData.streetNumber.trim().length > 0;
 
   return (
-    <div className="min-h-screen flex flex-row font-sans">
+    <div className="min-h-screen flex flex-col md:flex-row font-sans">
       <aside className="hidden md:flex flex-col justify-between bg-slate-950 p-12 text-white w-[400px] flex-shrink-0 min-h-screen">
         <div className="space-y-8">
           <div className="w-20 h-20 bg-transparent flex items-center justify-center rounded-xl shadow-lg overflow-hidden">
@@ -96,10 +101,10 @@ export default function RegisterLocation() {
         </div>
       </aside>
 
-      <main className="flex-1 bg-brand-white p-10 md:p-16 flex flex-col">
+      <main className="flex-1 bg-brand-white p-6 sm:p-10 md:p-16 flex flex-col">
         <div className="max-w-6xl w-full mx-auto flex flex-col min-h-[calc(100vh-8rem)]">
-          <header className="mb-12">
-            <div className="flex justify-between items-center mb-4">
+          <header className="mb-8 md:mb-12">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
               <div className="flex items-center gap-4">
                 <span className="text-sm font-medium text-slate-700 whitespace-nowrap">
                   Etapa 3 de 4
@@ -112,7 +117,7 @@ export default function RegisterLocation() {
 
               <Button
                 variant="outline"
-                className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50"
+                className="rounded-full px-6 text-slate-600 border-slate-700 hover:bg-slate-50 self-start sm:self-auto"
                 onClick={handleSaveAndExit}
               >
                 Salvar e Sair
@@ -120,16 +125,38 @@ export default function RegisterLocation() {
             </div>
           </header>
 
-          <div className="max-w-3xl mx-auto space-y-12 flex-grow">
+          <div className="max-w-3xl mx-auto w-full space-y-10 md:space-y-12 flex-grow">
             <section className="space-y-6">
               <div>
-                <h2 className="text-3xl font-semibold tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight">
                   Endereço
                 </h2>
 
                 <p className="text-slate-600 mt-1.5">
-                  Informe os dados de localização para facilitar a busca.
+                  Informe o CEP para preenchermos o endereço automaticamente,
+                  ou digite manualmente se preferir.
                 </p>
+              </div>
+
+              <div className="space-y-2 max-w-xs">
+                <Label htmlFor="cep">CEP</Label>
+
+                <Input
+                  id="cep"
+                  value={formData.cep}
+                  onChange={(event) => handleCepChange(event.target.value)}
+                  placeholder="01010000"
+                  inputMode="numeric"
+                  maxLength={8}
+                  className="border-slate-200 h-12"
+                />
+
+                {cepNotFound && (
+                  <p className="text-sm text-amber-600">
+                    Não encontramos esse CEP. Preencha o endereço manualmente
+                    abaixo.
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -138,12 +165,17 @@ export default function RegisterLocation() {
                 <Input
                   id="street"
                   value={formData.street}
-                  readOnly
-                  className="border-slate-200 h-12 bg-slate-50"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+                  onChange={(event) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      street: event.target.value,
+                    }))
+                  }
+                  placeholder="Nome da rua"
+                  className="border-slate-200 h-12" />
+    </div>
+               <div 
+               className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="streetNumber">Número</Label>
 
@@ -179,15 +211,21 @@ export default function RegisterLocation() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="city">Cidade</Label>
 
                   <Input
                     id="city"
                     value={formData.city}
-                    readOnly
-                    className="border-slate-200 h-12 bg-slate-50"
+                    onChange={(event) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        city: event.target.value,
+                      }))
+                    }
+                    placeholder="Sua cidade"
+                    className="border-slate-200 h-12"
                   />
                 </div>
 
@@ -197,33 +235,26 @@ export default function RegisterLocation() {
                   <Input
                     id="state"
                     value={formData.state}
-                    readOnly
-                    className="border-slate-200 h-12 bg-slate-50"
+                    onChange={(event) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        state: event.target.value,
+                      }))
+                    }
+                    placeholder="UF"
+                    maxLength={2}
+                    className="border-slate-200 h-12 uppercase"
                   />
                 </div>
-              </div>
-
-              <div className="space-y-2 max-w-xs">
-                <Label htmlFor="cep">CEP</Label>
-
-                <Input
-                  id="cep"
-                  value={formData.cep}
-                  onChange={(event) => handleCepChange(event.target.value)}
-                  placeholder="01010000"
-                  inputMode="numeric"
-                  maxLength={8}
-                  className="border-slate-200 h-12"
-                />
               </div>
             </section>
           </div>
 
-          <footer className="mt-16 pt-8 border-t border-brand-white flex justify-between items-center">
+          <footer className="mt-10 md:mt-16 pt-8 border-t border-brand-white flex flex-col-reverse sm:flex-row justify-between items-stretch sm:items-center gap-4">
             <Button
               asChild
               variant="ghost"
-              className="gap-2 text-slate-600 hover:bg-brand-white border border-slate-700 px-8 h-12 rounded-xl"
+              className="gap-2 text-slate-600 hover:bg-brand-white border border-slate-700 px-8 h-12 rounded-xl justify-center"
             >
               <Link href="/anuncie/register-info-hero">
                 <ArrowLeft className="w-5 h-5" />
@@ -234,7 +265,7 @@ export default function RegisterLocation() {
             <Button
               asChild={canContinue}
               disabled={!canContinue}
-              className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light disabled:opacity-50 disabled:pointer-events-none"
+              className="bg-brand-dark text-brand-white px-8 h-12 rounded-xl gap-2 hover:bg-brand-light disabled:opacity-50 disabled:pointer-events-none justify-center"
             >
               {canContinue ? (
                 <Link href="/anuncie/register-image">
