@@ -25,7 +25,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Navegação */}
+         
           <div>
             <h3 className="mb-4 font-semibold">
               Navegação
@@ -55,7 +55,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Institucional */}
+          
           <div>
             <h3 className="mb-4 font-semibold">
               Institucional
@@ -85,7 +85,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Contato */}
+         
           <div>
             <h3 className="mb-4 font-semibold">
               Contato
@@ -121,10 +121,11 @@ export function Footer() {
                 Anuncie gratuitamente e alcance milhares de pessoas.
               </p>
             </div>
-
-            <Button>
-              Anunciar Imóvel
-            </Button>
+            <Link href="/anuncie" passHref>
+              <Button>
+                Anunciar Imóvel
+              </Button>
+            </Link>
           </div>
         </div>
         <div className="flex flex-col items-center justify-between gap-4 text-center text-sm text-muted-foreground md:flex-row">
