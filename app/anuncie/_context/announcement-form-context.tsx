@@ -1,49 +1,28 @@
-
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { z } from "zod";
+import { announcementSchema } from "@/app/schemas/announcement";
 
-export type PropertyType = "HOUSE" | "APARTMENT" | "CONDOMINIUM" | "LAND";
-export type TransactionType = "sell" | "rent" | "";
-
-export interface LocalFormData {
-  transactionType: TransactionType;
-  propertyType: PropertyType | null;
-  rooms: number;
-  bathRooms: number;
-  suites: number;
-  garageSpaces: number;
-  area: string;
-  totalArea: string;
-  title: string;
-  description: string;
-  price: string;
-  cep: string;
-  street: string;
-  streetNumber: string;
-  city: string;
-  state: string;
-  complement: string;
-  images: string[];
-}
+export type AnnouncementFormData = z.infer<typeof announcementSchema>;
 
 const STORAGE_KEY = "listing-form-data";
 
-const defaultFormData: LocalFormData = {
-  transactionType: "",
-  propertyType: null,
+const defaultFormData: AnnouncementFormData = {
+  reason: "SALE",
+  propertyType: "HOUSE",
   rooms: 0,
   bathRooms: 0,
   suites: 0,
   garageSpaces: 0,
-  area: "",
-  totalArea: "",
+  area: 0,
+  totalArea: 0,
   title: "",
   description: "",
-  price: "",
+  price: 0,
   cep: "",
   street: "",
-  streetNumber: "",
+  streetNumber: 0,
   city: "",
   state: "",
   complement: "",
@@ -51,24 +30,23 @@ const defaultFormData: LocalFormData = {
 };
 
 interface ListingFormContextType {
-  formData: LocalFormData;
-  setFormData: React.Dispatch<React.SetStateAction<LocalFormData>>;
+  formData: AnnouncementFormData;
+  setFormData: React.Dispatch<React.SetStateAction<AnnouncementFormData>>;
   isHydrated: boolean;
 }
 
-const AnnouncementFormContext = createContext<
-  ListingFormContextType | undefined
->(undefined);
+const AnnouncementFormContext = createContext<ListingFormContextType | undefined>(
+  undefined,
+);
 
 export function AnnouncementFormProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
-  const [formData, setFormDataState] = useState<LocalFormData>(defaultFormData);
+  const [formData, setFormDataState] =
+    useState<AnnouncementFormData>(defaultFormData);
   const [isHydrated, setIsHydrated] = useState(false);
-
 
   useEffect(() => {
     Promise.resolve().then(() => {
@@ -84,7 +62,7 @@ export function AnnouncementFormProvider({
     });
   }, []);
 
-  const setFormData: React.Dispatch<React.SetStateAction<LocalFormData>> = (
+  const setFormData: React.Dispatch<React.SetStateAction<AnnouncementFormData>> = (
     action,
   ) => {
     setFormDataState((previousData) => {

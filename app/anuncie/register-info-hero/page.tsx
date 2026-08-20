@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronRight, ArrowLeft, Banknote, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { useAnnouncementForm } from "../_context/announcement-form-context";
-import { announcementSchema } from "@/app/schemas/announcement"; 
+import {
+  AnnouncementFormData,
+  useAnnouncementForm,
+} from "../_context/announcement-form-context";
+import { announcementSchema } from "@/app/schemas/announcement";
 
 export default function PropertyDescriptionPage() {
   const { formData, setFormData } = useAnnouncementForm();
@@ -19,20 +22,23 @@ export default function PropertyDescriptionPage() {
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target as {
+      name: keyof AnnouncementFormData;
+      value: string;
+    };
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handlePriceChange = (value: string) => {
-    const onlyNumbers = value.replace(/\D/g, "");
-    setFormData((prev) => ({ ...prev, price: onlyNumbers }));
+    const numericValue = Number(value.replace(/\D/g, ""));
+    setFormData((prev) => ({ ...prev, price: numericValue }));
   };
 
   const formattedPrice = formData.price
-    ? Number(formData.price).toLocaleString("pt-BR")
+    ? formData.price.toLocaleString("pt-BR")
     : "0";
 
-  const isRental = formData.transactionType === "rent";
+  const isRental = formData.reason === "RENT";
 
   const sectionTitle = isRental ? "Valor de aluguel" : "Valor de venda";
   const fieldLabel = isRental ? "Valor do aluguel" : "Valor da venda";
@@ -76,7 +82,10 @@ export default function PropertyDescriptionPage() {
         </div>
 
         <div className="flex items-center gap-6 text-slate-500 text-sm">
-          <button className="flex items-center gap-2 hover:text-white transition-colors">
+          <button
+            type="button"
+            className="flex items-center gap-2 hover:text-white transition-colors"
+          >
             Precisa de ajuda?
           </button>
           <span>© 2026 Encontrei</span>

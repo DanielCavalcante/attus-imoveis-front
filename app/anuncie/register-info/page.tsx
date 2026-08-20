@@ -33,9 +33,10 @@ import {
 import Link from "next/link";
 import {
   useAnnouncementForm,
-  PropertyType,
-  LocalFormData,
+  AnnouncementFormData,
 } from "../_context/announcement-form-context";
+
+type PropertyType = NonNullable<AnnouncementFormData["propertyType"]>;
 
 const propertyTypes: {
   id: PropertyType;
@@ -68,31 +69,28 @@ type CounterField = "rooms" | "bathRooms" | "suites" | "garageSpaces";
 
 export default function RegisterMovePage() {
   const { formData, setFormData } = useAnnouncementForm();
-  
+
   const router = useRouter();
 
   const handleSelectPropertyType = (id: PropertyType) => {
-    setFormData((prev: LocalFormData) => ({
+    setFormData((prev: AnnouncementFormData) => ({
       ...prev,
       propertyType: id,
     }));
   };
 
   const handleCounterChange = (field: CounterField, delta: number) => {
-    setFormData((prev: LocalFormData) => ({
+    setFormData((prev: AnnouncementFormData) => ({
       ...prev,
       [field]: Math.max(0, prev[field] + delta),
     }));
   };
 
-  const handleAreaChange = (
-    field: "area" | "totalArea",
-    value: string,
-  ) => {
-    const onlyNumbers = value.replace(/\D/g, "");
-    setFormData((prev: LocalFormData) => ({
+  const handleAreaChange = (field: "area" | "totalArea", value: string) => {
+    const numericValue = Number(value.replace(/\D/g, ""));
+    setFormData((prev: AnnouncementFormData) => ({
       ...prev,
-      [field]: onlyNumbers,
+      [field]: numericValue,
     }));
   };
 
@@ -100,7 +98,7 @@ export default function RegisterMovePage() {
     router.push("/");
   };
 
-  const filledArea = formData.area.length > 0;
+  const filledArea = formData.area > 0;
 
   return (
     <div className="min-h-screen flex flex-row font-sans">
@@ -121,7 +119,10 @@ export default function RegisterMovePage() {
         </div>
 
         <div className="flex items-center gap-6 text-slate-500 text-sm">
-          <button className="flex items-center gap-2 hover:text-white transition-colors">
+          <button
+            type="button"
+            className="flex items-center gap-2 hover:text-white transition-colors"
+          >
             Precisa de ajuda?
           </button>
           <span>© 2026 Encontrei</span>
@@ -154,7 +155,7 @@ export default function RegisterMovePage() {
           <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="max-w-3xl mx-auto space-y-12 pb-4">
               <section className="space-y-8">
-                <div className="flex items-start justify-between gap-6 ">
+                <div className="flex items-start justify-between gap-6">
                   <div>
                     <h3 className="text-xl font-semibold">Tipo de imóvel</h3>
                     <p className="text-slate-600 mt-1.5">
@@ -163,16 +164,15 @@ export default function RegisterMovePage() {
                   </div>
                   <div className="w-[160px] h-11 shrink-0">
                     <Select
-                      value={formData.transactionType}
+                      value={formData.reason}
                       onValueChange={(val) =>
-                        setFormData((prev: LocalFormData) => ({
+                        setFormData((prev: AnnouncementFormData) => ({
                           ...prev,
-                          transactionType:
-                            val as LocalFormData["transactionType"],
+                          reason: val as AnnouncementFormData["reason"],
                         }))
                       }
                     >
-                      <SelectTrigger className=" w-full  h-full border-slate-700 ">
+                      <SelectTrigger className="w-full h-full border-slate-700">
                         <SelectValue placeholder="Finalidade" />
                       </SelectTrigger>
 
@@ -181,8 +181,8 @@ export default function RegisterMovePage() {
                         sideOffset={6}
                         className="z-50"
                       >
-                        <SelectItem value="sell">Vender</SelectItem>
-                        <SelectItem value="rent">Alugar</SelectItem>
+                        <SelectItem value="SALE">Vender</SelectItem>
+                        <SelectItem value="RENT">Alugar</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -257,7 +257,7 @@ export default function RegisterMovePage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
                       <CounterFieldItem
-                        label="Suítes"
+                        label="Suíte"
                         icon={<Bed className="w-5 h-5" />}
                         info
                         disabled={formData.rooms === 0}

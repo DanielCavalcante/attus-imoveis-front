@@ -12,25 +12,27 @@ interface Listing {
   neighborhood: string;
   rooms: number;
   area: number;
-  transactionType: "sell" | "rent";
+  reason: "SALE" | "RENT";
   completionPercentage: number;
   missingStep: string | null;
   lastEditedAt: string;
 }
 
 export default function Dashboard() {
- 
-  const userName = "User";
+  const userName = "Usuário";
 
   const [listings, setListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchListings() {
       try {
-        
+        setFetchError(null);
         const data: Listing[] = [];
         setListings(data);
+      } catch {
+        setFetchError("Não foi possível carregar seus anúncios.");
       } finally {
         setIsLoading(false);
       }
@@ -38,6 +40,10 @@ export default function Dashboard() {
 
     fetchListings();
   }, []);
+
+  const handleDeleteListing = (id: string) => {
+    setListings((prev) => prev.filter((listing) => listing.id !== id));
+  };
 
   return (
     <div className="min-h-screen flex flex-row font-sans bg-brand-white">
@@ -58,7 +64,10 @@ export default function Dashboard() {
           </h1>
         </div>
         <div className="flex items-center gap-6 text-slate-500 text-sm">
-          <button className="flex items-center gap-2 hover:text-brand-white transition-colors">
+          <button
+            type="button"
+            className="flex items-center gap-2 hover:text-brand-white transition-colors"
+          >
             Precisa de ajuda?
           </button>
           <span>© 2026 Encontrei</span>
@@ -83,13 +92,18 @@ export default function Dashboard() {
             </div>
           )}
 
-          {!isLoading && listings.length === 0 && (
+          {!isLoading && fetchError && (
+            <p className="text-center text-orange-600 py-8">{fetchError}</p>
+          )}
+
+          {!isLoading && !fetchError && listings.length === 0 && (
             <p className="text-center text-slate-500 py-8">
               Você ainda não tem nenhum anúncio. Comece criando o primeiro!
             </p>
           )}
 
           {!isLoading &&
+            !fetchError &&
             listings.map((listing) => (
               <div
                 key={listing.id}
@@ -101,10 +115,11 @@ export default function Dashboard() {
                   </h3>
                   <p className="text-sm text-slate-600">
                     {listing.rooms} quartos · {listing.area} m² ·{" "}
-                    {listing.transactionType === "rent" ? "Aluguel" : "Venda"}
+                    {listing.reason === "RENT" ? "Aluguel" : "Venda"}
                   </p>
                   <p className="text-xs text-slate-400 mt-1">
-                    Editado {listing.lastEditedAt} · {listing.completionPercentage}%
+                    Editado {listing.lastEditedAt} ·{" "}
+                    {listing.completionPercentage}%
                   </p>
                 </div>
 
@@ -123,7 +138,12 @@ export default function Dashboard() {
                 </div>
 
                 <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                  <button className="p-2 text-slate-400 hover:text-brand transition-colors">
+                  <button
+                    type="button"
+                    aria-label="Excluir anúncio"
+                    onClick={() => handleDeleteListing(listing.id)}
+                    className="p-2 text-slate-400 hover:text-brand transition-colors"
+                  >
                     <Trash2 className="w-5 h-5" />
                   </button>
                   <Link
@@ -137,10 +157,13 @@ export default function Dashboard() {
             ))}
 
           <Button
+            asChild
             variant="outline"
             className="w-full h-14 border-2 border-dashed border-brand-light text-brand-light hover:bg-brand hover:text-brand-white rounded-xl font-medium"
           >
-            <Plus className="w-5 h-5 mr-2" /> Novo anúncio
+            <Link href="/anuncie">
+              <Plus className="w-5 h-5 mr-2" /> Novo anúncio
+            </Link>
           </Button>
         </div>
       </main>

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ChevronRight, ArrowLeft } from "lucide-react";
-import { useAnnouncementForm } from "../_context/announcement-form-context";
+import {
+  useAnnouncementForm,
+} from "../_context/announcement-form-context";
 import { announcementSchema } from "@/app/schemas/announcement";
 
 export default function RegisterLocation() {
@@ -27,6 +29,19 @@ export default function RegisterLocation() {
       ...prev,
       cep: onlyNumbers,
     }));
+  };
+
+  const handleFieldChange =
+    (field: "street" | "complement" | "city" | "state") =>
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [field]: event.target.value }));
+    };
+
+  const handleStreetNumberChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const numericValue = Number(event.target.value.replace(/\D/g, ""));
+    setFormData((prev) => ({ ...prev, streetNumber: numericValue }));
   };
 
   useEffect(() => {
@@ -58,7 +73,6 @@ export default function RegisterLocation() {
     };
 
     fetchAddress();
-   
   }, [formData.cep, setFormData]);
 
   const locationValidation = announcementSchema
@@ -70,8 +84,7 @@ export default function RegisterLocation() {
       state: formData.state,
     });
 
-  const canContinue =
-    locationValidation.success && formData.streetNumber.trim().length > 0;
+  const canContinue = locationValidation.success && formData.streetNumber > 0;
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row font-sans">
@@ -93,7 +106,10 @@ export default function RegisterLocation() {
         </div>
 
         <div className="flex items-center gap-6 text-slate-500 text-sm">
-          <button className="flex items-center gap-2 hover:text-white transition-colors">
+          <button
+            type="button"
+            className="flex items-center gap-2 hover:text-white transition-colors"
+          >
             Precisa de ajuda?
           </button>
 
@@ -165,29 +181,21 @@ export default function RegisterLocation() {
                 <Input
                   id="street"
                   value={formData.street}
-                  onChange={(event) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      street: event.target.value,
-                    }))
-                  }
+                  onChange={handleFieldChange("street")}
                   placeholder="Nome da rua"
-                  className="border-slate-200 h-12" />
-    </div>
-               <div 
-               className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  className="border-slate-200 h-12"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="streetNumber">Número</Label>
 
                   <Input
                     id="streetNumber"
-                    value={formData.streetNumber}
-                    onChange={(event) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        streetNumber: event.target.value,
-                      }))
-                    }
+                    inputMode="numeric"
+                    value={formData.streetNumber || ""}
+                    onChange={handleStreetNumberChange}
                     placeholder="123"
                     className="border-slate-200 h-12"
                   />
@@ -198,13 +206,8 @@ export default function RegisterLocation() {
 
                   <Input
                     id="complement"
-                    value={formData.complement}
-                    onChange={(event) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        complement: event.target.value,
-                      }))
-                    }
+                    value={formData.complement ?? ""}
+                    onChange={handleFieldChange("complement")}
                     placeholder="Apto, bloco, referência..."
                     className="border-slate-200 h-12"
                   />
@@ -218,12 +221,7 @@ export default function RegisterLocation() {
                   <Input
                     id="city"
                     value={formData.city}
-                    onChange={(event) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        city: event.target.value,
-                      }))
-                    }
+                    onChange={handleFieldChange("city")}
                     placeholder="Sua cidade"
                     className="border-slate-200 h-12"
                   />
@@ -235,12 +233,7 @@ export default function RegisterLocation() {
                   <Input
                     id="state"
                     value={formData.state}
-                    onChange={(event) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        state: event.target.value,
-                      }))
-                    }
+                    onChange={handleFieldChange("state")}
                     placeholder="UF"
                     maxLength={2}
                     className="border-slate-200 h-12 uppercase"

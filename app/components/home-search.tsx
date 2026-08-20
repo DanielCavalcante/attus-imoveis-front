@@ -159,7 +159,7 @@ export default function SearchHero() {
                 >
                   <div className="max-h-72 overflow-y-auto">
                     <p className="px-4 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-                      Residential
+                      Residencial
                     </p>
                     {TYPE_PROPERTY_OPTIONS.map((opt) => {
                       const checked = typeSelected.includes(opt.id);
@@ -198,7 +198,7 @@ export default function SearchHero() {
                       onClick={() => setTypeOpen(false)}
                       className="w-full bg-primary hover:bg-primary/80"
                     >
-                      Apply {typeSelected.length} selected
+                     Aplicar {typeSelected.length} selecionado{typeSelected.length !== 1 ? "s" : ""}
                     </Button>
                   </div>
                 </PopoverContent>

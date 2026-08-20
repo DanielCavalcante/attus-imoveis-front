@@ -7,11 +7,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Upload, ChevronRight, ArrowLeft, AlertCircle } from "lucide-react";
 import { useAnnouncementForm } from "../_context/announcement-form-context";
-import { ZodError } from "zod";
+import { announcementSchema } from "@/app/schemas/announcement";
+
+const MAX_IMAGES = 30;
 
 export default function RegisterImage() {
   const { formData, setFormData } = useAnnouncementForm();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [imageLimitWarning, setImageLimitWarning] = useState(false);
   const router = useRouter();
 
   const handleSaveAndExit = () => {
@@ -23,26 +26,28 @@ export default function RegisterImage() {
     if (files.length === 0) return;
 
     const newImageUrls = files.map((file) => URL.createObjectURL(file));
+    const availableSlots = MAX_IMAGES - formData.images.length;
+
+    setImageLimitWarning(newImageUrls.length > availableSlots);
 
     setFormData((prev) => ({
       ...prev,
-      images: [...prev.images, ...newImageUrls].slice(0, 30),
+      images: [...prev.images, ...newImageUrls].slice(0, MAX_IMAGES),
     }));
   };
 
   const handleFinish = () => {
-    try {
-      setSubmitError(null);
-      router.push("/anuncie/local-user");
-    } catch (error) {
-      if (error instanceof ZodError) {
-        setSubmitError(
-          error.issues[0]?.message ?? "Verifique os dados do anúncio.",
-        );
-      } else {
-        setSubmitError("Não foi possível finalizar o anúncio.");
-      }
+    const result = announcementSchema.safeParse(formData);
+
+    if (!result.success) {
+      setSubmitError(
+        result.error.issues[0]?.message ?? "Verifique os dados do anúncio.",
+      );
+      return;
     }
+
+    setSubmitError(null);
+    router.push("/anuncie/local-user");
   };
 
   return (
@@ -63,7 +68,7 @@ export default function RegisterImage() {
           </h1>
         </div>
         <div className="flex items-center gap-6 text-slate-500 text-sm">
-          <button className="flex items-center gap-2 hover:text-white transition-colors">
+          <button type="button" className="flex items-center gap-2 hover:text-white transition-colors">
             Precisa de ajuda?
           </button>
           <span>© 2026 Encontrei</span>
@@ -95,10 +100,17 @@ export default function RegisterImage() {
 
           <div className="max-w-3xl mx-auto flex-grow space-y-12">
             <div className="flex bg-slate-100 p-1 rounded-lg w-48">
-              <button className="flex-1 py-1.5 bg-brand-white shadow rounded text-sm font-medium">
-                Fotos {formData.images.length}/30
+              <button
+                type="button"
+                className="flex-1 py-1.5 bg-brand-white shadow rounded text-sm font-medium"
+              >
+                Fotos {formData.images.length}/{MAX_IMAGES}
               </button>
-              <button className="flex-1 py-1.5 text-slate-500 text-sm">
+              <button
+                type="button"
+                disabled
+                className="flex-1 py-1.5 text-slate-500 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Vídeo
               </button>
             </div>
@@ -118,6 +130,14 @@ export default function RegisterImage() {
                 onChange={handleFileChange}
               />
             </label>
+
+            {imageLimitWarning && (
+              <p className="flex items-center gap-1.5 text-sm text-amber-600">
+                <AlertCircle className="w-3.5 h-3.5" />
+                Você atingiu o limite de {MAX_IMAGES} fotos. Algumas imagens
+                não foram adicionadas.
+              </p>
+            )}
 
             <div className="space-y-4">
               <h4 className="font-semibold text-sm flex items-center gap-2 text-brand-dark">

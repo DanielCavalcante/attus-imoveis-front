@@ -1,6 +1,4 @@
 "use client";
-
-
 import Image from "next/image";
 import Link from "next/link";
 import { CheckCircle2, Users, MessageCircle, Star } from "lucide-react";
@@ -30,13 +28,11 @@ export default function PropertyRegistrationHero() {
   return (
     <section className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
-       
         <div className="order-2 flex justify-center lg:order-1">
           <div className="relative h-[320px] w-[320px] sm:h-[380px] sm:w-[380px]">
-            
             <Image
               src="/images/mulher-encontrei.png"
-              alt=""
+              alt="Mulher sorrindo utilizando o aplicativo Encontrei no celular"
              fill
              sizes="400px"
               className="object-contain"
@@ -97,11 +93,11 @@ export default function PropertyRegistrationHero() {
         />
         <FeatureCard
           icon={<MessageCircle className="h-6 w-6" />}
-          text='Receba mensagens e agendamentos por WhatsApp e e-mail'
+          text="Receba mensagens e agendamentos por WhatsApp e e-mail"
         />
         <FeatureCard
           icon={<Star className="h-6 w-6" />}
-          text='Selo destaque "Direto com o proprietário" no seu anúncio'
+          text="Selo destaque &quot;Direto com o proprietário&quot; no seu anúncio"
         />
       </div>
     </section>
