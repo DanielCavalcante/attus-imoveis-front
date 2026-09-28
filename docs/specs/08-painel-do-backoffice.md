@@ -6,22 +6,24 @@ A equipe interna analisa imobiliárias e gerencia planos por tela, em vez de por
 ## Depende de
 05-analise-de-confiabilidade, 07-planos-configuraveis
 
+> **Aprovada no gate humano em 2026-09-28.** Todos os critérios aceitos.
+
 ## Critérios
-- [ ] **C1** `seguranca` — `/portal/backoffice` sem sessão redireciona para a tela de login.
-- [ ] **C2** `seguranca` — `/portal/backoffice` com sessão de papel comum não exibe a fila.
-- [ ] **C3** `experiencia` — `/portal/backoffice` com sessão de papel interno exibe a fila de análise.
-- [ ] **C4** `experiencia` — Cada linha da fila mostra CNPJ, razão social e CRECI da empresa.
-- [ ] **C5** `experiencia` — Fila sem empresa pendente exibe estado vazio, não tabela em branco.
-- [ ] **C6** `dominio` — Aprovar pela tela deixa a empresa com análise aprovada.
-- [ ] **C7** `experiencia` — Empresa aprovada some da fila sem recarregar a página.
-- [ ] **C8** `experiencia` — Reprovar sem motivo preenchido não envia a decisão.
-- [ ] **C9** `dominio` — Reprovar pela tela grava o motivo informado na empresa.
-- [ ] **C10** `experiencia` — `/portal/backoffice/planos` lista os planos, inclusive os inativos.
-- [ ] **C11** `experiencia` — Criar plano pela tela faz o plano aparecer na lista.
-- [ ] **C12** `experiencia` — Desativar plano pela tela marca o plano como inativo na lista.
-- [ ] **C13** `experiencia` — Plano com limite de anúncios vazio é exibido como ilimitado.
-- [ ] **C14** `experiencia` — Conta de papel interno vê o acesso ao painel na navegação.
-- [ ] **C15** `experiencia` — Conta de papel comum não vê o acesso ao painel na navegação.
+- [x] **C1** `seguranca` — `/portal/backoffice` sem sessão redireciona para a tela de login.
+- [x] **C2** `seguranca` — `/portal/backoffice` com sessão de papel comum não exibe a fila.
+- [x] **C3** `experiencia` — `/portal/backoffice` com sessão de papel interno exibe a fila de análise.
+- [x] **C4** `experiencia` — Cada linha da fila mostra CNPJ, razão social e CRECI da empresa.
+- [x] **C5** `experiencia` — Fila sem empresa pendente exibe estado vazio, não tabela em branco.
+- [x] **C6** `dominio` — Aprovar pela tela deixa a empresa com análise aprovada.
+- [x] **C7** `experiencia` — Empresa aprovada some da fila sem recarregar a página.
+- [x] **C8** `experiencia` — Reprovar sem motivo preenchido não envia a decisão.
+- [x] **C9** `dominio` — Reprovar pela tela grava o motivo informado na empresa.
+- [x] **C10** `experiencia` — `/portal/backoffice/planos` lista os planos, inclusive os inativos.
+- [x] **C11** `experiencia` — Criar plano pela tela faz o plano aparecer na lista.
+- [x] **C12** `experiencia` — Desativar plano pela tela marca o plano como inativo na lista.
+- [x] **C13** `experiencia` — Plano com limite de anúncios vazio é exibido como ilimitado.
+- [x] **C14** `experiencia` — Conta de papel interno vê o acesso ao painel na navegação.
+- [x] **C15** `experiencia` — Conta de papel comum não vê o acesso ao painel na navegação.
 
 ## Contrato técnico
 - **A proteção de verdade é da API.** `/api/v1/backoffice/**` já exige papel `INTERNO` desde a spec 01. O guard de rota no cliente evita que a pessoa errada veja uma tela quebrada; ele não é o que impede o acesso aos dados, e não pode ser tratado como se fosse.

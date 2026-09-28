@@ -6,22 +6,24 @@ Quem cria conta escolhe se é pessoa física ou jurídica, e a empresa completa 
 ## Depende de
 02-dossie-da-empresa
 
+> **Aprovada no gate humano em 2026-09-28.** Todos os critérios aceitos.
+
 ## Critérios
-- [ ] **C1** `experiencia` — A tela de cadastro apresenta escolha visível entre pessoa física e pessoa jurídica.
-- [ ] **C2** `experiencia` — Com pessoa física escolhida, o campo de CNPJ não aparece na tela.
-- [ ] **C3** `experiencia` — Com pessoa jurídica escolhida, o campo de CNPJ aparece na tela.
-- [ ] **C4** `contrato-api` — O corpo enviado ao criar conta contém `accountType`.
-- [ ] **C5** `contrato-api` — O corpo enviado ao criar conta pessoa jurídica contém `cnpj` preenchido.
-- [ ] **C6** `contrato-api` — O corpo enviado ao criar conta pessoa física não contém `cnpj` com string vazia.
-- [ ] **C7** `experiencia` — Cadastro de pessoa jurídica sem CNPJ mostra mensagem de erro sem chamar a API.
-- [ ] **C8** `experiencia` — Cadastro de pessoa física preenchido corretamente chega ao fim sem erro da API.
-- [ ] **C9** `experiencia` — A rota `/portal/empresa` exige sessão e redireciona quem não tem.
-- [ ] **C10** `experiencia` — `/portal/empresa` exibe campo para cada dado obrigatório do dossiê.
-- [ ] **C11** `experiencia` — `/portal/empresa` informa se o dossiê está completo ou incompleto.
-- [ ] **C12** `contrato-api` — Salvar o dossiê emite `PUT` para `/companies/me`.
-- [ ] **C13** `experiencia` — Conta pessoa jurídica vê o acesso à área da empresa na navegação.
-- [ ] **C14** `experiencia` — Conta pessoa física não vê o acesso à área da empresa na navegação.
-- [ ] **C15** `experiencia` — Recusa da API ao salvar o dossiê é exibida com a mensagem vinda do servidor.
+- [x] **C1** `experiencia` — A tela de cadastro apresenta escolha visível entre pessoa física e pessoa jurídica.
+- [x] **C2** `experiencia` — Com pessoa física escolhida, o campo de CNPJ não aparece na tela.
+- [x] **C3** `experiencia` — Com pessoa jurídica escolhida, o campo de CNPJ aparece na tela.
+- [x] **C4** `contrato-api` — O corpo enviado ao criar conta contém `accountType`.
+- [x] **C5** `contrato-api` — O corpo enviado ao criar conta pessoa jurídica contém `cnpj` preenchido.
+- [x] **C6** `contrato-api` — O corpo enviado ao criar conta pessoa física não contém `cnpj` com string vazia.
+- [x] **C7** `experiencia` — Cadastro de pessoa jurídica sem CNPJ mostra mensagem de erro sem chamar a API.
+- [x] **C8** `experiencia` — Cadastro de pessoa física preenchido corretamente chega ao fim sem erro da API.
+- [x] **C9** `experiencia` — A rota `/portal/empresa` exige sessão e redireciona quem não tem.
+- [x] **C10** `experiencia` — `/portal/empresa` exibe campo para cada dado obrigatório do dossiê.
+- [x] **C11** `experiencia` — `/portal/empresa` informa se o dossiê está completo ou incompleto.
+- [x] **C12** `contrato-api` — Salvar o dossiê emite `PUT` para `/companies/me`.
+- [x] **C13** `experiencia` — Conta pessoa jurídica vê o acesso à área da empresa na navegação.
+- [x] **C14** `experiencia` — Conta pessoa física não vê o acesso à área da empresa na navegação.
+- [x] **C15** `experiencia` — Recusa da API ao salvar o dossiê é exibida com a mensagem vinda do servidor.
 
 ## Contrato técnico
 - Os literais de `accountType` são `PF` e `PJ`, idênticos ao enum Java. O schema Zod é a fonte do tipo, como já vale para `announcement.ts`.
