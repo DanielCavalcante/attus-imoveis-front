@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { UserFormData, userSchema } from "@/app/schemas/user";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useCreateUser } from "@/app/hooks/use-create-user";
@@ -24,10 +25,15 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
+    defaultValues: { accountType: "PF" },
   });
+
+  const accountType = watch("accountType");
 
   async function onSubmit(data: UserFormData) {
     try {
@@ -82,8 +88,46 @@ export default function RegisterPage() {
 
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              <fieldset className="space-y-2">
+                <legend className="text-sm font-medium">Tipo de conta</legend>
+
+                <RadioGroup
+                  value={accountType}
+                  onValueChange={(value) =>
+                    setValue("accountType", value as UserFormData["accountType"], {
+                      shouldValidate: true,
+                    })
+                  }
+                  className="grid grid-cols-2 gap-3"
+                >
+                  <Label
+                    htmlFor="accountType-pf"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 has-data-[state=checked]:border-primary"
+                  >
+                    <RadioGroupItem value="PF" id="accountType-pf" />
+                    Pessoa física
+                  </Label>
+
+                  <Label
+                    htmlFor="accountType-pj"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 has-data-[state=checked]:border-primary"
+                  >
+                    <RadioGroupItem value="PJ" id="accountType-pj" />
+                    Pessoa jurídica
+                  </Label>
+                </RadioGroup>
+
+                {errors.accountType && (
+                  <p className="text-red-500 text-sm font-semibold mt-1">
+                    {errors.accountType.message}
+                  </p>
+                )}
+              </fieldset>
+
               <div className="space-y-2">
-                <Label htmlFor="fullname">Nome completo</Label>
+                <Label htmlFor="fullname">
+                  {accountType === "PJ" ? "Nome do contato" : "Nome completo"}
+                </Label>
 
                 <Input
                   {...register("fullname")}
@@ -129,6 +173,30 @@ export default function RegisterPage() {
                   </p>
                 )}
               </div>
+
+              {accountType === "PJ" && (
+                <div className="space-y-2">
+                  <Label htmlFor="cnpj">CNPJ</Label>
+
+                  <Input
+                    {...register("cnpj")}
+                    id="cnpj"
+                    type="text"
+                    placeholder="00.000.000/0001-00"
+                  />
+
+                  <p className="text-xs text-muted-foreground">
+                    Os demais dados da empresa você completa depois, na área da
+                    empresa.
+                  </p>
+
+                  {errors.cnpj && (
+                    <p className="text-red-500 text-sm font-semibold mt-1">
+                      {errors.cnpj.message}
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="password">Senha</Label>

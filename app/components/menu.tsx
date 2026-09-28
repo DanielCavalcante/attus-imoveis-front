@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, Building2, LogIn, Megaphone } from "lucide-react";
+import { LayoutDashboard, Building2, LogIn, Megaphone, Briefcase, ShieldCheck } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -73,6 +73,32 @@ export function Menu() {
                   >
                     <Megaphone className="h-4 w-4" />
                     Anuncie
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+            {user?.accountType === "PJ" && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/portal/empresa"
+                    className="flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:bg-muted sm:px-4"
+                  >
+                    <Briefcase className="h-4 w-4" />
+                    Empresa
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
+            {user?.role === "INTERNO" && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link
+                    href="/portal/backoffice"
+                    className="flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:bg-muted sm:px-4"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    Painel
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
