@@ -1,29 +1,73 @@
 "use client";
 
-import {
-  Bath,
-  BedDouble,
-  Building2,
-  MapPin,
-  Maximize,
-  Phone,
-} from "lucide-react";
+import { Bath, BedDouble, Building2, MapPin, Maximize, Phone } from "lucide-react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAnnouncementDetail } from "@/app/hooks/use-detail-announcement";
-import { useParams } from "next/navigation";
+import {
+  formatArea,
+  formatPrice,
+  hasRooms,
+  initials,
+  propertyTypeLabel,
+  reasonLabel,
+} from "@/app/lib/property";
 
-export default function dataDetailsPage() {
+/**
+ * O backend ainda nao expoe o dono no AnnouncementDetailDTO; ate la o bloco do
+ * anunciante e placeholder. As iniciais saem do proprio nome para nao divergirem.
+ */
+const ADVERTISER_PLACEHOLDER = "Daniel Cavalcante";
+
+export default function AnnouncementDetailPage() {
   const params = useParams();
   const id = Number(params.id);
   const { data, isLoading, error } = useAnnouncementDetail(id);
 
-  if (isLoading) return <p>Carregando...</p>;
-  console.log(error);
-  if (error) return <p>Erro ao carregar anúncio.</p>;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-muted/40">
+        <div className="container mx-auto space-y-6 px-4 py-8" aria-busy="true">
+          <div className="h-9 w-72 animate-pulse rounded bg-muted" />
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="space-y-6 lg:col-span-2">
+              <div className="aspect-[16/10] animate-pulse rounded-3xl bg-muted" />
+
+              <div className="h-64 animate-pulse rounded-3xl bg-muted" />
+            </div>
+
+            <div className="h-72 animate-pulse rounded-3xl bg-muted" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
+        <h1 className="text-3xl font-bold">Anúncio não encontrado</h1>
+
+        <p className="mt-3 max-w-md text-muted-foreground">
+          O imóvel que você procura pode ter sido removido, ou o link está
+          incorreto.
+        </p>
+
+        <Button asChild className="mt-8">
+          <Link href="/imoveis">Ver imóveis disponíveis</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const showRooms = hasRooms(data.propertyType);
 
   return (
     <div className="min-h-screen bg-muted/40">
@@ -41,83 +85,77 @@ export default function dataDetailsPage() {
 
           <div className="grid gap-6 lg:grid-cols-3">
             <div className="space-y-6 lg:col-span-2">
-              <Card className="overflow-hidden rounded-3xl border-0 shadow-sm">
+              <Card className="overflow-hidden rounded-3xl border-0 p-0 shadow-sm">
                 <img
-                  src={data?.image}
-                  alt={data?.title}
-                  className="h-[450px] w-full object-cover"
+                  src={data.image}
+                  alt={`Foto de ${data.title}`}
+                  className="aspect-[16/10] w-full object-cover"
                 />
               </Card>
 
-              {/* <div className="grid gap-4 md:grid-cols-3">
-                {data?.gallery.map((image, index) => (
-                  <Card
-                    key={index}
-                    className="overflow-hidden rounded-2xl border-0 shadow-sm"
-                  >
-                    <img
-                      src={image}
-                      alt="Galeria"
-                      className="h-40 w-full object-cover"
-                    />
-                  </Card>
-                ))}
-              </div> */}
-
               <Card className="rounded-3xl border-0 shadow-sm">
-                <CardContent className="space-y-8 p-8">
+                <CardContent className="space-y-8 p-6 md:p-8">
                   <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-4">
                       <Badge className="rounded-full px-4 py-1 text-sm">
-                        {data?.reason}
+                        {reasonLabel(data.reason)}
                       </Badge>
 
                       <div>
-                        <h2 className="text-3xl font-bold">{data?.title}</h2>
+                        <h2 className="text-3xl font-bold">{data.title}</h2>
 
-                        <div className="mt-2 flex items-center gap-2 text-muted-foreground">
-                          <MapPin className="h-4 w-4" />
+                        <div className="mt-2 flex items-start gap-2 text-muted-foreground">
+                          <MapPin className="mt-1 h-4 w-4 shrink-0" aria-hidden />
 
                           <span>
-                            {data?.street}, {data?.streetNumber} - {data?.city}/
-                            {data?.state}
+                            {data.street}, {data.streetNumber} - {data.city}/
+                            {data.state}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-3xl font-bold">{data?.price}</h3>
-                    </div>
+                    <p className="text-3xl font-bold whitespace-nowrap">
+                      {formatPrice(data.price, data.reason)}
+                    </p>
                   </div>
 
-                  <div className="grid gap-4 md:grid-cols-4">
-                    <InfoCard
-                      icon={<BedDouble className="h-5 w-5" />}
-                      label="Quartos"
-                      value={data?.rooms}
-                    />
+                  <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+                    {showRooms && (
+                      <>
+                        <InfoCard
+                          icon={<BedDouble className="h-5 w-5" aria-hidden />}
+                          label="Quartos"
+                          value={data.rooms}
+                        />
+
+                        <InfoCard
+                          icon={<Bath className="h-5 w-5" aria-hidden />}
+                          label="Banheiros"
+                          value={data.bathRooms}
+                        />
+                      </>
+                    )}
 
                     <InfoCard
-                      icon={<Bath className="h-5 w-5" />}
-                      label="Banheiros"
-                      value={data?.bathRooms}
-                    />
-
-                    <InfoCard
-                      icon={<Maximize className="h-5 w-5" />}
+                      icon={<Maximize className="h-5 w-5" aria-hidden />}
                       label="Área"
-                      value={`${data?.area}m²`}
+                      value={formatArea(data.area)}
                     />
 
                     <InfoCard
-                      icon={<Building2 className="h-5 w-5" />}
+                      icon={<Building2 className="h-5 w-5" aria-hidden />}
                       label="Tipo"
-                      value={data?.propertyType}
+                      value={propertyTypeLabel(data.propertyType)}
                     />
                   </div>
 
-                  <Tabs defaultValue="description">
+                  {/*
+                    flex-col explicito: o Tabs gerado usa data-horizontal:flex-col,
+                    mas o componente seta data-orientation. O seletor nao casa e a
+                    lista de abas ficava ao lado do conteudo.
+                  */}
+                  <Tabs defaultValue="description" className="flex-col">
                     <TabsList className="rounded-2xl">
                       <TabsTrigger value="description">Descrição</TabsTrigger>
 
@@ -125,17 +163,20 @@ export default function dataDetailsPage() {
                     </TabsList>
 
                     <TabsContent value="description" className="mt-6">
-                      <p className="leading-8 text-muted-foreground">
-                        {data?.description}
+                      <p className="max-w-[70ch] leading-8 text-muted-foreground">
+                        {data.description || "Este anúncio não tem descrição."}
                       </p>
                     </TabsContent>
 
                     <TabsContent value="location" className="mt-6">
                       <div className="rounded-2xl bg-muted p-5">
                         <p className="text-muted-foreground">
-                          {data?.street}, {data?.streetNumber}
+                          {data.street}, {data.streetNumber}
+                          {data.complement ? ` - ${data.complement}` : ""}
                           <br />
-                          {data?.city} - {data?.state}
+                          {data.city} - {data.state}
+                          <br />
+                          CEP {data.cep}
                         </p>
                       </div>
                     </TabsContent>
@@ -153,12 +194,15 @@ export default function dataDetailsPage() {
                 <CardContent className="space-y-6">
                   <div className="flex items-center gap-4">
                     <Avatar className="h-16 w-16">
-                      <AvatarImage src={""} />
-                      <AvatarFallback>DC</AvatarFallback>
+                      <AvatarImage alt="" />
+
+                      <AvatarFallback>
+                        {initials(ADVERTISER_PLACEHOLDER)}
+                      </AvatarFallback>
                     </Avatar>
 
                     <div>
-                      <h3 className="font-semibold">{"Daniel Cavalcante"}</h3>
+                      <h3 className="font-semibold">{ADVERTISER_PLACEHOLDER}</h3>
 
                       <p className="text-sm text-muted-foreground">
                         Proprietário
@@ -167,7 +211,7 @@ export default function dataDetailsPage() {
                   </div>
 
                   <Button className="w-full gap-2 rounded-2xl">
-                    <Phone className="h-4 w-4" />
+                    <Phone className="h-4 w-4" aria-hidden />
                     Entrar em contato
                   </Button>
 
@@ -194,11 +238,12 @@ function InfoCard({ icon, label, value }: InfoCardProps) {
   return (
     <Card className="rounded-2xl shadow-none">
       <CardContent className="flex items-center gap-4 p-5">
-        <div className="rounded-xl bg-zinc-100 p-3">{icon}</div>
+        <div className="rounded-xl bg-muted p-3">{icon}</div>
 
-        <div>
+        <div className="min-w-0">
           <p className="text-sm text-muted-foreground">{label}</p>
-          <strong>{value}</strong>
+
+          <strong className="block truncate">{value}</strong>
         </div>
       </CardContent>
     </Card>

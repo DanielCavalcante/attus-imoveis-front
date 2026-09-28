@@ -30,7 +30,7 @@
 
   --border: hsl(214.3 31.8% 91.4%);
   --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(222.2 84% 4.9%);
+  --ring: hsl(262 83% 58%);
 
   --radius: 0.75rem;
 
@@ -124,4 +124,27 @@ html,
 body {
   width: 100%;
   height: 100%;
+}
+
+/* Superficies do browser: sem isso a selecao e o anel de foco ficam no padrao
+   do sistema, que nao pertence a nenhum design system. */
+::selection {
+  background-color: color-mix(in srgb, var(--brand) 22%, transparent);
+  color: var(--foreground);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

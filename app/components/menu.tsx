@@ -16,8 +16,13 @@ export function Menu() {
   const { user } = useAuth();
 
   return (
-    <header className="border-b bg-white px-6 py-4 shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
+    <header className="border-b bg-white px-4 py-3 shadow-sm sm:px-6 sm:py-4">
+      {/*
+        flex-wrap + a nav em linha própria no mobile: logo, navegação e menu do
+        usuário somavam 555px num viewport de 375 e o mx-auto centralizava o
+        excesso, cortando o logo e criando scroll horizontal.
+      */}
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-y-3">
         <div className="flex items-center">
           <Link href="/" className="flex items-center">
             <Image
@@ -26,19 +31,19 @@ export function Menu() {
               width={320}
               height={60}
               priority
-              className="h-11 w-auto"
+              className="h-9 w-auto sm:h-11"
             />
           </Link>
         </div>
 
-        <NavigationMenu>
-          <NavigationMenuList className="flex gap-2">
+        <NavigationMenu className="order-last w-full max-w-none justify-start sm:order-none sm:w-auto">
+          <NavigationMenuList className="flex w-full gap-1 overflow-x-auto sm:w-auto sm:gap-2">
             {user && (
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
                   <Link
                     href="/portal/dashboard"
-                    className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
+                    className="flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:bg-muted sm:px-4"
                   >
                     <LayoutDashboard className="h-4 w-4" />
                     Dashboard
@@ -51,9 +56,9 @@ export function Menu() {
               <NavigationMenuLink asChild>
                 <Link
                   href="/imoveis"
-                  className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
+                  className="flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:bg-muted sm:px-4"
                 >
-                  <Building2 className="mr-2 h-4 w-4" />
+                  <Building2 className="h-4 w-4" />
                   Imóveis
                 </Link>
               </NavigationMenuLink>
@@ -64,10 +69,10 @@ export function Menu() {
                 <NavigationMenuLink asChild>
                   <Link
                     href="/anuncie"
-                    className="flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium hover:bg-muted"
+                    className="flex items-center gap-2 whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium hover:bg-muted sm:px-4"
                   >
-                    <Megaphone className="mr-2 h-4 w-4" />
-                    Anúncie
+                    <Megaphone className="h-4 w-4" />
+                    Anuncie
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>

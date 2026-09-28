@@ -130,7 +130,7 @@ export default function CreateAnnouncementPage() {
                             )
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
 
@@ -165,7 +165,7 @@ export default function CreateAnnouncementPage() {
                             )
                           }
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue />
                           </SelectTrigger>
 
@@ -219,7 +219,7 @@ export default function CreateAnnouncementPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Área</Label>
+                        <Label>Área (m²)</Label>
                         <Input
                           {...register("area", {
                             valueAsNumber: true,
@@ -236,14 +236,14 @@ export default function CreateAnnouncementPage() {
                       </div>
 
                       <div className="space-y-2">
-                        <Label>Preço</Label>
+                        <Label>Preço (R$)</Label>
                         <Input
                           {...register("price", {
                             valueAsNumber: true,
                           })}
                           step="0.01"
                           type="number"
-                          placeholder="1.200,000"
+                          placeholder="1200000"
                         />
 
                         {errors.price && (
