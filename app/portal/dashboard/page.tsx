@@ -6,19 +6,32 @@ import { Home } from "lucide-react";
 import { useMyAnnouncements } from "@/app/hooks/use-my-announcements";
 import { Button } from "@/components/ui/button";
 import { PrivateRoute } from "@/app/components/private-route";
-import { AnnouncementList } from "@/app/components/announcement-list";
+import { AnnouncementGrid } from "@/app/components/announcement-grid";
 
 export default function DashboardPage() {
   const { data, isLoading } = useMyAnnouncements();
+
+  const anuncios = data?.content ?? [];
 
   return (
     <PrivateRoute>
       <div className="min-h-screen bg-muted/40">
         <div className="container mx-auto px-4 py-8">
-          <AnnouncementList
-            title="Meus anúncios"
-            description="Veja sua lista de anúncios."
-            data={data}
+          {anuncios.length > 0 && (
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold tracking-tight">
+                Meus anúncios
+              </h1>
+
+              <p className="text-muted-foreground">
+                {data?.totalElements} publicado
+                {data?.totalElements === 1 ? "" : "s"}.
+              </p>
+            </div>
+          )}
+
+          <AnnouncementGrid
+            announcements={anuncios}
             isLoading={isLoading}
             emptyState={
               <div className="flex min-h-[70vh] flex-col items-center justify-center px-4">

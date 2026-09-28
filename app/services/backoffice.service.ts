@@ -2,13 +2,18 @@
 
 import { api } from "./api";
 import { PendingCompany, Plan } from "../types/backoffice";
+import { Page } from "../types/pagination";
 import { PlanFormData } from "../schemas/plan";
 
 export async function getPendingCompanies() {
-  return api<PendingCompany[]>("/backoffice/companies", {
+  const pagina = await api<Page<PendingCompany>>("/backoffice/companies", {
     method: "GET",
     auth: true,
   });
+
+  // A fila e de pagina unica no painel: o tamanho padrao da API basta, e
+  // paginar aqui viria com a spec que trouxer volume para a fila.
+  return pagina.content;
 }
 
 export async function approveCompany(id: number) {
@@ -26,6 +31,10 @@ export async function rejectCompany(id: number, motivo: string) {
   });
 }
 
+/**
+ * Array, nao pagina: a spec 14 paginou as duas filas -- empresas e apoio --,
+ * nao o catalogo de planos. O numero de pacotes nao cresce como fila.
+ */
 export async function getAllPlans() {
   return api<Plan[]>("/backoffice/plans", { method: "GET", auth: true });
 }

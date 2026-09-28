@@ -17,7 +17,8 @@ import { PropertyCard } from "./property-card";
 export function FeaturedProperties() {
   const { data, isLoading } = useAnnouncements();
 
-  const featured = data?.slice(0, 8) ?? [];
+  // Primeira pagina da listagem publica: o carrossel e vitrine, nao acervo.
+  const featured = data?.pages[0]?.content ?? [];
 
   return (
     <section className="container mx-auto px-4 py-16">
