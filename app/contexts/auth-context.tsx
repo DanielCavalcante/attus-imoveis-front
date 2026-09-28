@@ -7,15 +7,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { jwtDecode } from "jwt-decode";
 
-type User = {
-  id: number;
-  email: string;
-  fullname: string;
-  photo: string;
-  phone: string;
-};
+import {
+  decodeSession,
+  mergeProfileIntoSession,
+  type SessionUser,
+} from "../lib/session";
+
+type User = SessionUser;
 
 type Props = {
   children: ReactNode;
@@ -28,7 +27,7 @@ type AuthContextType = {
 
   login: (token: string) => void;
   logout: () => void;
-  updateUserSession: (user: User) => void;
+  updateUserSession: (user: Partial<User>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -39,48 +38,36 @@ export function AuthProvider({ children }: Props) {
   const [loading, setLoading] = useState(true);
 
   function login(token: string) {
-    const decoded = jwtDecode<User>(token);
     localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(decoded));
 
     setToken(token);
-    setUser(decoded);
+    setUser(decodeSession(token));
   }
 
   function logout() {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
 
     setToken(null);
     setUser(null);
   }
 
-  function updateUserSession(updatedUser: User) {
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    setUser(updatedUser);
+  /**
+   * Só os campos de exibição mudam. Identidade — id, e-mail, tipo e papel —
+   * continua vindo do token; ver `app/lib/session.ts`.
+   */
+  function updateUserSession(profile: Partial<User>) {
+    setUser((atual) => mergeProfileIntoSession(atual, profile));
   }
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    const storedUser = localStorage.getItem("user");
 
-    if (storedToken) {
-      setToken(storedToken);
-    }
+    // Resquício da versão anterior, que mantinha uma cópia da sessão com
+    // precedência sobre o token. Removido para não voltar a ser lido.
+    localStorage.removeItem("user");
 
-    if (storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser) as User;
-        setUser(parsedUser);
-      } catch {
-        localStorage.removeItem("user");
-      }
-    } else if (storedToken) {
-      const decoded = jwtDecode<User>(storedToken);
-      setUser(decoded);
-      localStorage.setItem("user", JSON.stringify(decoded));
-    }
-
+    setToken(storedToken);
+    setUser(decodeSession(storedToken));
     setLoading(false);
   }, []);
 
