@@ -13,6 +13,9 @@ import {
   AnnouncementFormData,
 } from "../schemas/announcement";
 import { PrivateRoute } from "../components/private-route";
+import { CadastroEmAprovacao } from "../components/cadastro-em-aprovacao";
+import { useAuth } from "../contexts/auth-context";
+import { useCompany } from "../hooks/use-company";
 import { TIPOS_DE_IMOVEL } from "../lib/property";
 
 const CAMPO =
@@ -23,8 +26,55 @@ const ROTULO = "mb-2 block text-sm text-foreground/85";
 export default function CreateAnnouncementPage() {
   return (
     <PrivateRoute>
-      <FormularioDeAnuncio />
+      <PortaoDaAprovacao />
     </PrivateRoute>
+  );
+}
+
+/**
+ * Quem pode anunciar vê o formulário; quem não pode vê o porquê.
+ *
+ * O portão de verdade é o servidor (spec 28) -- esta tela existe para a pessoa
+ * não preencher quinze campos antes de descobrir. Por isso ela lê o mesmo
+ * estado que o servidor consulta, em vez de adivinhar por tipo de conta.
+ */
+function PortaoDaAprovacao() {
+  const { user } = useAuth();
+
+  const ehEmpresa = user?.accountType === "PJ";
+  const empresa = useCompany(ehEmpresa);
+
+  if (!ehEmpresa) {
+    return <FormularioDeAnuncio />;
+  }
+
+  // Nada de formulário antes da resposta: mostrá-lo e recolhê-lo é pior que
+  // esperar, porque quem já começou a digitar perde o que digitou.
+  if (empresa.isPending) {
+    return <Carregando />;
+  }
+
+  const status = empresa.data?.analysisStatus ?? "NAO_ENVIADO";
+
+  if (status !== "APROVADA") {
+    return (
+      <CadastroEmAprovacao
+        status={status}
+        motivo={empresa.data?.rejectionReason}
+      />
+    );
+  }
+
+  return <FormularioDeAnuncio />;
+}
+
+function Carregando() {
+  return (
+    <div className="mx-auto w-full max-w-2xl px-4 py-20 sm:px-6" aria-busy="true">
+      <div className="h-10 w-10 animate-pulse bg-secondary" />
+      <div className="mt-6 h-12 w-full animate-pulse bg-secondary" />
+      <div className="mt-4 h-5 w-3/4 animate-pulse bg-secondary" />
+    </div>
   );
 }
 

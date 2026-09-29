@@ -11,6 +11,14 @@ WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
+# NEXT_PUBLIC_* e embutido no bundle aqui, no build -- passar em `environment`
+# no runtime nao tem efeito nenhum.
+ARG NEXT_PUBLIC_CONTATO_EMAIL
+ARG NEXT_PUBLIC_CONTATO_TELEFONE
+ENV NEXT_PUBLIC_CONTATO_EMAIL=$NEXT_PUBLIC_CONTATO_EMAIL
+ENV NEXT_PUBLIC_CONTATO_TELEFONE=$NEXT_PUBLIC_CONTATO_TELEFONE
+
 RUN npm run build
 
 # ---- runtime ----
