@@ -13,6 +13,7 @@ import {
   reasonLabel,
 } from "@/app/lib/property";
 import { urlDaImagem } from "@/app/lib/imagem";
+import { CarrosselDeFotos } from "@/app/components/carrossel-de-fotos";
 
 export default function AnnouncementDetailPage() {
   const params = useParams();
@@ -95,7 +96,12 @@ export default function AnnouncementDetailPage() {
       <div className="horizonte" />
 
       <div className="mx-auto grid w-full max-w-7xl gap-14 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:gap-16">
-        <div>
+        {/*
+          `min-w-0` porque item de grid nasce com `min-width: auto`: sem isso
+          ele se recusa a encolher abaixo do conteudo, e o carrossel empurrava
+          a pagina inteira para a rolagem horizontal em vez de rolar por dentro.
+        */}
+        <div className="min-w-0">
           <p className="text-xs tracking-[0.06em] text-muted-foreground">
             {reasonLabel(data.reason).toUpperCase()} · {data.city.toUpperCase()}
             {data.state ? ` · ${data.state.toUpperCase()}` : ""}
@@ -145,6 +151,16 @@ export default function AnnouncementDetailPage() {
               <span className="tabular">CEP {data.cep}</span>
             </span>
           </p>
+
+          {/*
+            A capa nao entra aqui: ela ja e o heroi do topo. Repeti-la faria a
+            pessoa ver a mesma foto duas vezes e contar uma a mais do que
+            existe.
+          */}
+          <CarrosselDeFotos
+            fotos={(data.imagens ?? []).filter((foto) => foto !== data.image)}
+            titulo={data.title}
+          />
         </div>
 
         <aside className="flex flex-col gap-6">

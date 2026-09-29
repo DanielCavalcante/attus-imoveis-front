@@ -11,4 +11,9 @@ export type Announcement = AnnouncementFormData & {
   id: number;
   active?: boolean;
   neighborhood?: string | null;
+  /**
+   * Todas as fotos, na ordem. A listagem não traz — ela só precisa da capa,
+   * que continua em `image`.
+   */
+  imagens?: string[];
 };

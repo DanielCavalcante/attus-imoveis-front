@@ -105,22 +105,27 @@ function FormularioDeAnuncio() {
 
   const [enviandoImagem, setEnviandoImagem] = useState(false);
 
+  /** As fotos vivem aqui, e a capa vai espelhada para o campo `image`. */
+  const [fotos, setFotos] = useState<string[]>([]);
+  const [capa, setCapa] = useState(0);
+
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementSchema),
     defaultValues: { propertyType: "HOUSE", reason: "SALE" },
   });
 
-  const imagemAtual = watch("image");
-
   async function onSubmit(data: AnnouncementFormData) {
     try {
-      await createAnnouncementMutation.mutateAsync(data);
+      await createAnnouncementMutation.mutateAsync({
+        ...data,
+        imagens: fotos,
+        capa,
+      });
 
       toast.success("Anúncio publicado.");
       router.push("/portal/anuncios");
@@ -382,10 +387,20 @@ function FormularioDeAnuncio() {
             <input type="hidden" {...register("image")} />
 
             <CampoDeImagem
-              valor={imagemAtual}
-              onChange={(caminho) =>
-                setValue("image", caminho, { shouldValidate: true })
-              }
+              valor={fotos}
+              onChange={(escolhidas) => {
+                setFotos(escolhidas);
+                // A capa espelhada no campo que o schema valida: sem ela o
+                // formulario passaria sem foto nenhuma.
+                setValue("image", escolhidas[capa] ?? escolhidas[0] ?? "", {
+                  shouldValidate: true,
+                });
+              }}
+              capa={capa}
+              onCapa={(indice) => {
+                setCapa(indice);
+                setValue("image", fotos[indice] ?? "", { shouldValidate: true });
+              }}
               onEnviando={setEnviandoImagem}
             />
 
