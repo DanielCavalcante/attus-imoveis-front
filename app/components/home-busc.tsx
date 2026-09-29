@@ -8,9 +8,10 @@ import { TIPOS_DE_IMOVEL, type PropertyType } from "@/app/lib/property";
 import { buildAnnouncementsQuery } from "@/app/services/announcements.service";
 import { useBairros, useCidades } from "@/app/hooks/use-locations";
 import { CampoComSugestoes } from "./campo-com-sugestoes";
+import { CIDADE_PADRAO } from "../lib/cidade";
 
 /** A cidade onde o produto começa. Campo digitável: só o valor inicial. */
-const CIDADE_INICIAL = "João Pessoa";
+const CIDADE_INICIAL = CIDADE_PADRAO;
 
 /** Ausência de filtro, não um valor: o seletor não nasce ligado. */
 const QUALQUER_TIPO = "";

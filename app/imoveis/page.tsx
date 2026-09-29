@@ -12,6 +12,7 @@ import {
   PainelDeFiltros,
   type Filtros,
 } from "../components/painel-de-filtros";
+import { CIDADE_PADRAO } from "../lib/cidade";
 import { propertyTypeLabel, type PropertyType } from "../lib/property";
 import { buildAnnouncementsQuery } from "../services/announcements.service";
 
@@ -40,16 +41,26 @@ function Listagem() {
   const parametros = useSearchParams();
   const router = useRouter();
 
-  const filtros: Filtros = useMemo(
-    () => ({
-      city: parametros.get("city") ?? "",
+  /**
+   * Sem `city` na URL, vale a cidade padrão; com `city` vazio, vale o acervo
+   * inteiro.
+   *
+   * A distinção é entre "cheguei sem pedir nada" e "apaguei a cidade de
+   * propósito", e ela só existe porque a URL guarda as duas de forma
+   * diferente: ausente é `null`, apagado é `""`. Sem isso, limpar os filtros
+   * devolveria João Pessoa de novo e não haveria como ver o acervo todo.
+   */
+  const filtros: Filtros = useMemo(() => {
+    const cidade = parametros.get("city");
+
+    return {
+      city: cidade === null ? CIDADE_PADRAO : cidade,
       neighborhood: parametros.get("neighborhood") ?? "",
       type: (parametros.get("type") as PropertyType | null) ?? "",
       minPrice: parametros.get("minPrice") ?? "",
       maxPrice: parametros.get("maxPrice") ?? "",
-    }),
-    [parametros],
-  );
+    };
+  }, [parametros]);
 
   const termoDaUrl = parametros.get("q") ?? "";
 
@@ -80,17 +91,28 @@ function Listagem() {
 
   const total = data?.pages[0]?.totalElements ?? 0;
 
+  /**
+   * A URL escrita aqui sempre carrega `city`, inclusive vazio.
+   *
+   * `buildAnnouncementsQuery` omite campo em branco, e é o certo para a
+   * consulta da API -- ausência ali significa "sem filtro". Na URL da tela
+   * significa outra coisa: "ainda não escolhi", que reabre no padrão. Por isso
+   * a escolha da pessoa é escrita explicitamente.
+   */
   function aplicar(novos: Filtros) {
     const consulta = buildAnnouncementsQuery({
       q: termo,
-      city: novos.city,
       neighborhood: novos.neighborhood,
       type: novos.type || undefined,
       minPrice: novos.minPrice,
       maxPrice: novos.maxPrice,
     });
 
-    router.push(`/imoveis${consulta}`);
+    const parametros = new URLSearchParams(consulta.replace(/^\?/, ""));
+
+    parametros.set("city", novos.city.trim());
+
+    router.push(`/imoveis?${parametros.toString()}`);
   }
 
   return (
