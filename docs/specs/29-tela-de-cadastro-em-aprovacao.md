@@ -39,6 +39,10 @@ O estado vem de `useCompany()`, que já existe e já entrega `analysisStatus` e
   da spec 09; uma segunda caixa de entrada seria fila que ninguém lê.
 - **Avisar por e-mail quando a análise terminar** — não há serviço de e-mail no
   projeto, como a própria `AccountStatus.PENDENTE_EMAIL` registra.
+- **Empresa aprovada e sem plano, que também não publica.** É o segundo portão,
+  e ele só existe depois da spec 30; critério aqui sobre ele faria esta spec
+  depender de uma que vem depois. Está na spec 31, C13, reaproveitando a tela
+  que esta spec constrói.
 
 ## Plano
 

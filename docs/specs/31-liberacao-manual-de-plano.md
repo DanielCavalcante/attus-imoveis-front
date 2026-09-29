@@ -21,6 +21,7 @@ vai causar antes de confirmar.
 - [ ] **C10** `experiencia` — recusa do servidor (plano inativo, por exemplo) vira mensagem legível, não silêncio.
 - [ ] **C11** `experiencia` — o aviso é anunciado a leitor de tela quando aparece.
 - [ ] **C12** `experiencia` — em 390px de largura a tela não produz rolagem horizontal.
+- [ ] **C13** `experiencia` — conta PJ aprovada e sem plano abre `/anuncie` e vê o motivo certo — falta plano, não falta aprovação — em vez do formulário.
 
 ## Contrato técnico
 
@@ -31,10 +32,17 @@ o carregamento e a confirmação.
 Confirmação em diálogo, como a exclusão de anúncio da spec 23 — é a convenção
 que o produto já tem para ação com consequência.
 
+C13 mora aqui e não na spec 29 de propósito: são dois portões em sequência, e
+o segundo só existe depois da spec 30. Critério de tela na 29 dependendo da 30
+inverteria a ordem, e nenhuma das duas fecharia. A tela da 29 é reaproveitada,
+ganhando o motivo novo — não é uma segunda tela.
+
 ## Fora de escopo
 
-- **Cancelar plano.** Liberar e trocar cobre o pedido; cancelar levanta a
-  mesma pergunta que a spec 30 deixou em aberto sobre empresa sem plano.
+- **Cancelar plano.** Liberar e trocar cobre o pedido. Cancelar agora tem
+  efeito definido — sem plano a empresa para de publicar, pela C15 da spec 30 —
+  e é justamente por ter esse efeito que merece decisão própria, não um botão
+  de tabela.
 - **Histórico de trocas na tela.** A spec 30 grava quem e quando; mostrar isso
   é outra tela, e ninguém pediu.
 - **Preço, cobrança ou recibo** — não há gateway.
@@ -51,5 +59,4 @@ que o produto já tem para ação com consequência.
 
 ## Perguntas em aberto
 
-Nenhuma própria. Herda o bloqueio da spec 30 enquanto a pergunta dela não for
-respondida.
+Nenhuma.
