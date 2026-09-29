@@ -20,8 +20,8 @@ const QUALQUER_TIPO = "";
  *
  * A fotografia e a unica fonte de luz da tela e por isso ocupa a sangria
  * inteira, sem card por cima: o mundo visual proibe foto dentro de caixa
- * sombreada. O fio ambar no pe da foto e o horizonte — o corte entre o ceu
- * (fotografia) e o chao (interface).
+ * sombreada. Formulario a esquerda, manchete a direita, e a foto aparecendo
+ * entre os dois.
  *
  * A porta de entrada pergunta tres coisas: onde, em que bairro e que tipo.
  * Preco e o resto do detalhe moram em /imoveis, e o termo livre tambem — ele
@@ -60,136 +60,127 @@ export default function BuscaHero() {
     router.push(`/imoveis${consulta}`);
   }
 
+  /*
+    Formulário à esquerda, manchete à direita, sobre a mesma fotografia.
+
+    O fio âmbar de horizonte saiu daqui: ele separava céu de chão numa
+    composição empilhada, e neste arranjo lado a lado não separa nada. O âmbar
+    continua no botão e na marca de verificação; perde só o papel estrutural,
+    que esta composição não tem onde exercer.
+  */
   return (
-    <section className="flex flex-col">
-      {/*
-        O céu: a foto e a manchete, num bloco que termina no horizonte. Com a
-        foto em `inset-0` da seção inteira, ela passava por trás do formulário
-        e o fio deixava de separar coisa nenhuma — que é a única função dele.
-      */}
-      <div className="relative flex min-h-[72vh] flex-col justify-end overflow-hidden">
-        <div className="absolute inset-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/image/register.jpg"
-            alt=""
-            className="revelar-luz h-full w-full object-cover object-[50%_42%]"
-          />
+    <section className="relative flex min-h-[88vh] items-center overflow-hidden">
+      <div className="absolute inset-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/image/register.jpg"
+          alt=""
+          className="revelar-luz h-full w-full object-cover object-[50%_42%]"
+        />
 
-          {/*
-          Dois veus, e cada um resolve um problema diferente.
+        {/*
+          Dois véus, e cada um resolve um problema diferente.
 
-          O vertical assenta a foto no chao indigo. O lateral existe porque a
-          manchete caia direto sobre o assunto da foto: sem ele o texto disputa
-          o mesmo espaco que os rostos e nenhum dos dois ganha. Com ele a luz
-          passa a vir da direita e a tipografia ganha chao proprio a esquerda.
+          O vertical assenta a foto no chão índigo em cima e embaixo. O
+          horizontal escurece as duas bordas e deixa o meio respirar: agora há
+          conteúdo dos dois lados, e a fotografia fica sendo a luz que passa
+          entre eles em vez de disputar espaço com um dos dois.
         */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(12,18,32,0.86) 0%, rgba(12,18,32,0.28) 38%, rgba(12,18,32,0.58) 66%, #0C1220 100%)",
-            }}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(12,18,32,0.72) 0%, rgba(12,18,32,0.34) 40%, rgba(12,18,32,0.52) 72%, #0C1220 100%)",
+          }}
+        />
+
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(12,18,32,0.9) 0%, rgba(12,18,32,0.55) 32%, rgba(12,18,32,0.3) 50%, rgba(12,18,32,0.68) 74%, rgba(12,18,32,0.88) 100%)",
+          }}
+        />
+      </div>
+
+      <div className="relative mx-auto grid w-full max-w-7xl items-center gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-20">
+        {/*
+          Os campos vão empilhados, um por linha: onde, em que bairro, que
+          tipo, e então a ação.
+        */}
+        <form
+          onSubmit={buscar}
+          className="order-2 flex flex-col gap-4 lg:order-1"
+        >
+          <CampoComSugestoes
+            id="busca-cidade"
+            name="city"
+            rotulo="CIDADE"
+            valor={cidade}
+            onChange={setCidade}
+            sugestoes={cidades.data ?? []}
+            placeholder="Onde você procura"
           />
 
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(90deg, rgba(12,18,32,0.88) 0%, rgba(12,18,32,0.62) 34%, rgba(12,18,32,0) 68%)",
-            }}
+          <CampoComSugestoes
+            id="busca-bairro"
+            name="neighborhood"
+            rotulo="BAIRRO"
+            valor={bairro}
+            onChange={setBairro}
+            sugestoes={bairros.data ?? []}
+            placeholder="Qualquer bairro"
           />
-        </div>
 
-        <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6">
-          <h1 className="max-w-[22ch] font-display text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[0.94]">
+          <div>
+            <label
+              htmlFor="busca-tipo"
+              className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
+            >
+              TIPO
+            </label>
+
+            <select
+              id="busca-tipo"
+              name="type"
+              value={tipo}
+              onChange={(evento) =>
+                setTipo(
+                  evento.target.value as PropertyType | typeof QUALQUER_TIPO,
+                )
+              }
+              className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none"
+            >
+              <option value={QUALQUER_TIPO}>Qualquer tipo</option>
+
+              {TIPOS_DE_IMOVEL.map(({ valor, rotulo }) => (
+                <option key={valor} value={valor}>
+                  {rotulo}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            className="flex min-h-14 items-center justify-center gap-2 bg-primary px-10 font-medium text-primary-foreground transition-colors hover:bg-brand-light"
+          >
+            <Search className="h-5 w-5" aria-hidden />
+            Buscar
+          </button>
+        </form>
+
+        <div className="order-1 lg:order-2">
+          <h1 className="max-w-[20ch] font-display text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[0.94]">
             Toda imobiliária aqui passou por uma pessoa antes de passar por
             você.
           </h1>
 
-          <p className="mt-7 max-w-[60ch] text-lg leading-relaxed text-foreground/85">
+          <p className="mt-7 max-w-[56ch] text-lg leading-relaxed text-foreground/85">
             CRECI conferido, razão social conferida, responsável legal
             conferido. Quem não passa, não publica. E quem vende o próprio
             imóvel tem uma equipe do lado.
           </p>
-        </div>
-      </div>
-
-      {/* O chão: interface sobre índigo, sem foto atrás. */}
-      <div className="bg-background">
-        <div className="horizonte" />
-
-        {/*
-          Os campos vão empilhados, um por linha: onde, em que bairro, que tipo,
-          e então a ação. A faixa horizontal de quatro colunas espremia os dois
-          campos digitáveis e punha a pergunta grossa e a fina lado a lado, com
-          o mesmo peso.
-
-          O invólucro carrega a margem da página; o formulário é só a coluna,
-          alinhada à mesma borda esquerda da manchete.
-        */}
-        <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
-          <form
-            onSubmit={buscar}
-            className="flex w-full max-w-md flex-col gap-4"
-          >
-            <CampoComSugestoes
-              id="busca-cidade"
-              name="city"
-              rotulo="CIDADE"
-              valor={cidade}
-              onChange={setCidade}
-              sugestoes={cidades.data ?? []}
-              placeholder="Onde você procura"
-            />
-
-            <CampoComSugestoes
-              id="busca-bairro"
-              name="neighborhood"
-              rotulo="BAIRRO"
-              valor={bairro}
-              onChange={setBairro}
-              sugestoes={bairros.data ?? []}
-              placeholder="Qualquer bairro"
-            />
-
-            <div>
-              <label
-                htmlFor="busca-tipo"
-                className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
-              >
-                TIPO
-              </label>
-
-              <select
-                id="busca-tipo"
-                name="type"
-                value={tipo}
-                onChange={(evento) =>
-                  setTipo(
-                    evento.target.value as PropertyType | typeof QUALQUER_TIPO,
-                  )
-                }
-                className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none"
-              >
-                <option value={QUALQUER_TIPO}>Qualquer tipo</option>
-
-                {TIPOS_DE_IMOVEL.map(({ valor, rotulo }) => (
-                  <option key={valor} value={valor}>
-                    {rotulo}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              className="flex min-h-14 items-center justify-center gap-2 bg-primary px-10 font-medium text-primary-foreground transition-colors hover:bg-brand-light"
-            >
-              <Search className="h-5 w-5" aria-hidden />
-              Buscar
-            </button>
-          </form>
         </div>
       </div>
     </section>
