@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { BadgeCheck, Inbox, Layers } from "lucide-react";
+import { BadgeCheck, Building2, Inbox, Layers } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -71,12 +71,25 @@ function Queue() {
             </p>
           </div>
 
-          <Button asChild variant="outline">
-            <Link href="/portal/backoffice/planos">
-              <Layers className="h-4 w-4" aria-hidden />
-              Planos
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="outline">
+              <Link href="/portal/backoffice/planos">
+                <Layers className="h-4 w-4" aria-hidden />
+                Planos
+              </Link>
+            </Button>
+
+            {/*
+              Sem este link a tela existiria sem porta: aprovar a empresa e
+              liberar o plano dela sao dois passos do mesmo atendimento.
+            */}
+            <Button asChild variant="outline">
+              <Link href="/portal/backoffice/planos-das-empresas">
+                <Building2 className="h-4 w-4" aria-hidden />
+                Planos das empresas
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {isLoading && (

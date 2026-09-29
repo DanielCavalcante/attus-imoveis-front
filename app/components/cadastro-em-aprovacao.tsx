@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { CircleAlert, Clock, FileText, Mail } from "lucide-react";
+import { CircleAlert, Clock, FileText, Mail, Package } from "lucide-react";
 
 import { CONTATO, mailtoDoContato } from "../lib/contato";
 import type { AnalysisStatus } from "../types/backoffice";
 
+/** Os dois portões da publicação, na mesma tela: aprovação e plano. */
+export type MotivoDoBloqueio = AnalysisStatus | "SEM_PLANO";
+
 type Props = {
-  status: AnalysisStatus;
+  status: MotivoDoBloqueio;
   /** O motivo que o backoffice registrou ao reprovar. */
   motivo?: string | null;
 };
@@ -25,7 +28,16 @@ type Conteudo = {
  * Três telas seriam três lugares para a mesma estrutura divergir; o que muda
  * entre os estados é texto e o caminho de saída, não o desenho.
  */
-function conteudoDe(status: AnalysisStatus): Conteudo {
+function conteudoDe(status: MotivoDoBloqueio): Conteudo {
+  if (status === "SEM_PLANO") {
+    return {
+      titulo: "Falta um plano nesta conta",
+      texto:
+        "Seu cadastro está aprovado. Para publicar imóveis, falta escolher o plano — a equipe libera para você, e aí a publicação abre nesta mesma tela.",
+      Icone: Package,
+    };
+  }
+
   if (status === "NAO_ENVIADO") {
     return {
       titulo: "Falta enviar seu cadastro",

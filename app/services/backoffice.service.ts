@@ -1,7 +1,12 @@
 "use client";
 
 import { api } from "./api";
-import { PendingCompany, Plan } from "../types/backoffice";
+import {
+  CompanyPlan,
+  ImpactoDoPlano,
+  PendingCompany,
+  Plan,
+} from "../types/backoffice";
 import { Page } from "../types/pagination";
 import { PlanFormData } from "../schemas/plan";
 
@@ -61,5 +66,36 @@ export async function deactivatePlan(id: number) {
   return api<Plan>(`/backoffice/plans/${id}/desativar`, {
     method: "POST",
     auth: true,
+  });
+}
+
+/** Empresas aprovadas, com o plano vigente de cada uma. */
+export async function getCompanyPlans() {
+  const pagina = await api<Page<CompanyPlan>>("/backoffice/companies/planos", {
+    method: "GET",
+    auth: true,
+  });
+
+  return pagina.content;
+}
+
+/**
+ * O impacto vem do servidor, não de conta feita aqui.
+ *
+ * A tela que calcula o próprio aviso erra quando alguém publica entre o
+ * carregamento da lista e a confirmação.
+ */
+export async function getImpactoDoPlano(companyId: number, planId: number) {
+  return api<ImpactoDoPlano>(
+    `/backoffice/companies/${companyId}/plano/impacto?planId=${planId}`,
+    { method: "GET", auth: true },
+  );
+}
+
+export async function liberarPlano(companyId: number, planId: number) {
+  return api<unknown>(`/backoffice/companies/${companyId}/plano`, {
+    method: "POST",
+    auth: true,
+    body: JSON.stringify({ planId }),
   });
 }

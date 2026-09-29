@@ -13,9 +13,12 @@ import {
   AnnouncementFormData,
 } from "../schemas/announcement";
 import { PrivateRoute } from "../components/private-route";
-import { CadastroEmAprovacao } from "../components/cadastro-em-aprovacao";
-import { useAuth } from "../contexts/auth-context";
+import {
+  CadastroEmAprovacao,
+  type MotivoDoBloqueio,
+} from "../components/cadastro-em-aprovacao";
 import { useCompany } from "../hooks/use-company";
+import { useMyQuota } from "../hooks/use-my-announcements";
 import { TIPOS_DE_IMOVEL } from "../lib/property";
 
 const CAMPO =
@@ -34,38 +37,55 @@ export default function CreateAnnouncementPage() {
 /**
  * Quem pode anunciar vê o formulário; quem não pode vê o porquê.
  *
- * O portão de verdade é o servidor (spec 28) -- esta tela existe para a pessoa
- * não preencher quinze campos antes de descobrir. Por isso ela lê o mesmo
- * estado que o servidor consulta, em vez de adivinhar por tipo de conta.
+ * O portão de verdade é o servidor -- esta tela existe para a pessoa não
+ * preencher quinze campos antes de descobrir. Por isso ela pergunta à mesma
+ * rota que o servidor consulta (`podePublicar` e `motivo`), em vez de refazer
+ * a regra aqui e arriscar discordar dela.
+ *
+ * Quota cheia não entra: ali a conta PODE publicar, o que falta é vaga, e
+ * esconder o formulário por isso trocaria um 409 explicável por uma porta
+ * fechada sem explicação.
  */
 function PortaoDaAprovacao() {
-  const { user } = useAuth();
-
-  const ehEmpresa = user?.accountType === "PJ";
-  const empresa = useCompany(ehEmpresa);
-
-  if (!ehEmpresa) {
-    return <FormularioDeAnuncio />;
-  }
+  const quota = useMyQuota();
 
   // Nada de formulário antes da resposta: mostrá-lo e recolhê-lo é pior que
   // esperar, porque quem já começou a digitar perde o que digitou.
-  if (empresa.isPending) {
+  if (quota.isPending) {
     return <Carregando />;
   }
 
-  const status = empresa.data?.analysisStatus ?? "NAO_ENVIADO";
+  const motivo = quota.data?.motivo;
+  const bloqueado =
+    !!motivo && (motivo.startsWith("EMPRESA_") || motivo === "SEM_PLANO");
 
-  if (status !== "APROVADA") {
-    return (
-      <CadastroEmAprovacao
-        status={status}
-        motivo={empresa.data?.rejectionReason}
-      />
-    );
+  if (!bloqueado) {
+    return <FormularioDeAnuncio />;
   }
 
-  return <FormularioDeAnuncio />;
+  return <TelaDoBloqueio motivo={motivo} />;
+}
+
+/**
+ * O motivo da quota vira a tela, e o texto da reprovação vem junto.
+ *
+ * A empresa só é consultada quando o motivo é reprovação: é o único caso em
+ * que há algo escrito para mostrar.
+ */
+function TelaDoBloqueio({ motivo }: { motivo: string }) {
+  const reprovada = motivo === "EMPRESA_REPROVADA";
+  const empresa = useCompany(reprovada);
+
+  const status = (
+    motivo === "SEM_PLANO" ? "SEM_PLANO" : motivo.replace("EMPRESA_", "")
+  ) as MotivoDoBloqueio;
+
+  return (
+    <CadastroEmAprovacao
+      status={status}
+      motivo={empresa.data?.rejectionReason}
+    />
+  );
 }
 
 function Carregando() {

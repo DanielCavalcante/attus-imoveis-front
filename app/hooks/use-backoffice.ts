@@ -4,6 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   approveCompany,
+  getCompanyPlans,
+  getImpactoDoPlano,
+  liberarPlano,
   createPlan,
   deactivatePlan,
   getAllPlans,
@@ -14,6 +17,7 @@ import { PlanFormData } from "../schemas/plan";
 
 const FILA = ["backoffice", "companies"];
 const PLANOS = ["backoffice", "plans"];
+const EMPRESAS_COM_PLANO = ["backoffice", "company-plans"];
 
 export function usePendingCompanies(enabled = true) {
   return useQuery({
@@ -67,4 +71,40 @@ export function usePlanMutations() {
   });
 
   return { create, deactivate };
+}
+
+export function useCompanyPlans(enabled = true) {
+  return useQuery({
+    queryKey: EMPRESAS_COM_PLANO,
+    queryFn: getCompanyPlans,
+    enabled,
+    retry: false,
+  });
+}
+
+/**
+ * O aviso do downgrade, medido pelo servidor.
+ *
+ * Só busca quando há empresa e plano escolhidos: perguntar o impacto de uma
+ * troca que ninguém montou ainda é requisição sem pergunta.
+ */
+export function useImpactoDoPlano(companyId?: number, planId?: number) {
+  return useQuery({
+    queryKey: ["backoffice", "plano-impacto", companyId, planId],
+    queryFn: () => getImpactoDoPlano(companyId!, planId!),
+    enabled: Boolean(companyId) && Boolean(planId),
+    retry: false,
+  });
+}
+
+/** Liberada a troca, a lista mostra o plano novo sem recarregar a página. */
+export function useLiberarPlano() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ companyId, planId }: { companyId: number; planId: number }) =>
+      liberarPlano(companyId, planId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: EMPRESAS_COM_PLANO }),
+  });
 }

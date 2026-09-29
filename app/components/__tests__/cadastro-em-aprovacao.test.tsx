@@ -5,11 +5,24 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { AnalysisStatus } from "@/app/types/backoffice";
 
 const getMyCompany = vi.fn();
+const getMyQuota = vi.fn();
 const usuario = vi.fn();
 
 vi.mock("@/app/services/company.service", () => ({
   getMyCompany: () => getMyCompany(),
   updateMyCompany: vi.fn(),
+}));
+
+/**
+ * A tela pergunta à quota, não ao tipo de conta: é a mesma rota que o servidor
+ * consulta para recusar, então as duas nunca discordam.
+ */
+vi.mock("@/app/services/announcements-me.service", () => ({
+  getMyQuota: () => getMyQuota(),
+  getMyAnnouncements: vi.fn(),
+  inativarAnuncio: vi.fn(),
+  reativarAnuncio: vi.fn(),
+  excluirAnuncio: vi.fn(),
 }));
 
 vi.mock("@/app/contexts/auth-context", () => ({
@@ -41,10 +54,37 @@ function montarPagina() {
   );
 }
 
+/** Quota de quem pode publicar. */
+function liberada() {
+  getMyQuota.mockResolvedValue({
+    ilimitado: true,
+    limite: null,
+    usados: 0,
+    restantes: null,
+    podePublicar: true,
+    motivo: null,
+  });
+}
+
+/** Quota de quem está barrado, com o código do portão que fechou. */
+function bloqueada(motivo: string) {
+  getMyQuota.mockResolvedValue({
+    ilimitado: true,
+    limite: null,
+    usados: 0,
+    restantes: null,
+    podePublicar: false,
+    motivo,
+  });
+}
+
 describe("tela de cadastro em aprovacao (spec 29)", () => {
   beforeEach(() => {
     getMyCompany.mockReset();
+    getMyQuota.mockReset();
     usuario.mockReset();
+
+    liberada();
 
     usuario.mockReturnValue({
       user: { id: 1, email: "imob@t.dev", accountType: "PJ" },
@@ -55,7 +95,7 @@ describe("tela de cadastro em aprovacao (spec 29)", () => {
   // ---------- C1, C6 a C8: quem vê o quê ----------
 
   it("C1 - PJ nao aprovada ve a tela no lugar do formulario", async () => {
-    getMyCompany.mockResolvedValue({ analysisStatus: "EM_ANALISE" });
+    bloqueada("EMPRESA_EM_ANALISE");
 
     montarPagina();
 
@@ -87,7 +127,7 @@ describe("tela de cadastro em aprovacao (spec 29)", () => {
   });
 
   it("C7 - PJ aprovada ve o formulario", async () => {
-    getMyCompany.mockResolvedValue({ analysisStatus: "APROVADA" });
+    liberada();
 
     montarPagina();
 
@@ -101,7 +141,7 @@ describe("tela de cadastro em aprovacao (spec 29)", () => {
   it("C8 - o formulario nao aparece antes da resposta", async () => {
     let responder: (empresa: unknown) => void = () => {};
 
-    getMyCompany.mockReturnValue(
+    getMyQuota.mockReturnValue(
       new Promise((resolve) => {
         responder = resolve;
       }),
@@ -115,7 +155,14 @@ describe("tela de cadastro em aprovacao (spec 29)", () => {
       screen.queryByRole("heading", { name: "Criar anúncio" }),
     ).not.toBeInTheDocument();
 
-    responder({ analysisStatus: "APROVADA" });
+    responder({
+      ilimitado: true,
+      limite: null,
+      usados: 0,
+      restantes: null,
+      podePublicar: true,
+      motivo: null,
+    });
 
     await waitFor(() =>
       expect(
@@ -159,6 +206,24 @@ describe("tela de cadastro em aprovacao (spec 29)", () => {
     expect(
       screen.getByText("CRECI não confere com a razão social."),
     ).toBeInTheDocument();
+  });
+
+  // ---------- spec 31, C13: o segundo portao ----------
+
+  it("C13 (spec 31) - aprovada e sem plano ve o motivo certo", async () => {
+    bloqueada("SEM_PLANO");
+
+    montarPagina();
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole("heading", { name: /falta um plano/i, level: 1 }),
+      ).toBeInTheDocument(),
+    );
+
+    // O motivo é plano, não aprovação: mandar a pessoa revisar um cadastro
+    // que já foi aprovado seria enviá-la para o lugar errado.
+    expect(screen.queryByText(/em aprovação/i)).not.toBeInTheDocument();
   });
 
   // ---------- C10 e C11: o acabamento ----------
