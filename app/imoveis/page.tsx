@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Building2, SearchX } from "lucide-react";
 
 import { useAnnouncements } from "../hooks/use-announcements";
@@ -8,13 +9,28 @@ import { AnnouncementGrid } from "../components/announcement-grid";
 import { InfiniteSentinel } from "../components/infinite-sentinel";
 
 const ORDENACOES = {
-  "": "Mais recentes",
-  "price,desc": "Maior preço",
+  "": "Publicados recentemente",
   "price,asc": "Menor preço",
+  "price,desc": "Maior preço",
 } as const;
 
 export default function PropertiesPage() {
-  const [termoDigitado, setTermoDigitado] = useState("");
+  return (
+    <Suspense fallback={<Carregando />}>
+      <Listagem />
+    </Suspense>
+  );
+}
+
+/**
+ * A busca da home chega por `?q=`. Sem ler o parametro aqui, aquele botao
+ * levaria para a listagem inteira e o termo digitado se perderia no caminho.
+ */
+function Listagem() {
+  const parametros = useSearchParams();
+  const termoDaUrl = parametros.get("q") ?? "";
+
+  const [termoDigitado, setTermoDigitado] = useState(termoDaUrl);
   const [sort, setSort] = useState<keyof typeof ORDENACOES>("");
 
   /**
@@ -23,13 +39,8 @@ export default function PropertiesPage() {
    */
   const termo = useDebounced(termoDigitado, 350);
 
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useAnnouncements({ q: termo, sort });
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
+    useAnnouncements({ q: termo, sort });
 
   const anuncios = useMemo(
     () => data?.pages.flatMap((pagina) => pagina.content) ?? [],
@@ -39,85 +50,96 @@ export default function PropertiesPage() {
   const total = data?.pages[0]?.totalElements ?? 0;
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Anúncios de Imóveis
-            </h1>
+    <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6">
+      <div className="flex flex-col gap-6 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
+            {termo.trim() ? `Imóveis para “${termo.trim()}”` : "Todos os imóveis"}
+          </h1>
 
-            <p className="text-muted-foreground">
-              {isLoading
-                ? "Buscando imóveis disponíveis..."
-                : `${total} ${total === 1 ? "imóvel disponível" : "imóveis disponíveis"}.`}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <label className="sr-only" htmlFor="announcement-search">
-              Buscar imóvel
-            </label>
-
-            <input
-              id="announcement-search"
-              type="search"
-              value={termoDigitado}
-              onChange={(event) => setTermoDigitado(event.target.value)}
-              placeholder="Buscar por título ou cidade"
-              className="h-10 rounded-md border bg-background px-4 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-            />
-
-            <label className="sr-only" htmlFor="announcement-sort">
-              Ordenar por
-            </label>
-
-            <select
-              id="announcement-sort"
-              value={sort}
-              onChange={(event) =>
-                setSort(event.target.value as keyof typeof ORDENACOES)
-              }
-              className="h-10 rounded-md border bg-background px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              {Object.entries(ORDENACOES).map(([valor, rotulo]) => (
-                <option key={valor} value={valor}>
-                  {rotulo}
-                </option>
-              ))}
-            </select>
-          </div>
+          <p className="tabular mt-3 text-muted-foreground">
+            {isLoading
+              ? "Buscando imóveis disponíveis…"
+              : `${total} ${total === 1 ? "anúncio publicado" : "anúncios publicados"}.`}
+          </p>
         </div>
 
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <label className="sr-only" htmlFor="announcement-search">
+            Buscar imóvel por título, cidade ou estado
+          </label>
+
+          <input
+            id="announcement-search"
+            type="search"
+            value={termoDigitado}
+            onChange={(event) => setTermoDigitado(event.target.value)}
+            placeholder="Título, cidade ou estado"
+            className="min-h-12 border border-input bg-card px-4 text-sm outline-none placeholder:text-muted-foreground sm:w-72"
+          />
+
+          <label className="sr-only" htmlFor="announcement-sort">
+            Ordenar por
+          </label>
+
+          <select
+            id="announcement-sort"
+            value={sort}
+            onChange={(event) =>
+              setSort(event.target.value as keyof typeof ORDENACOES)
+            }
+            className="min-h-12 border border-input bg-card px-4 text-sm outline-none"
+          >
+            {Object.entries(ORDENACOES).map(([valor, rotulo]) => (
+              <option key={valor} value={valor}>
+                {rotulo}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="pt-8">
         <AnnouncementGrid
           announcements={anuncios}
           isLoading={isLoading}
-          emptyState={termo.trim() ? <SemResultado termo={termo} /> : <SemAcervo />}
+          emptyState={
+            termo.trim() ? <SemResultado termo={termo.trim()} /> : <SemAcervo />
+          }
         />
-
-        {anuncios.length > 0 && (
-          <InfiniteSentinel
-            temMais={!!hasNextPage}
-            carregando={isFetchingNextPage}
-            carregarMais={fetchNextPage}
-          />
-        )}
       </div>
+
+      {anuncios.length > 0 && (
+        <InfiniteSentinel
+          temMais={!!hasNextPage}
+          carregando={isFetchingNextPage}
+          carregarMais={fetchNextPage}
+        />
+      )}
+    </div>
+  );
+}
+
+function Carregando() {
+  return (
+    <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6" aria-busy="true">
+      <div className="h-12 w-80 animate-pulse bg-secondary" />
+      <div className="mt-4 h-5 w-52 animate-pulse bg-secondary" />
     </div>
   );
 }
 
 function SemResultado({ termo }: { termo: string }) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-20 text-center">
-      <SearchX className="h-10 w-10 text-muted-foreground" aria-hidden />
+    <div className="flex flex-col items-center justify-center border border-dashed border-border py-24 text-center">
+      <SearchX className="h-9 w-9 text-muted-foreground" aria-hidden />
 
-      <p className="mt-4 text-lg font-semibold">
+      <p className="mt-5 font-display text-2xl font-semibold">
         Nenhum imóvel para “{termo}”
       </p>
 
-      <p className="mt-1 text-muted-foreground">
-        Tente outro título ou cidade.
+      <p className="mt-2 text-muted-foreground">
+        A busca cobre título, cidade e estado. Tente outro termo.
       </p>
     </div>
   );
@@ -125,12 +147,10 @@ function SemResultado({ termo }: { termo: string }) {
 
 function SemAcervo() {
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center text-center">
-      <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
-        <Building2 className="h-12 w-12 text-muted-foreground" aria-hidden />
-      </div>
+    <div className="flex min-h-[50vh] flex-col items-center justify-center text-center">
+      <Building2 className="h-10 w-10 text-muted-foreground" aria-hidden />
 
-      <h2 className="mt-8 text-3xl font-bold">
+      <h2 className="mt-6 font-display text-3xl font-semibold">
         Ainda não há imóveis publicados
       </h2>
 

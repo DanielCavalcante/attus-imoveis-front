@@ -26,17 +26,14 @@ export function AnnouncementGrid({
         aria-label="Carregando imóveis"
       >
         {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="overflow-hidden rounded-2xl border bg-background shadow-sm"
-          >
-            <div className="aspect-[4/3] animate-pulse bg-muted" />
+          <div key={index} className="bg-card">
+            <div className="aspect-[4/3] animate-pulse bg-secondary" />
 
             <div className="space-y-4 p-5">
-              <div className="h-5 w-3/4 animate-pulse rounded bg-muted" />
-              <div className="h-7 w-1/2 animate-pulse rounded bg-muted" />
-              <div className="h-16 animate-pulse rounded-xl bg-muted" />
-              <div className="h-9 animate-pulse rounded-md bg-muted" />
+              <div className="h-4 w-1/3 animate-pulse bg-secondary" />
+              <div className="h-5 w-3/4 animate-pulse bg-secondary" />
+              <div className="h-7 w-1/2 animate-pulse bg-secondary" />
+              <div className="h-5 w-2/3 animate-pulse bg-secondary" />
             </div>
           </div>
         ))}

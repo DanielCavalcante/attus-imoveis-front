@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import {
   Carousel,
   CarouselContent,
@@ -21,37 +20,36 @@ export function FeaturedProperties() {
   const featured = data?.pages[0]?.content ?? [];
 
   return (
-    <section className="container mx-auto px-4 py-16">
-      <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="text-3xl font-bold">Imóveis em destaque</h2>
-
-          <p className="text-muted-foreground">
-            Uma amostra do que está publicado na plataforma.
-          </p>
-        </div>
+    <section className="mx-auto w-full max-w-7xl px-4 pb-24 sm:px-6">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-border pb-5">
+        <h2 className="font-display text-3xl font-semibold">
+          Publicados recentemente
+        </h2>
 
         {featured.length > 0 && (
-          <Button asChild variant="outline">
-            <Link href="/imoveis">Ver todos</Link>
-          </Button>
+          <Link
+            href="/imoveis"
+            className="text-sm text-primary underline decoration-1 underline-offset-4 transition-colors hover:text-brand-light"
+          >
+            Ver todos os imóveis
+          </Link>
         )}
       </div>
 
       {isLoading && (
         <div
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+          className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           aria-busy="true"
-          aria-label="Carregando imóveis em destaque"
+          aria-label="Carregando imóveis publicados recentemente"
         >
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="overflow-hidden rounded-2xl border">
-              <div className="aspect-[4/3] animate-pulse bg-muted" />
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="bg-card">
+              <div className="aspect-[4/3] animate-pulse bg-secondary" />
 
               <div className="space-y-4 p-5">
-                <div className="h-5 w-3/4 animate-pulse rounded bg-muted" />
-                <div className="h-7 w-1/2 animate-pulse rounded bg-muted" />
-                <div className="h-16 animate-pulse rounded-xl bg-muted" />
+                <div className="h-4 w-1/3 animate-pulse bg-secondary" />
+                <div className="h-5 w-3/4 animate-pulse bg-secondary" />
+                <div className="h-7 w-1/2 animate-pulse bg-secondary" />
               </div>
             </div>
           ))}
@@ -59,7 +57,7 @@ export function FeaturedProperties() {
       )}
 
       {!isLoading && featured.length === 0 && (
-        <p className="rounded-2xl border border-dashed py-16 text-center text-muted-foreground">
+        <p className="border border-dashed border-border py-16 text-center text-muted-foreground">
           Nenhum imóvel publicado ainda. Seja o primeiro a anunciar.
         </p>
       )}
@@ -70,7 +68,7 @@ export function FeaturedProperties() {
             {featured.map((announcement, index) => (
               <CarouselItem
                 key={announcement.id}
-                className="sm:basis-1/2 lg:basis-1/4"
+                className="sm:basis-1/2 lg:basis-1/3"
               >
                 <PropertyCard announcement={announcement} priority={index === 0} />
               </CarouselItem>

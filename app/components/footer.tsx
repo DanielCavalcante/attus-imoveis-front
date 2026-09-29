@@ -1,161 +1,86 @@
-"use client";
-
 import Link from "next/link";
-import { Building2, Mail, Phone, MapPin } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 
+/**
+ * O que saiu deste rodape, e por que:
+ *
+ * - Telefone (83) 99999-9999 e contato@encontrei.com.br eram espaco reservado:
+ *   canal de contato que nao existe e pior que canal nenhum.
+ * - Instagram, Facebook e LinkedIn apontavam para href="#".
+ * - /sobre, /termos e /privacidade nao sao rotas deste app: os tres davam 404.
+ * - "alcance milhares de pessoas" e alcance que o produto ainda nao tem.
+ *
+ * Fica o que e verdade: para onde se pode ir, e de onde o produto e.
+ */
 export function Footer() {
   return (
-    <footer className="border-t bg-background">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Empresa */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold">
-                Encontrei Imóveis
-              </span>
-            </div>
+    <footer className="border-t border-border bg-background">
+      <div className="mx-auto w-full max-w-7xl px-4 py-14 sm:px-6">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+          <div>
+            <p className="font-display text-2xl font-bold tracking-[-0.03em]">
+              Encontrei
+            </p>
 
-            <p className="text-sm text-muted-foreground">
-              Encontre o imóvel ideal para comprar, vender ou alugar de forma
-              rápida e segura.
+            <p className="mt-4 max-w-[38ch] text-sm leading-relaxed text-muted-foreground">
+              Imóveis anunciados por imobiliária verificada por gente, ou por
+              quem está vendendo o próprio imóvel. Começa em João Pessoa.
             </p>
           </div>
 
-          {/* Navegação */}
+          <nav aria-label="Navegação do rodapé">
+            <h2 className="text-xs font-medium tracking-[0.12em] text-muted-foreground">
+              NAVEGAR
+            </h2>
+
+            <ul className="mt-5 flex flex-col gap-3 text-sm">
+              <li>
+                <Link href="/imoveis" className="transition-colors hover:text-primary">
+                  Imóveis
+                </Link>
+              </li>
+
+              <li>
+                <Link href="/anuncie" className="transition-colors hover:text-primary">
+                  Anunciar um imóvel
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/portal/auth/register"
+                  className="transition-colors hover:text-primary"
+                >
+                  Criar conta
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  href="/portal/auth/login"
+                  className="transition-colors hover:text-primary"
+                >
+                  Entrar
+                </Link>
+              </li>
+            </ul>
+          </nav>
+
           <div>
-            <h3 className="mb-4 font-semibold">
-              Navegação
-            </h3>
+            <h2 className="text-xs font-medium tracking-[0.12em] text-muted-foreground">
+              ONDE ESTAMOS
+            </h2>
 
-            <div className="flex flex-col gap-2 text-sm">
-              <Link
-                href="/"
-                className="text-muted-foreground hover:text-primary"
-              >
-                Home
-              </Link>
-
-              <Link
-                href="/imoveis"
-                className="text-muted-foreground hover:text-primary"
-              >
-                Imóveis
-              </Link>
-
-              <Link
-                href="/anuncie"
-                className="text-muted-foreground hover:text-primary"
-              >
-                Anunciar Imóvel
-              </Link>
-            </div>
-          </div>
-
-          {/* Institucional */}
-          <div>
-            <h3 className="mb-4 font-semibold">
-              Institucional
-            </h3>
-
-            <div className="flex flex-col gap-2 text-sm">
-              <Link
-                href="/sobre"
-                className="text-muted-foreground hover:text-primary"
-              >
-                Sobre Nós
-              </Link>
-
-              <Link
-                href="/termos"
-                className="text-muted-foreground hover:text-primary"
-              >
-                Termos de Uso
-              </Link>
-
-              <Link
-                href="/privacidade"
-                className="text-muted-foreground hover:text-primary"
-              >
-                Política de Privacidade
-              </Link>
-            </div>
-          </div>
-
-          {/* Contato */}
-          <div>
-            <h3 className="mb-4 font-semibold">
-              Contato
-            </h3>
-
-            <div className="space-y-3 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
-                <span>(83) 99999-9999</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
-                <span>contato@encontrei.com.br</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4" />
-                <span>João Pessoa - PB</span>
-              </div>
-            </div>
+            <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
+              João Pessoa, Paraíba.
+              <br />
+              Atendemos a Paraíba e vamos além dela.
+            </p>
           </div>
         </div>
 
-        <Separator className="my-8" />
-        <div className="rounded-xl border p-6 mb-8">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h3 className="text-xl font-semibold">
-                Está vendendo ou alugando?
-              </h3>
-              <p className="text-muted-foreground">
-                Anuncie gratuitamente e alcance milhares de pessoas.
-              </p>
-            </div>
-
-            <Button>
-              Anunciar Imóvel
-            </Button>
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-between gap-4 text-center text-sm text-muted-foreground md:flex-row">
-          <p>
-            © {new Date().getFullYear()} Encontrei Imóveis. Todos os direitos
-            reservados.
-          </p>
-
-          <div className="flex gap-4">
-            <Link
-              href="#"
-              className="hover:text-primary"
-            >
-              Instagram
-            </Link>
-
-            <Link
-              href="#"
-              className="hover:text-primary"
-            >
-              Facebook
-            </Link>
-
-            <Link
-              href="#"
-              className="hover:text-primary"
-            >
-              LinkedIn
-            </Link>
-          </div>
-        </div>
+        <p className="mt-12 border-t border-border pt-7 text-sm text-muted-foreground">
+          © {new Date().getFullYear()} Encontrei.
+        </p>
       </div>
     </footer>
   );

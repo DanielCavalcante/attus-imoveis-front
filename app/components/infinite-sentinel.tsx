@@ -2,8 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-import { Button } from "@/components/ui/button";
-
 type Props = {
   temMais: boolean;
   carregando: boolean;
@@ -48,10 +46,15 @@ export function InfiniteSentinel({ temMais, carregando, carregarMais }: Props) {
   }
 
   return (
-    <div ref={alvo} className="flex justify-center py-10">
-      <Button variant="outline" onClick={carregarMais} disabled={carregando}>
-        {carregando ? "Carregando..." : "Carregar mais imóveis"}
-      </Button>
+    <div ref={alvo} className="flex justify-center py-12">
+      <button
+        type="button"
+        onClick={carregarMais}
+        disabled={carregando}
+        className="min-h-13 border border-primary px-8 text-base font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground disabled:pointer-events-none disabled:opacity-60"
+      >
+        {carregando ? "Carregando…" : "Carregar mais imóveis"}
+      </button>
     </div>
   );
 }

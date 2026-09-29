@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bath, BedDouble, Maximize } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Announcement } from "../types/announcement";
 import {
   formatArea,
@@ -25,76 +23,74 @@ type Props = {
  * Usa <img> e não next/image de propósito: a URL da imagem é digitada pelo
  * usuário no formulário de anúncio e next/image derruba host fora do
  * remotePatterns do next.config.ts.
+ *
+ * Duas regras do mundo visual valem aqui e explicam o desenho:
+ *
+ * - A foto nunca entra dentro de caixa sombreada. Ela é a fonte de luz; sombra
+ *   por cima dela apaga exatamente o que o card tem de bom. Sem sombra, sem
+ *   canto arredondado na imagem e sem zoom no hover.
+ * - Nada de caixa dentro de caixa: os números do imóvel ficam numa faixa
+ *   separada por fio, não num bloco cinza afundado no card.
  */
 export function PropertyCard({ announcement, priority = false }: Props) {
   const stats = hasRooms(announcement.propertyType)
     ? [
-        { icon: BedDouble, value: announcement.rooms, label: "Quartos" },
-        { icon: Bath, value: announcement.bathRooms, label: "Banheiros" },
-        { icon: Maximize, value: formatArea(announcement.area), label: "Área" },
+        { value: announcement.rooms, label: "Quartos" },
+        { value: announcement.bathRooms, label: "Banheiros" },
+        { value: formatArea(announcement.area), label: "Área" },
       ]
     : [
-        { icon: Maximize, value: formatArea(announcement.area), label: "Área" },
+        { value: formatArea(announcement.area), label: "Área" },
         {
-          icon: BedDouble,
           value: propertyTypeLabel(announcement.propertyType),
           label: "Tipo",
         },
       ];
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-2xl border bg-background shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg">
-      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+    <article className="group flex h-full flex-col bg-card">
+      <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={announcement.image}
           alt={`Foto de ${announcement.title}`}
           loading={priority ? "eager" : "lazy"}
-          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          className="h-full w-full object-cover"
         />
 
-        <span className="absolute left-4 top-4 rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-          {reasonLabel(announcement.reason)}
+        <span className="absolute bottom-0 left-0 bg-background/90 px-3 py-1.5 text-xs font-medium tracking-[0.06em] text-foreground">
+          {reasonLabel(announcement.reason).toUpperCase()}
         </span>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 p-5">
-        <div>
-          <h2 className="line-clamp-1 text-xl font-semibold">
+      <div className="flex flex-1 flex-col p-5">
+        <p className="text-xs tracking-[0.05em] text-muted-foreground">
+          {announcement.city}
+          {announcement.state ? ` · ${announcement.state}` : ""}
+        </p>
+
+        <h2 className="mt-2 line-clamp-2 font-display text-xl font-semibold leading-tight">
+          <Link
+            href={`/anuncie/detail/${announcement.id}`}
+            className="transition-colors hover:text-primary"
+          >
             {announcement.title}
-          </h2>
+            <span className="sr-only"> — ver detalhes</span>
+          </Link>
+        </h2>
 
-          <p className="text-sm text-muted-foreground">
-            {announcement.city}
-            {announcement.state ? ` - ${announcement.state}` : ""}
-          </p>
-        </div>
-
-        <p className="text-2xl font-bold">
+        <p className="tabular mt-4 font-display text-2xl font-semibold">
           {formatPrice(announcement.price, announcement.reason)}
         </p>
 
-        <dl
-          className="grid gap-3 rounded-xl bg-muted/50 p-3 text-center text-sm"
-          style={{ gridTemplateColumns: `repeat(${stats.length}, minmax(0, 1fr))` }}
-        >
-          {stats.map(({ icon: Icon, value, label }) => (
-            <div key={label}>
-              <dt className="flex items-center justify-center gap-1.5 text-muted-foreground">
-                <Icon className="h-4 w-4" aria-hidden />
-                {label}
-              </dt>
-
-              <dd className="mt-0.5 font-semibold">{value}</dd>
+        <dl className="mt-4 flex flex-wrap gap-x-5 gap-y-1 border-t border-border pt-4 text-sm">
+          {stats.map(({ value, label }) => (
+            <div key={label} className="flex items-baseline gap-1.5">
+              <dt className="text-muted-foreground">{label}</dt>
+              <dd className="tabular font-medium">{value}</dd>
             </div>
           ))}
         </dl>
-
-        <Button asChild className="mt-auto w-full">
-          <Link href={`/anuncie/detail/${announcement.id}`}>
-            Ver detalhes
-            <span className="sr-only"> de {announcement.title}</span>
-          </Link>
-        </Button>
       </div>
     </article>
   );
