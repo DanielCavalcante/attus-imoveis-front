@@ -6,6 +6,8 @@ import { Search } from "lucide-react";
 
 import { TIPOS_DE_IMOVEL, type PropertyType } from "@/app/lib/property";
 import { buildAnnouncementsQuery } from "@/app/services/announcements.service";
+import { useBairros, useCidades } from "@/app/hooks/use-locations";
+import { CampoComSugestoes } from "./campo-com-sugestoes";
 
 /** A cidade onde o produto começa. Campo digitável: só o valor inicial. */
 const CIDADE_INICIAL = "João Pessoa";
@@ -35,6 +37,14 @@ export default function BuscaHero() {
   const [tipo, setTipo] = useState<PropertyType | typeof QUALQUER_TIPO>(
     QUALQUER_TIPO,
   );
+
+  /*
+    As sugestões são o que existe no acervo. Falha ao carregar não bloqueia
+    nada: `data` fica indefinido, a lista vem vazia e o que foi digitado
+    continua sendo enviado ao submeter.
+  */
+  const cidades = useCidades();
+  const bairros = useBairros(cidade);
 
   function buscar(evento: React.FormEvent) {
     evento.preventDefault();
@@ -104,43 +114,25 @@ export default function BuscaHero() {
           onSubmit={buscar}
           className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_1fr_14rem_auto] lg:items-end lg:gap-5"
         >
-          <div>
-            <label
-              htmlFor="busca-cidade"
-              className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
-            >
-              CIDADE
-            </label>
+          <CampoComSugestoes
+            id="busca-cidade"
+            name="city"
+            rotulo="CIDADE"
+            valor={cidade}
+            onChange={setCidade}
+            sugestoes={cidades.data ?? []}
+            placeholder="Onde você procura"
+          />
 
-            <input
-              id="busca-cidade"
-              name="city"
-              type="text"
-              value={cidade}
-              onChange={(evento) => setCidade(evento.target.value)}
-              placeholder="Onde você procura"
-              className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="busca-bairro"
-              className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
-            >
-              BAIRRO
-            </label>
-
-            <input
-              id="busca-bairro"
-              name="neighborhood"
-              type="text"
-              value={bairro}
-              onChange={(evento) => setBairro(evento.target.value)}
-              placeholder="Qualquer bairro"
-              className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none placeholder:text-muted-foreground"
-            />
-          </div>
+          <CampoComSugestoes
+            id="busca-bairro"
+            name="neighborhood"
+            rotulo="BAIRRO"
+            valor={bairro}
+            onChange={setBairro}
+            sugestoes={bairros.data ?? []}
+            placeholder="Qualquer bairro"
+          />
 
           <div>
             <label
