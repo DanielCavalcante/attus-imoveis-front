@@ -7,6 +7,7 @@ import { Building2, SearchX } from "lucide-react";
 import { useAnnouncements } from "../hooks/use-announcements";
 import { AnnouncementGrid } from "../components/announcement-grid";
 import { InfiniteSentinel } from "../components/infinite-sentinel";
+import { propertyTypeLabel, type PropertyType } from "../lib/property";
 
 const ORDENACOES = {
   "": "Publicados recentemente",
@@ -30,6 +31,15 @@ function Listagem() {
   const parametros = useSearchParams();
   const termoDaUrl = parametros.get("q") ?? "";
 
+  /*
+    Cidade, bairro e tipo chegam da home e vêm só da URL, por enquanto: a tela
+    ainda não tem controles para eles. Sem lê-los aqui, os três campos da porta
+    de entrada seriam controle morto — que foi o que saiu desta home.
+  */
+  const city = parametros.get("city") ?? undefined;
+  const neighborhood = parametros.get("neighborhood") ?? undefined;
+  const type = (parametros.get("type") as PropertyType | null) ?? undefined;
+
   const [termoDigitado, setTermoDigitado] = useState(termoDaUrl);
   const [sort, setSort] = useState<keyof typeof ORDENACOES>("");
 
@@ -40,7 +50,7 @@ function Listagem() {
   const termo = useDebounced(termoDigitado, 350);
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    useAnnouncements({ q: termo, sort });
+    useAnnouncements({ q: termo, sort, city, neighborhood, type });
 
   const anuncios = useMemo(
     () => data?.pages.flatMap((pagina) => pagina.content) ?? [],
@@ -54,7 +64,7 @@ function Listagem() {
       <div className="flex flex-col gap-6 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
-            {termo.trim() ? `Imóveis para “${termo.trim()}”` : "Todos os imóveis"}
+            {titulo({ termo: termo.trim(), city, neighborhood, type })}
           </h1>
 
           <p className="tabular mt-3 text-muted-foreground">
@@ -118,6 +128,33 @@ function Listagem() {
       )}
     </div>
   );
+}
+
+/**
+ * O título diz o que está sendo mostrado.
+ *
+ * Com filtro vindo da home, "Todos os imóveis" seria mentira: a pessoa pediu
+ * um recorte e a contagem abaixo se refere ao recorte, não ao acervo.
+ */
+function titulo({
+  termo,
+  city,
+  neighborhood,
+  type,
+}: {
+  termo: string;
+  city?: string;
+  neighborhood?: string;
+  type?: PropertyType;
+}) {
+  if (termo) return `Imóveis para “${termo}”`;
+
+  const oQue = type ? propertyTypeLabel(type) : "Imóveis";
+  const onde = [neighborhood, city].filter(Boolean).join(", ");
+
+  if (!onde) return type ? `${oQue}` : "Todos os imóveis";
+
+  return `${oQue} em ${onde}`;
 }
 
 function Carregando() {

@@ -6,6 +6,8 @@ A porta de entrada deixa de ser um campo de texto solto e passa a perguntar trê
 ## Depende de
 19-bairro-derivado-do-cep
 
+> **Aprovada no gate humano em 2026-09-29.** Todos os critérios aceitos.
+
 ## Critérios
 - [ ] **C1** `experiencia` — A home abre com "João Pessoa" preenchida no campo de cidade.
 - [ ] **C2** `experiencia` — O campo de cidade aceita texto digitado pelo visitante.

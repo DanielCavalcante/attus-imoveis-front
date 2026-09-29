@@ -6,6 +6,8 @@ Quem digita cidade ou bairro na home vê as opções que existem de verdade no a
 ## Depende de
 20-busca-da-home
 
+> **Aprovada no gate humano em 2026-09-29.** Todos os critérios aceitos.
+
 ## Critérios
 - [ ] **C1** `experiencia` — Digitar no campo de cidade lista sugestões vindas do servidor.
 - [ ] **C2** `experiencia` — Com "João Pessoa" no campo de cidade, as sugestões de bairro são bairros de João Pessoa.

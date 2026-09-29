@@ -1,6 +1,6 @@
 import { AnnouncementFormData } from "../schemas/announcement";
 
-type PropertyType = AnnouncementFormData["propertyType"];
+export type PropertyType = AnnouncementFormData["propertyType"];
 type ReasonType = AnnouncementFormData["reason"];
 
 /**
@@ -63,3 +63,17 @@ export function initials(name?: string) {
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : ""))
     .toUpperCase();
 }
+
+/**
+ * Os tipos para o seletor, na ordem em que aparecem na tela.
+ *
+ * O `valor` é o do enum do backend e o `rotulo` é o que a pessoa lê. Mandar o
+ * rótulo na consulta é o erro que passa silencioso: a listagem volta vazia e
+ * ninguém descobre por quê.
+ */
+export const TIPOS_DE_IMOVEL: { valor: PropertyType; rotulo: string }[] = [
+  { valor: "APARTMENT", rotulo: PROPERTY_TYPE_LABEL.APARTMENT },
+  { valor: "HOUSE", rotulo: PROPERTY_TYPE_LABEL.HOUSE },
+  { valor: "CONDOMINIUM", rotulo: PROPERTY_TYPE_LABEL.CONDOMINIUM },
+  { valor: "LAND", rotulo: PROPERTY_TYPE_LABEL.LAND },
+];

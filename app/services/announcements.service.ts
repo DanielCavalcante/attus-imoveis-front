@@ -2,6 +2,7 @@ import { api } from "./api";
 
 import { Announcement } from "../types/announcement";
 import { Page } from "../types/pagination";
+import type { PropertyType } from "../lib/property";
 
 export type AnnouncementQuery = {
   page?: number;
@@ -10,13 +11,17 @@ export type AnnouncementQuery = {
   q?: string;
   /** Campo e direção, no formato do Spring: `price,asc`. */
   sort?: string;
+  city?: string;
+  neighborhood?: string;
+  /** Valor do enum do backend (`APARTMENT`), nunca o rótulo exibido. */
+  type?: PropertyType;
 };
 
 /**
  * Monta a consulta que vai para a API.
  *
- * Termo em branco é omitido de propósito: o servidor trata ausência como "sem
- * filtro", e mandar `q=` vazio seria pedir a mesma coisa com mais ruído.
+ * Campo em branco é omitido de propósito: o servidor trata ausência como "sem
+ * filtro", e mandar `city=` vazio seria pedir a mesma coisa com mais ruído.
  */
 export function buildAnnouncementsQuery(query: AnnouncementQuery = {}) {
   const params = new URLSearchParams();
@@ -25,6 +30,10 @@ export function buildAnnouncementsQuery(query: AnnouncementQuery = {}) {
   if (query.size != null) params.set("size", String(query.size));
   if (query.q?.trim()) params.set("q", query.q.trim());
   if (query.sort) params.set("sort", query.sort);
+  if (query.city?.trim()) params.set("city", query.city.trim());
+  if (query.neighborhood?.trim())
+    params.set("neighborhood", query.neighborhood.trim());
+  if (query.type) params.set("type", query.type);
 
   const texto = params.toString();
 

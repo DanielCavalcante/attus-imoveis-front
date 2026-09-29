@@ -3,10 +3,14 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { getAnnouncements } from "../services/announcements.service";
+import type { PropertyType } from "../lib/property";
 
 type Filtros = {
   q?: string;
   sort?: string;
+  city?: string;
+  neighborhood?: string;
+  type?: PropertyType;
 };
 
 /**
@@ -16,10 +20,26 @@ type Filtros = {
  * dois recomeça da primeira página, em vez de misturar resultados de filtros
  * diferentes nas páginas já acumuladas.
  */
-export function useAnnouncements({ q, sort }: Filtros = {}) {
+export function useAnnouncements({
+  q,
+  sort,
+  city,
+  neighborhood,
+  type,
+}: Filtros = {}) {
   return useInfiniteQuery({
-    queryKey: ["announcements", { q: q?.trim() ?? "", sort: sort ?? "" }],
-    queryFn: ({ pageParam }) => getAnnouncements({ page: pageParam, q, sort }),
+    queryKey: [
+      "announcements",
+      {
+        q: q?.trim() ?? "",
+        sort: sort ?? "",
+        city: city?.trim() ?? "",
+        neighborhood: neighborhood?.trim() ?? "",
+        type: type ?? "",
+      },
+    ],
+    queryFn: ({ pageParam }) =>
+      getAnnouncements({ page: pageParam, q, sort, city, neighborhood, type }),
     initialPageParam: 0,
     getNextPageParam: (ultima) =>
       ultima.last ? undefined : ultima.number + 1,

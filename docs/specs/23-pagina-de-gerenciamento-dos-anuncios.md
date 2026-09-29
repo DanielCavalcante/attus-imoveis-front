@@ -6,6 +6,8 @@ Depois de entrar, a pessoa tem um lugar só para cuidar dos anúncios dela: edit
 ## Depende de
 22-anuncio-ativo-e-quota-por-ativos
 
+> **Aprovada no gate humano em 2026-09-29.** Todos os critérios aceitos.
+
 ## Critérios
 - [ ] **C1** `seguranca` — Visitante não autenticado não alcança a página.
 - [ ] **C2** `experiencia` — A página lista os anúncios da conta, ativos e inativos juntos.

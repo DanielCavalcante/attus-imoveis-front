@@ -4,6 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
+import { TIPOS_DE_IMOVEL, type PropertyType } from "@/app/lib/property";
+import { buildAnnouncementsQuery } from "@/app/services/announcements.service";
+
+/** A cidade onde o produto começa. Campo digitável: só o valor inicial. */
+const CIDADE_INICIAL = "João Pessoa";
+
+/** Ausência de filtro, não um valor: o seletor não nasce ligado. */
+const QUALQUER_TIPO = "";
+
 /**
  * Primeiro viewport da home.
  *
@@ -12,27 +21,33 @@ import { Search } from "lucide-react";
  * sombreada. O fio ambar no pe da foto e o horizonte — o corte entre o ceu
  * (fotografia) e o chao (interface).
  *
- * O que saiu daqui, e por que:
+ * A porta de entrada pergunta tres coisas: onde, em que bairro e que tipo.
+ * Preco e o resto do detalhe moram em /imoveis, e o termo livre tambem — ele
+ * nao deixou de existir no produto, deixou de ser a primeira pergunta.
  *
- * - A manchete "Milhoes de anuncios de imoveis, carros e motos" era falsa em
- *   tres frentes: nao ha milhoes, nao ha carros e nao ha motos.
- * - Os dois seletores ("O que voce deseja" e "Tipo de Imovel") nunca filtraram
- *   nada e faziam POST para /api/properties/search, rota que nao existe. Controle
- *   morto ensina o visitante a nao confiar no resto da tela.
- *
- * O campo abaixo faz o que diz: leva o termo para a listagem, que busca no
- * servidor por titulo, cidade e estado desde a spec 16.
+ * A home nao consulta acervo nenhum: ela so navega.
  */
 export default function BuscaHero() {
   const router = useRouter();
-  const [termo, setTermo] = useState("");
+
+  const [cidade, setCidade] = useState(CIDADE_INICIAL);
+  const [bairro, setBairro] = useState("");
+  const [tipo, setTipo] = useState<PropertyType | typeof QUALQUER_TIPO>(
+    QUALQUER_TIPO,
+  );
 
   function buscar(evento: React.FormEvent) {
     evento.preventDefault();
 
-    const limpo = termo.trim();
+    // buildAnnouncementsQuery ja omite campo em branco, que e a mesma regra
+    // que o servidor aplica: ausente nao restringe nada.
+    const consulta = buildAnnouncementsQuery({
+      city: cidade,
+      neighborhood: bairro,
+      type: tipo === QUALQUER_TIPO ? undefined : tipo,
+    });
 
-    router.push(limpo ? `/imoveis?q=${encodeURIComponent(limpo)}` : "/imoveis");
+    router.push(`/imoveis${consulta}`);
   }
 
   return (
@@ -87,25 +102,76 @@ export default function BuscaHero() {
 
         <form
           onSubmit={buscar}
-          className="mx-auto flex w-full max-w-7xl flex-col gap-3 px-4 py-5 sm:flex-row sm:items-stretch sm:gap-0 sm:px-6 sm:py-0"
+          className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_1fr_14rem_auto] lg:items-end lg:gap-5"
         >
-          <label htmlFor="busca-home" className="sr-only">
-            Buscar imóvel por cidade, bairro ou título
-          </label>
+          <div>
+            <label
+              htmlFor="busca-cidade"
+              className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
+            >
+              CIDADE
+            </label>
 
-          <input
-            id="busca-home"
-            name="q"
-            type="search"
-            value={termo}
-            onChange={(evento) => setTermo(evento.target.value)}
-            placeholder="Cidade, bairro ou o que você procura"
-            className="min-h-14 flex-1 border border-border bg-card px-4 text-lg outline-none placeholder:text-muted-foreground sm:min-h-[5.5rem] sm:border-0 sm:border-b sm:bg-transparent sm:px-0 sm:text-2xl"
-          />
+            <input
+              id="busca-cidade"
+              name="city"
+              type="text"
+              value={cidade}
+              onChange={(evento) => setCidade(evento.target.value)}
+              placeholder="Onde você procura"
+              className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="busca-bairro"
+              className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
+            >
+              BAIRRO
+            </label>
+
+            <input
+              id="busca-bairro"
+              name="neighborhood"
+              type="text"
+              value={bairro}
+              onChange={(evento) => setBairro(evento.target.value)}
+              placeholder="Qualquer bairro"
+              className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none placeholder:text-muted-foreground"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="busca-tipo"
+              className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
+            >
+              TIPO
+            </label>
+
+            <select
+              id="busca-tipo"
+              name="type"
+              value={tipo}
+              onChange={(evento) =>
+                setTipo(evento.target.value as PropertyType | typeof QUALQUER_TIPO)
+              }
+              className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none"
+            >
+              <option value={QUALQUER_TIPO}>Qualquer tipo</option>
+
+              {TIPOS_DE_IMOVEL.map(({ valor, rotulo }) => (
+                <option key={valor} value={valor}>
+                  {rotulo}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <button
             type="submit"
-            className="flex min-h-14 items-center justify-center gap-2 bg-primary px-10 font-medium text-primary-foreground transition-colors hover:bg-brand-light sm:min-h-[5.5rem]"
+            className="flex min-h-14 items-center justify-center gap-2 bg-primary px-10 font-medium text-primary-foreground transition-colors hover:bg-brand-light"
           >
             <Search className="h-5 w-5" aria-hidden />
             Buscar
