@@ -12,6 +12,7 @@ import {
   propertyTypeLabel,
   reasonLabel,
 } from "@/app/lib/property";
+import { urlDaImagem } from "@/app/lib/imagem";
 
 export default function AnnouncementDetailPage() {
   const params = useParams();
@@ -77,7 +78,7 @@ export default function AnnouncementDetailPage() {
       <div className="relative h-[46vh] min-h-72 overflow-hidden bg-secondary sm:h-[58vh]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={data.image}
+          src={urlDaImagem(data.image)}
           alt={`Foto de ${data.title}`}
           className="h-full w-full object-cover"
         />

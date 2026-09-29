@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Announcement } from "../types/announcement";
 import { formatArea, formatPrice, propertyTypeLabel } from "../lib/property";
+import { urlDaImagem } from "../lib/imagem";
 
 type Props = {
   announcement: Announcement;
@@ -34,7 +35,7 @@ export function LinhaDeAnuncio({
       <div className="h-24 w-full shrink-0 overflow-hidden bg-secondary sm:w-36">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={announcement.image}
+          src={urlDaImagem(announcement.image)}
           alt=""
           className={`h-full w-full object-cover ${noAr ? "" : "opacity-40"}`}
         />

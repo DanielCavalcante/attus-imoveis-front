@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-import { ImagePlus, Save } from "lucide-react";
+import { Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -43,12 +43,6 @@ export default function RealEstatePages() {
 }
 
 function AnnouncementEditPage() {
-  const [gallery] = useState([
-    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=1200&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
-  ]);
-
   return (
     <div className="space-y-6">
       <div>
@@ -183,35 +177,23 @@ function AnnouncementEditPage() {
             </CardContent>
           </Card>
 
+          {/*
+            Aqui havia tres fotos fixas da Unsplash exibidas como se fossem do
+            imovel, mais um botao "Adicionar imagem" que nao fazia nada. Era a
+            mesma fabricacao ja removida da tela de criar -- e, desde a spec
+            32, o produto nao carrega imagem de endereco externo nenhum.
+
+            Esta tela inteira ainda e um rascunho: ela nao carrega o anuncio
+            que o id aponta. Trocar a foto aqui depende de o formulario de
+            edicao existir de verdade, e isso e spec propria.
+          */}
           <Card className="rounded-3xl border-0 shadow-sm">
             <CardHeader>
               <CardTitle>Imagens</CardTitle>
               <CardDescription>
-                Faça upload das fotos do imóvel.
+                A troca de foto ainda não está disponível nesta tela.
               </CardDescription>
             </CardHeader>
-
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                {gallery.map((image, index) => (
-                  <div
-                    key={index}
-                    className="overflow-hidden rounded-2xl border"
-                  >
-                    <img
-                      src={image}
-                      alt="Imóvel"
-                      className="h-40 w-full object-cover"
-                    />
-                  </div>
-                ))}
-
-                <button className="flex h-40 flex-col items-center justify-center rounded-2xl border border-dashed bg-muted transition hover:bg-zinc-200">
-                  <ImagePlus className="mb-2 h-8 w-8" />
-                  <span className="text-sm font-medium">Adicionar imagem</span>
-                </button>
-              </div>
-            </CardContent>
           </Card>
         </div>
 

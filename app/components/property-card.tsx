@@ -10,6 +10,7 @@ import {
   propertyTypeLabel,
   reasonLabel,
 } from "../lib/property";
+import { urlDaImagem } from "../lib/imagem";
 
 type Props = {
   announcement: Announcement;
@@ -52,7 +53,7 @@ export function PropertyCard({ announcement, priority = false }: Props) {
       <div className="relative aspect-[4/3] overflow-hidden bg-secondary">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={announcement.image}
+          src={urlDaImagem(announcement.image)}
           alt={`Foto de ${announcement.title}`}
           loading={priority ? "eager" : "lazy"}
           className="h-full w-full object-cover"

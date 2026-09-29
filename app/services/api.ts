@@ -11,7 +11,12 @@ export async function api<T>(
   const token = localStorage.getItem("token");
   const headers = new Headers(options?.headers);
 
-  headers.set("Content-Type", "application/json");
+  // FormData escolhe o proprio Content-Type, com o boundary junto. Fixar
+  // application/json aqui faria o servidor receber multipart rotulado como
+  // JSON e recusar antes de olhar o arquivo.
+  if (!(options?.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json");
+  }
 
   if (options?.auth && token) {
     headers.set("Authorization", `Bearer ${token}`);

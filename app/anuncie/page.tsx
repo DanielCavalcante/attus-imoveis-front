@@ -13,6 +13,7 @@ import {
   AnnouncementFormData,
 } from "../schemas/announcement";
 import { PrivateRoute } from "../components/private-route";
+import { CampoDeImagem } from "../components/campo-de-imagem";
 import {
   CadastroEmAprovacao,
   type MotivoDoBloqueio,
@@ -102,16 +103,20 @@ function FormularioDeAnuncio() {
   const createAnnouncementMutation = useCreateAnnouncement();
   const router = useRouter();
 
-  const [previa, setPrevia] = useState("");
+  const [enviandoImagem, setEnviandoImagem] = useState(false);
 
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementSchema),
     defaultValues: { propertyType: "HOUSE", reason: "SALE" },
   });
+
+  const imagemAtual = watch("image");
 
   async function onSubmit(data: AnnouncementFormData) {
     try {
@@ -364,65 +369,34 @@ function FormularioDeAnuncio() {
         </Secao>
 
         <Secao titulo="Foto" temErro={Boolean(errors.image)}>
-          <div className="sm:col-span-2">
-            <label htmlFor="image" className={ROTULO}>
-              Link da imagem
-            </label>
+          {/*
+            A foto e enviada, nao linkada.
 
-            <input
-              {...register("image")}
-              id="image"
-              className={CAMPO}
-              placeholder="https://…"
-              onChange={(evento) => {
-                register("image").onChange(evento);
-                setPrevia(evento.target.value.trim());
-              }}
+            Ate a spec 32 este campo era texto: quem anunciava colava o
+            endereco de uma imagem hospedada em qualquer lugar, e o site
+            carregava do host que viesse. O `register` do campo continua
+            existindo, escondido, porque quem valida o formulario e o schema --
+            o que mudou e de onde o valor vem.
+          */}
+          <div className="sm:col-span-2">
+            <input type="hidden" {...register("image")} />
+
+            <CampoDeImagem
+              valor={imagemAtual}
+              onChange={(caminho) =>
+                setValue("image", caminho, { shouldValidate: true })
+              }
+              onEnviando={setEnviandoImagem}
             />
 
             <Erro>{errors.image?.message}</Erro>
-
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-              A foto entra por link, não por upload — é assim que o sistema
-              funciona hoje. Cole o endereço de uma imagem já publicada.
-            </p>
-          </div>
-
-          {/*
-            Prévia da foto que a pessoa informou, e não uma galeria.
-
-            Aqui existiam três fotos fixas do Unsplash exibidas como se fossem
-            do imóvel, mais um botão "Adicionar imagem" que não fazia nada — e
-            que, sem `type`, era `submit` dentro do formulário: clicar nele
-            publicava o anúncio.
-          */}
-          <div className="sm:col-span-2">
-            <p className={ROTULO}>Prévia</p>
-
-            <div className="flex aspect-[16/9] max-w-xl items-center justify-center overflow-hidden border border-dashed border-border bg-secondary">
-              {previa ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={previa}
-                  alt="Prévia da foto informada"
-                  className="h-full w-full object-cover"
-                  onError={(evento) => {
-                    evento.currentTarget.style.display = "none";
-                  }}
-                />
-              ) : (
-                <p className="px-6 text-center text-sm text-muted-foreground">
-                  A foto aparece aqui assim que você colar o link.
-                </p>
-              )}
-            </div>
           </div>
         </Secao>
 
         <div className="mt-12 flex flex-wrap items-center gap-6 border-t border-border pt-8">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || enviandoImagem}
             className="flex min-h-14 items-center gap-2 bg-primary px-9 font-medium text-primary-foreground transition-colors hover:bg-brand-light disabled:pointer-events-none disabled:opacity-60"
           >
             <Save className="h-4 w-4" aria-hidden />
