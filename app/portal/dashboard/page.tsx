@@ -1,68 +1,77 @@
 "use client";
 
 import Link from "next/link";
-import { Home } from "lucide-react";
+import { Megaphone, LayoutList } from "lucide-react";
 
-import { useMyAnnouncements } from "@/app/hooks/use-my-announcements";
-import { Button } from "@/components/ui/button";
+import { useMyAnnouncements, useMyQuota } from "@/app/hooks/use-my-announcements";
 import { PrivateRoute } from "@/app/components/private-route";
-import { AnnouncementGrid } from "@/app/components/announcement-grid";
 
+/**
+ * O dashboard deixou de listar anúncios.
+ *
+ * A grade que morava aqui era a mesma do acervo público, sem as ações de quem
+ * é dono. Duas telas listando os mesmos anúncios com poderes diferentes é como
+ * alguém edita no lugar errado e não acha a ação que procura. Quem gerencia é
+ * /portal/anuncios; aqui ficam os caminhos.
+ */
 export default function DashboardPage() {
-  const { data, isLoading } = useMyAnnouncements();
-
-  const anuncios = data?.content ?? [];
-
   return (
     <PrivateRoute>
-      <div className="min-h-screen bg-muted/40">
-        <div className="container mx-auto px-4 py-8">
-          {anuncios.length > 0 && (
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold tracking-tight">
-                Meus anúncios
-              </h1>
-
-              <p className="text-muted-foreground">
-                {data?.totalElements} publicado
-                {data?.totalElements === 1 ? "" : "s"}.
-              </p>
-            </div>
-          )}
-
-          <AnnouncementGrid
-            announcements={anuncios}
-            isLoading={isLoading}
-            emptyState={
-              <div className="flex min-h-[70vh] flex-col items-center justify-center px-4">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
-                  <Home className="h-12 w-12 text-muted-foreground" aria-hidden />
-                </div>
-
-                <h1 className="mt-8 text-3xl font-bold">
-                  Seu portfólio está vazio
-                </h1>
-
-                <p className="mt-3 max-w-lg text-center text-muted-foreground">
-                  Você ainda não cadastrou nenhum imóvel. Crie seu primeiro
-                  anúncio e comece a receber contatos de interessados.
-                </p>
-
-                <Button asChild className="mt-8" size="lg">
-                  <Link href="/anuncie">Criar anúncio</Link>
-                </Button>
-
-                <ul className="mt-8 grid gap-3 text-sm text-muted-foreground">
-                  <li>Publique gratuitamente</li>
-                  <li>Fotos ilimitadas</li>
-                  <li>Gerencie seus imóveis em um único lugar</li>
-                  <li>Receba contatos de interessados</li>
-                </ul>
-              </div>
-            }
-          />
-        </div>
-      </div>
+      <Painel />
     </PrivateRoute>
+  );
+}
+
+function Painel() {
+  const { data } = useMyAnnouncements();
+  const quota = useMyQuota();
+
+  const total = data?.totalElements ?? 0;
+  const noAr = quota.data?.usados ?? 0;
+
+  return (
+    <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+      <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
+        Sua conta
+      </h1>
+
+      <p className="tabular mt-3 text-muted-foreground">
+        {total === 0
+          ? "Nenhum anúncio publicado ainda."
+          : `${total} ${total === 1 ? "anúncio" : "anúncios"} · ${noAr} no ar.`}
+      </p>
+
+      <div className="mt-10 grid gap-5 sm:grid-cols-2">
+        <Link
+          href="/portal/anuncios"
+          className="flex flex-col border border-border p-7 transition-colors hover:border-foreground/40 hover:bg-card"
+        >
+          <LayoutList className="h-6 w-6 text-primary" aria-hidden />
+
+          <h2 className="mt-5 font-display text-2xl font-semibold">
+            Meus anúncios
+          </h2>
+
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            Editar, tirar do ar, voltar ao ar ou excluir.
+          </p>
+        </Link>
+
+        <Link
+          href="/anuncie"
+          className="flex flex-col border border-border p-7 transition-colors hover:border-foreground/40 hover:bg-card"
+        >
+          <Megaphone className="h-6 w-6 text-primary" aria-hidden />
+
+          <h2 className="mt-5 font-display text-2xl font-semibold">
+            Criar anúncio
+          </h2>
+
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            Publicar um imóvel novo.
+          </p>
+        </Link>
+      </div>
+    </div>
   );
 }

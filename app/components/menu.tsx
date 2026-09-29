@@ -3,6 +3,7 @@
 import Link from "next/link";
 import {
   LayoutDashboard,
+  LayoutList,
   Building2,
   LogIn,
   Megaphone,
@@ -67,6 +68,17 @@ export function Menu() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+
+            {user && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/portal/anuncios" className={ITEM}>
+                    <LayoutList className="h-4 w-4" aria-hidden />
+                    Meus anúncios
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
 
             {user && (
               <NavigationMenuItem>

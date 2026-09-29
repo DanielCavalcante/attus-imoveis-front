@@ -23,9 +23,40 @@ export async function api<T>(
   });
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || "Erro na requisição");
+    throw new Error((await mensagemDeErro(response)) ?? "Erro na requisição");
   }
 
-  return response.json();
+  return (await corpo<T>(response)) as T;
+}
+
+/**
+ * Resposta sem corpo não é resposta inválida.
+ *
+ * 204 é o que as rotas de inativar, reativar e excluir devolvem, e
+ * `response.json()` num corpo vazio lança "Unexpected end of JSON input" — a
+ * mutação falhava inteira depois de o servidor já ter feito o trabalho.
+ */
+async function corpo<T>(response: Response): Promise<T | undefined> {
+  if (response.status === 204) return undefined;
+
+  const texto = await response.text();
+
+  return texto ? (JSON.parse(texto) as T) : undefined;
+}
+
+/**
+ * Erro com corpo vazio também existe, e é comum: o 403 do Spring Security não
+ * traz JSON. Lendo com `response.json()`, o erro de parsing substituía o erro
+ * real e escondia o status.
+ */
+async function mensagemDeErro(response: Response) {
+  const texto = await response.text().catch(() => "");
+
+  if (!texto) return `Erro ${response.status} na requisição`;
+
+  try {
+    return (JSON.parse(texto) as { message?: string }).message ?? texto;
+  } catch {
+    return texto;
+  }
 }
