@@ -93,3 +93,26 @@ describe("os tipos oferecidos (spec 20)", () => {
     expect(apartamento?.rotulo).toBe("Apartamento");
   });
 });
+
+describe("faixa de preco na consulta (spec 27)", () => {
+  it("C10 - faixa vazia nao restringe", () => {
+    expect(buildAnnouncementsQuery({ minPrice: "", maxPrice: "  " })).toBe("");
+  });
+
+  it("os dois limites vao para a consulta", () => {
+    const consulta = buildAnnouncementsQuery({
+      minPrice: "200000",
+      maxPrice: "900000",
+    });
+
+    expect(consulta).toContain("minPrice=200000");
+    expect(consulta).toContain("maxPrice=900000");
+  });
+
+  it("so o minimo tambem vale", () => {
+    const consulta = buildAnnouncementsQuery({ minPrice: "500000" });
+
+    expect(consulta).toContain("minPrice=500000");
+    expect(consulta).not.toContain("maxPrice");
+  });
+});

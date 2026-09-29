@@ -15,6 +15,8 @@ export type AnnouncementQuery = {
   neighborhood?: string;
   /** Valor do enum do backend (`APARTMENT`), nunca o rótulo exibido. */
   type?: PropertyType;
+  minPrice?: string;
+  maxPrice?: string;
 };
 
 /**
@@ -34,6 +36,8 @@ export function buildAnnouncementsQuery(query: AnnouncementQuery = {}) {
   if (query.neighborhood?.trim())
     params.set("neighborhood", query.neighborhood.trim());
   if (query.type) params.set("type", query.type);
+  if (query.minPrice?.trim()) params.set("minPrice", query.minPrice.trim());
+  if (query.maxPrice?.trim()) params.set("maxPrice", query.maxPrice.trim());
 
   const texto = params.toString();
 
@@ -41,7 +45,10 @@ export function buildAnnouncementsQuery(query: AnnouncementQuery = {}) {
 }
 
 export async function getAnnouncements(query: AnnouncementQuery = {}) {
-  return api<Page<Announcement>>(`/announcements${buildAnnouncementsQuery(query)}`, {
-    method: "GET",
-  });
+  return api<Page<Announcement>>(
+    `/announcements${buildAnnouncementsQuery(query)}`,
+    {
+      method: "GET",
+    },
+  );
 }

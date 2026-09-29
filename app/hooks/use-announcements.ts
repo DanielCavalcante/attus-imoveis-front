@@ -11,6 +11,8 @@ type Filtros = {
   city?: string;
   neighborhood?: string;
   type?: PropertyType;
+  minPrice?: string;
+  maxPrice?: string;
 };
 
 /**
@@ -26,6 +28,8 @@ export function useAnnouncements({
   city,
   neighborhood,
   type,
+  minPrice,
+  maxPrice,
 }: Filtros = {}) {
   return useInfiniteQuery({
     queryKey: [
@@ -36,12 +40,22 @@ export function useAnnouncements({
         city: city?.trim() ?? "",
         neighborhood: neighborhood?.trim() ?? "",
         type: type ?? "",
+        minPrice: minPrice ?? "",
+        maxPrice: maxPrice ?? "",
       },
     ],
     queryFn: ({ pageParam }) =>
-      getAnnouncements({ page: pageParam, q, sort, city, neighborhood, type }),
+      getAnnouncements({
+        page: pageParam,
+        q,
+        sort,
+        city,
+        neighborhood,
+        type,
+        minPrice,
+        maxPrice,
+      }),
     initialPageParam: 0,
-    getNextPageParam: (ultima) =>
-      ultima.last ? undefined : ultima.number + 1,
+    getNextPageParam: (ultima) => (ultima.last ? undefined : ultima.number + 1),
   });
 }

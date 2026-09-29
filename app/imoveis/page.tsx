@@ -1,13 +1,19 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Building2, SearchX } from "lucide-react";
 
 import { useAnnouncements } from "../hooks/use-announcements";
 import { AnnouncementGrid } from "../components/announcement-grid";
 import { InfiniteSentinel } from "../components/infinite-sentinel";
+import {
+  FILTROS_VAZIOS,
+  PainelDeFiltros,
+  type Filtros,
+} from "../components/painel-de-filtros";
 import { propertyTypeLabel, type PropertyType } from "../lib/property";
+import { buildAnnouncementsQuery } from "../services/announcements.service";
 
 const ORDENACOES = {
   "": "Publicados recentemente",
@@ -24,21 +30,28 @@ export default function PropertiesPage() {
 }
 
 /**
- * A busca da home chega por `?q=`. Sem ler o parametro aqui, aquele botao
- * levaria para a listagem inteira e o termo digitado se perderia no caminho.
+ * A URL é a fonte dos filtros, e o painel escreve nela.
+ *
+ * Isso faz o link ser compartilhável e o botão de voltar do navegador
+ * funcionar sem código a mais: ler e escrever são o mesmo mecanismo nos dois
+ * sentidos.
  */
 function Listagem() {
   const parametros = useSearchParams();
-  const termoDaUrl = parametros.get("q") ?? "";
+  const router = useRouter();
 
-  /*
-    Cidade, bairro e tipo chegam da home e vêm só da URL, por enquanto: a tela
-    ainda não tem controles para eles. Sem lê-los aqui, os três campos da porta
-    de entrada seriam controle morto — que foi o que saiu desta home.
-  */
-  const city = parametros.get("city") ?? undefined;
-  const neighborhood = parametros.get("neighborhood") ?? undefined;
-  const type = (parametros.get("type") as PropertyType | null) ?? undefined;
+  const filtros: Filtros = useMemo(
+    () => ({
+      city: parametros.get("city") ?? "",
+      neighborhood: parametros.get("neighborhood") ?? "",
+      type: (parametros.get("type") as PropertyType | null) ?? "",
+      minPrice: parametros.get("minPrice") ?? "",
+      maxPrice: parametros.get("maxPrice") ?? "",
+    }),
+    [parametros],
+  );
+
+  const termoDaUrl = parametros.get("q") ?? "";
 
   const [termoDigitado, setTermoDigitado] = useState(termoDaUrl);
   const [sort, setSort] = useState<keyof typeof ORDENACOES>("");
@@ -50,7 +63,15 @@ function Listagem() {
   const termo = useDebounced(termoDigitado, 350);
 
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } =
-    useAnnouncements({ q: termo, sort, city, neighborhood, type });
+    useAnnouncements({
+      q: termo,
+      sort,
+      city: filtros.city || undefined,
+      neighborhood: filtros.neighborhood || undefined,
+      type: filtros.type || undefined,
+      minPrice: filtros.minPrice || undefined,
+      maxPrice: filtros.maxPrice || undefined,
+    });
 
   const anuncios = useMemo(
     () => data?.pages.flatMap((pagina) => pagina.content) ?? [],
@@ -59,73 +80,98 @@ function Listagem() {
 
   const total = data?.pages[0]?.totalElements ?? 0;
 
+  function aplicar(novos: Filtros) {
+    const consulta = buildAnnouncementsQuery({
+      q: termo,
+      city: novos.city,
+      neighborhood: novos.neighborhood,
+      type: novos.type || undefined,
+      minPrice: novos.minPrice,
+      maxPrice: novos.maxPrice,
+    });
+
+    router.push(`/imoveis${consulta}`);
+  }
+
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6">
-      <div className="flex flex-col gap-6 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
+      <div className="grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-14">
+        <aside className="lg:sticky lg:top-8 lg:self-start">
+          <PainelDeFiltros filtros={filtros} onAplicar={aplicar} />
+        </aside>
+
         <div>
-          <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
-            {titulo({ termo: termo.trim(), city, neighborhood, type })}
-          </h1>
+          <div className="flex flex-col gap-6 border-b border-border pb-6 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
+                {titulo({ termo: termo.trim(), ...filtros })}
+              </h1>
 
-          <p className="tabular mt-3 text-muted-foreground">
-            {isLoading
-              ? "Buscando imóveis disponíveis…"
-              : `${total} ${total === 1 ? "anúncio publicado" : "anúncios publicados"}.`}
-          </p>
-        </div>
+              <p className="tabular mt-3 text-muted-foreground">
+                {isLoading
+                  ? "Buscando imóveis disponíveis…"
+                  : `${total} ${total === 1 ? "anúncio publicado" : "anúncios publicados"}.`}
+              </p>
+            </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <label className="sr-only" htmlFor="announcement-search">
-            Buscar imóvel por título, cidade ou estado
-          </label>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <label className="sr-only" htmlFor="announcement-search">
+                Buscar imóvel por título, cidade ou estado
+              </label>
 
-          <input
-            id="announcement-search"
-            type="search"
-            value={termoDigitado}
-            onChange={(event) => setTermoDigitado(event.target.value)}
-            placeholder="Título, cidade ou estado"
-            className="min-h-12 border border-input bg-card px-4 text-sm outline-none placeholder:text-muted-foreground sm:w-72"
-          />
+              <input
+                id="announcement-search"
+                type="search"
+                value={termoDigitado}
+                onChange={(event) => setTermoDigitado(event.target.value)}
+                placeholder="Título, cidade ou estado"
+                className="min-h-12 border border-input bg-card px-4 text-sm outline-none placeholder:text-muted-foreground sm:w-60"
+              />
 
-          <label className="sr-only" htmlFor="announcement-sort">
-            Ordenar por
-          </label>
+              <label className="sr-only" htmlFor="announcement-sort">
+                Ordenar por
+              </label>
 
-          <select
-            id="announcement-sort"
-            value={sort}
-            onChange={(event) =>
-              setSort(event.target.value as keyof typeof ORDENACOES)
-            }
-            className="min-h-12 border border-input bg-card px-4 text-sm outline-none"
-          >
-            {Object.entries(ORDENACOES).map(([valor, rotulo]) => (
-              <option key={valor} value={valor}>
-                {rotulo}
-              </option>
-            ))}
-          </select>
+              <select
+                id="announcement-sort"
+                value={sort}
+                onChange={(event) =>
+                  setSort(event.target.value as keyof typeof ORDENACOES)
+                }
+                className="min-h-12 border border-input bg-card px-4 text-sm outline-none"
+              >
+                {Object.entries(ORDENACOES).map(([valor, rotulo]) => (
+                  <option key={valor} value={valor}>
+                    {rotulo}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="pt-8">
+            <AnnouncementGrid
+              announcements={anuncios}
+              isLoading={isLoading}
+              emptyState={
+                termo.trim() ? (
+                  <SemResultado termo={termo.trim()} />
+                ) : (
+                  <SemAcervo />
+                )
+              }
+            />
+          </div>
+
+          {anuncios.length > 0 && (
+            <InfiniteSentinel
+              temMais={!!hasNextPage}
+              carregando={isFetchingNextPage}
+              carregarMais={fetchNextPage}
+            />
+          )}
         </div>
       </div>
-
-      <div className="pt-8">
-        <AnnouncementGrid
-          announcements={anuncios}
-          isLoading={isLoading}
-          emptyState={
-            termo.trim() ? <SemResultado termo={termo.trim()} /> : <SemAcervo />
-          }
-        />
-      </div>
-
-      {anuncios.length > 0 && (
-        <InfiniteSentinel
-          temMais={!!hasNextPage}
-          carregando={isFetchingNextPage}
-          carregarMais={fetchNextPage}
-        />
-      )}
     </div>
   );
 }
@@ -133,8 +179,8 @@ function Listagem() {
 /**
  * O título diz o que está sendo mostrado.
  *
- * Com filtro vindo da home, "Todos os imóveis" seria mentira: a pessoa pediu
- * um recorte e a contagem abaixo se refere ao recorte, não ao acervo.
+ * Com filtro aplicado, "Todos os imóveis" seria mentira: a pessoa pediu um
+ * recorte e a contagem abaixo se refere ao recorte, não ao acervo.
  */
 function titulo({
   termo,
@@ -145,7 +191,7 @@ function titulo({
   termo: string;
   city?: string;
   neighborhood?: string;
-  type?: PropertyType;
+  type?: PropertyType | "";
 }) {
   if (termo) return `Imóveis para “${termo}”`;
 
@@ -159,7 +205,10 @@ function titulo({
 
 function Carregando() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6" aria-busy="true">
+    <div
+      className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6"
+      aria-busy="true"
+    >
       <div className="h-12 w-80 animate-pulse bg-secondary" />
       <div className="mt-4 h-5 w-52 animate-pulse bg-secondary" />
     </div>
@@ -184,15 +233,16 @@ function SemResultado({ termo }: { termo: string }) {
 
 function SemAcervo() {
   return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center text-center">
+    <div className="flex min-h-[40vh] flex-col items-center justify-center text-center">
       <Building2 className="h-10 w-10 text-muted-foreground" aria-hidden />
 
       <h2 className="mt-6 font-display text-3xl font-semibold">
-        Ainda não há imóveis publicados
+        Nenhum imóvel com esses filtros
       </h2>
 
       <p className="mt-3 max-w-lg text-muted-foreground">
-        Assim que o primeiro anúncio for criado, ele aparece aqui.
+        Tente afrouxar o recorte — outro bairro, outra faixa de preço, ou limpe
+        os filtros para ver o acervo inteiro.
       </p>
     </div>
   );
