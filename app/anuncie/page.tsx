@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -395,16 +395,20 @@ function Secao({
   const conteudoId = useId();
   const [aberta, setAberta] = useState(aberturaInicial);
 
-  useEffect(() => {
-    if (temErro) setAberta(true);
-  }, [temErro]);
+  /*
+    Derivado, não sincronizado por efeito: com `setAberta` dentro de um
+    useEffect, abrir a seção por causa de um erro dispara renderização em
+    cascata. Assim a seção com erro aparece enquanto o erro existir e volta a
+    obedecer a escolha da pessoa quando ele some.
+  */
+  const mostrando = aberta || temErro;
 
   return (
     <section className="mb-8 border-b border-border pb-8 lg:mb-12 lg:border-0 lg:pb-0">
       <button
         type="button"
         onClick={() => setAberta((estava) => !estava)}
-        aria-expanded={aberta}
+        aria-expanded={mostrando}
         aria-controls={conteudoId}
         className="flex min-h-12 w-full items-center justify-between gap-4 text-left lg:pointer-events-none lg:min-h-0"
       >
@@ -412,7 +416,7 @@ function Secao({
 
         <ChevronDown
           className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform lg:hidden ${
-            aberta ? "rotate-180" : ""
+            mostrando ? "rotate-180" : ""
           }`}
           aria-hidden
         />
@@ -420,7 +424,7 @@ function Secao({
 
       <div
         id={conteudoId}
-        className={`gap-6 pt-6 sm:grid-cols-2 lg:grid ${aberta ? "grid" : "hidden"}`}
+        className={`gap-6 pt-6 sm:grid-cols-2 lg:grid ${mostrando ? "grid" : "hidden"}`}
       >
         {children}
       </div>

@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   LayoutList,
@@ -26,13 +25,7 @@ type Item = {
 
 export function Menu() {
   const { user } = useAuth();
-  const caminho = usePathname();
   const [aberto, setAberto] = useState(false);
-
-  // Navegar fecha a gaveta: sem isso ela fica por cima da tela nova.
-  useEffect(() => {
-    setAberto(false);
-  }, [caminho]);
 
   const itens: Item[] = [
     ...(user
@@ -144,6 +137,9 @@ export function Menu() {
               <li key={href}>
                 <Link
                   href={href}
+                  /* Fecha ao navegar, no próprio clique: sincronizar isso por
+                     efeito sobre a rota dispara renderização em cascata. */
+                  onClick={() => setAberto(false)}
                   className="flex min-h-14 items-center gap-3 border-b border-border text-base transition-colors hover:text-primary"
                 >
                   <Icone
@@ -161,6 +157,7 @@ export function Menu() {
               ) : (
                 <Link
                   href="/portal/auth/login"
+                  onClick={() => setAberto(false)}
                   className="flex min-h-14 items-center justify-center gap-2 bg-primary px-6 font-medium text-primary-foreground"
                 >
                   <LogIn className="h-4 w-4" aria-hidden />
