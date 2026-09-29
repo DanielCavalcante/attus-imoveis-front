@@ -61,16 +61,22 @@ export default function BuscaHero() {
   }
 
   return (
-    <section className="relative flex min-h-[88vh] flex-col justify-end overflow-hidden">
-      <div className="absolute inset-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/image/register.jpg"
-          alt=""
-          className="revelar-luz h-full w-full object-cover object-[50%_42%]"
-        />
+    <section className="flex flex-col">
+      {/*
+        O céu: a foto e a manchete, num bloco que termina no horizonte. Com a
+        foto em `inset-0` da seção inteira, ela passava por trás do formulário
+        e o fio deixava de separar coisa nenhuma — que é a única função dele.
+      */}
+      <div className="relative flex min-h-[72vh] flex-col justify-end overflow-hidden">
+        <div className="absolute inset-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/image/register.jpg"
+            alt=""
+            className="revelar-luz h-full w-full object-cover object-[50%_42%]"
+          />
 
-        {/*
+          {/*
           Dois veus, e cada um resolve um problema diferente.
 
           O vertical assenta a foto no chao indigo. O lateral existe porque a
@@ -78,97 +84,113 @@ export default function BuscaHero() {
           o mesmo espaco que os rostos e nenhum dos dois ganha. Com ele a luz
           passa a vir da direita e a tipografia ganha chao proprio a esquerda.
         */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,18,32,0.86) 0%, rgba(12,18,32,0.28) 38%, rgba(12,18,32,0.58) 66%, #0C1220 100%)",
-          }}
-        />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(12,18,32,0.86) 0%, rgba(12,18,32,0.28) 38%, rgba(12,18,32,0.58) 66%, #0C1220 100%)",
+            }}
+          />
 
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(12,18,32,0.88) 0%, rgba(12,18,32,0.62) 34%, rgba(12,18,32,0) 68%)",
-          }}
-        />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(90deg, rgba(12,18,32,0.88) 0%, rgba(12,18,32,0.62) 34%, rgba(12,18,32,0) 68%)",
+            }}
+          />
+        </div>
+
+        <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6">
+          <h1 className="max-w-[22ch] font-display text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[0.94]">
+            Toda imobiliária aqui passou por uma pessoa antes de passar por
+            você.
+          </h1>
+
+          <p className="mt-7 max-w-[60ch] text-lg leading-relaxed text-foreground/85">
+            CRECI conferido, razão social conferida, responsável legal
+            conferido. Quem não passa, não publica. E quem vende o próprio
+            imóvel tem uma equipe do lado.
+          </p>
+        </div>
       </div>
 
-      <div className="relative mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6">
-        <h1 className="max-w-[22ch] font-display text-[clamp(2.5rem,7vw,5.5rem)] font-semibold leading-[0.94]">
-          Toda imobiliária aqui passou por uma pessoa antes de passar por você.
-        </h1>
-
-        <p className="mt-7 max-w-[60ch] text-lg leading-relaxed text-foreground/85">
-          CRECI conferido, razão social conferida, responsável legal conferido.
-          Quem não passa, não publica. E quem vende o próprio imóvel tem uma
-          equipe do lado.
-        </p>
-      </div>
-
-      <div className="relative">
+      {/* O chão: interface sobre índigo, sem foto atrás. */}
+      <div className="bg-background">
         <div className="horizonte" />
 
-        <form
-          onSubmit={buscar}
-          className="mx-auto grid w-full max-w-7xl gap-4 px-4 py-6 sm:px-6 lg:grid-cols-[1fr_1fr_14rem_auto] lg:items-end lg:gap-5"
-        >
-          <CampoComSugestoes
-            id="busca-cidade"
-            name="city"
-            rotulo="CIDADE"
-            valor={cidade}
-            onChange={setCidade}
-            sugestoes={cidades.data ?? []}
-            placeholder="Onde você procura"
-          />
+        {/*
+          Os campos vão empilhados, um por linha: onde, em que bairro, que tipo,
+          e então a ação. A faixa horizontal de quatro colunas espremia os dois
+          campos digitáveis e punha a pergunta grossa e a fina lado a lado, com
+          o mesmo peso.
 
-          <CampoComSugestoes
-            id="busca-bairro"
-            name="neighborhood"
-            rotulo="BAIRRO"
-            valor={bairro}
-            onChange={setBairro}
-            sugestoes={bairros.data ?? []}
-            placeholder="Qualquer bairro"
-          />
-
-          <div>
-            <label
-              htmlFor="busca-tipo"
-              className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
-            >
-              TIPO
-            </label>
-
-            <select
-              id="busca-tipo"
-              name="type"
-              value={tipo}
-              onChange={(evento) =>
-                setTipo(evento.target.value as PropertyType | typeof QUALQUER_TIPO)
-              }
-              className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none"
-            >
-              <option value={QUALQUER_TIPO}>Qualquer tipo</option>
-
-              {TIPOS_DE_IMOVEL.map(({ valor, rotulo }) => (
-                <option key={valor} value={valor}>
-                  {rotulo}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            className="flex min-h-14 items-center justify-center gap-2 bg-primary px-10 font-medium text-primary-foreground transition-colors hover:bg-brand-light"
+          O invólucro carrega a margem da página; o formulário é só a coluna,
+          alinhada à mesma borda esquerda da manchete.
+        */}
+        <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6">
+          <form
+            onSubmit={buscar}
+            className="flex w-full max-w-md flex-col gap-4"
           >
-            <Search className="h-5 w-5" aria-hidden />
-            Buscar
-          </button>
-        </form>
+            <CampoComSugestoes
+              id="busca-cidade"
+              name="city"
+              rotulo="CIDADE"
+              valor={cidade}
+              onChange={setCidade}
+              sugestoes={cidades.data ?? []}
+              placeholder="Onde você procura"
+            />
+
+            <CampoComSugestoes
+              id="busca-bairro"
+              name="neighborhood"
+              rotulo="BAIRRO"
+              valor={bairro}
+              onChange={setBairro}
+              sugestoes={bairros.data ?? []}
+              placeholder="Qualquer bairro"
+            />
+
+            <div>
+              <label
+                htmlFor="busca-tipo"
+                className="mb-2 block text-xs tracking-[0.1em] text-muted-foreground"
+              >
+                TIPO
+              </label>
+
+              <select
+                id="busca-tipo"
+                name="type"
+                value={tipo}
+                onChange={(evento) =>
+                  setTipo(
+                    evento.target.value as PropertyType | typeof QUALQUER_TIPO,
+                  )
+                }
+                className="min-h-14 w-full border border-border bg-card px-4 text-lg outline-none"
+              >
+                <option value={QUALQUER_TIPO}>Qualquer tipo</option>
+
+                {TIPOS_DE_IMOVEL.map(({ valor, rotulo }) => (
+                  <option key={valor} value={valor}>
+                    {rotulo}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              className="flex min-h-14 items-center justify-center gap-2 bg-primary px-10 font-medium text-primary-foreground transition-colors hover:bg-brand-light"
+            >
+              <Search className="h-5 w-5" aria-hidden />
+              Buscar
+            </button>
+          </form>
+        </div>
       </div>
     </section>
   );
