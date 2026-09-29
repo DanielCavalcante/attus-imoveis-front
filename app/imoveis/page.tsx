@@ -96,7 +96,16 @@ function Listagem() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-12 sm:px-6">
       <div className="grid gap-10 lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-14">
-        <aside className="lg:sticky lg:top-8 lg:self-start">
+        {/*
+          Fixo nos dois regimes, e nao so no desktop: abaixo de `lg` o painel
+          vira um botao "Filtrar" e, sem isto, ele subia junto com a lista --
+          quem rolasse tres cards ficava sem nenhum jeito de trocar o recorte.
+
+          O teto de altura e o que mantem o `sticky` honesto: painel mais alto
+          que a janela nao gruda, ele so para de rolar no fim. Com o teto, ele
+          rola por dentro.
+        */}
+        <aside className="sticky top-0 z-30 max-h-[calc(100dvh-1rem)] overflow-y-auto bg-background py-2 lg:top-8 lg:max-h-[calc(100dvh-4rem)] lg:self-start lg:py-0">
           <PainelDeFiltros filtros={filtros} onAplicar={aplicar} />
         </aside>
 
