@@ -33,10 +33,20 @@ export function LinhaDeAnuncio({
   return (
     <article className="flex flex-col gap-5 border-b border-border py-6 sm:flex-row sm:items-center">
       <div className="h-24 w-full shrink-0 overflow-hidden bg-secondary sm:w-36">
+        {/*
+          `lazy` como no card do acervo, que ja fazia isso.
+
+          Sem ele a pagina dispara uma requisicao por anuncio no momento em que
+          monta, todas de uma vez e todas em tamanho cheio -- inclusive as que
+          estao abaixo da dobra. Com 18 anuncios sao 18 downloads simultaneos
+          para preencher miniaturas de 144x96.
+        */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={urlDaImagem(announcement.image)}
           alt=""
+          loading="lazy"
+          decoding="async"
           className={`h-full w-full object-cover ${noAr ? "" : "opacity-40"}`}
         />
       </div>
