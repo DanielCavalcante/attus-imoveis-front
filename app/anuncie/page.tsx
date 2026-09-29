@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Save } from "lucide-react";
+import { ChevronDown, Save } from "lucide-react";
 
 import { useCreateAnnouncement } from "@/app/hooks/use-create-announcement";
 import {
@@ -75,7 +75,16 @@ function FormularioDeAnuncio() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="pt-10">
-        <Secao titulo="O imóvel">
+        <Secao
+          titulo="O imóvel"
+          aberturaInicial
+          temErro={Boolean(
+            errors.title ||
+            errors.description ||
+            errors.propertyType ||
+            errors.reason,
+          )}
+        >
           <div className="sm:col-span-2">
             <label htmlFor="title" className={ROTULO}>
               Título do anúncio
@@ -112,7 +121,11 @@ function FormularioDeAnuncio() {
               Tipo do imóvel
             </label>
 
-            <select {...register("propertyType")} id="propertyType" className={CAMPO}>
+            <select
+              {...register("propertyType")}
+              id="propertyType"
+              className={CAMPO}
+            >
               {TIPOS_DE_IMOVEL.map(({ valor, rotulo }) => (
                 <option key={valor} value={valor}>
                   {rotulo}
@@ -137,7 +150,12 @@ function FormularioDeAnuncio() {
           </div>
         </Secao>
 
-        <Secao titulo="Medidas e preço">
+        <Secao
+          titulo="Medidas e preço"
+          temErro={Boolean(
+            errors.rooms || errors.bathRooms || errors.area || errors.price,
+          )}
+        >
           <Numero
             id="rooms"
             rotulo="Quartos"
@@ -172,13 +190,28 @@ function FormularioDeAnuncio() {
           />
         </Secao>
 
-        <Secao titulo="Onde fica">
+        <Secao
+          titulo="Onde fica"
+          temErro={Boolean(
+            errors.cep ||
+            errors.street ||
+            errors.streetNumber ||
+            errors.city ||
+            errors.state ||
+            errors.complement,
+          )}
+        >
           <div>
             <label htmlFor="cep" className={ROTULO}>
               CEP
             </label>
 
-            <input {...register("cep")} id="cep" className={CAMPO} placeholder="58038-000" />
+            <input
+              {...register("cep")}
+              id="cep"
+              className={CAMPO}
+              placeholder="58038-000"
+            />
 
             <Erro>{errors.cep?.message}</Erro>
           </div>
@@ -234,7 +267,12 @@ function FormularioDeAnuncio() {
               Cidade
             </label>
 
-            <input {...register("city")} id="city" className={CAMPO} placeholder="João Pessoa" />
+            <input
+              {...register("city")}
+              id="city"
+              className={CAMPO}
+              placeholder="João Pessoa"
+            />
 
             <Erro>{errors.city?.message}</Erro>
           </div>
@@ -244,13 +282,18 @@ function FormularioDeAnuncio() {
               Estado
             </label>
 
-            <input {...register("state")} id="state" className={CAMPO} placeholder="PB" />
+            <input
+              {...register("state")}
+              id="state"
+              className={CAMPO}
+              placeholder="PB"
+            />
 
             <Erro>{errors.state?.message}</Erro>
           </div>
         </Secao>
 
-        <Secao titulo="Foto">
+        <Secao titulo="Foto" temErro={Boolean(errors.image)}>
           <div className="sm:col-span-2">
             <label htmlFor="image" className={ROTULO}>
               Link da imagem
@@ -326,19 +369,61 @@ function FormularioDeAnuncio() {
   );
 }
 
-/** Blocos separados por fio, como nas outras telas — sem card sombreado. */
+/**
+ * Blocos separados por fio, como nas outras telas — sem card sombreado.
+ *
+ * No celular eles recolhem. O formulário inteiro media 3.543px de altura num
+ * aparelho de 844: quatro telas de rolagem para publicar um imóvel, que é onde
+ * a pessoa desiste. A estrutura é a mesma nos dois tamanhos — mesmas seções, na
+ * mesma ordem, com os mesmos campos; o que muda é poder fechar o que já foi
+ * preenchido.
+ *
+ * Seção com erro de validação abre sozinha: campo reprovado dentro de bloco
+ * fechado é erro que a pessoa não encontra.
+ */
 function Secao({
   titulo,
   children,
+  aberturaInicial = false,
+  temErro = false,
 }: {
   titulo: string;
   children: React.ReactNode;
+  aberturaInicial?: boolean;
+  temErro?: boolean;
 }) {
-  return (
-    <section className="mb-12">
-      <h2 className="mb-6 font-display text-2xl font-semibold">{titulo}</h2>
+  const conteudoId = useId();
+  const [aberta, setAberta] = useState(aberturaInicial);
 
-      <div className="grid gap-6 sm:grid-cols-2">{children}</div>
+  useEffect(() => {
+    if (temErro) setAberta(true);
+  }, [temErro]);
+
+  return (
+    <section className="mb-8 border-b border-border pb-8 lg:mb-12 lg:border-0 lg:pb-0">
+      <button
+        type="button"
+        onClick={() => setAberta((estava) => !estava)}
+        aria-expanded={aberta}
+        aria-controls={conteudoId}
+        className="flex min-h-12 w-full items-center justify-between gap-4 text-left lg:pointer-events-none lg:min-h-0"
+      >
+        <h2 className="font-display text-2xl font-semibold">{titulo}</h2>
+
+        <ChevronDown
+          className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform lg:hidden ${
+            aberta ? "rotate-180" : ""
+          }`}
+          aria-hidden
+        />
+      </button>
+
+      <div
+        id={conteudoId}
+        className={`gap-6 pt-6 sm:grid-cols-2 lg:grid ${aberta ? "grid" : "hidden"}`}
+      >
+        {children}
+      </div>
     </section>
   );
 }
@@ -353,7 +438,9 @@ function Numero({
 }: {
   id: string;
   rotulo: string;
-  registro: ReturnType<ReturnType<typeof useForm<AnnouncementFormData>>["register"]>;
+  registro: ReturnType<
+    ReturnType<typeof useForm<AnnouncementFormData>>["register"]
+  >;
   erro?: string;
   placeholder?: string;
   step?: string;

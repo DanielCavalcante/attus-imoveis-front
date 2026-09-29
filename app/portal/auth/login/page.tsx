@@ -50,31 +50,40 @@ export default function LoginForm() {
       para fora da janela.
     */
     <div className="grid lg:grid-cols-[34rem_minmax(0,1fr)]">
-      <div className="relative hidden overflow-hidden lg:block">
-        <Image
-          src="/login.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover object-[50%_45%]"
-        />
+      {/*
+        No celular este painel vira faixa de texto no topo, sem a foto.
 
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,18,32,0.7) 0%, rgba(12,18,32,0.14) 44%, rgba(12,18,32,0.9) 100%)",
-          }}
-        />
+        Antes ele era `hidden lg:block`: as duas frases que são a posição do
+        produto sumiam justamente no aparelho onde mais gente cria conta, e a
+        imagem continuava sendo baixada para ser descartada. Sem `priority`,
+        o next/image só busca o arquivo quando o painel de fato aparece.
+      */}
+      <div className="border-b border-border px-4 py-6 sm:px-10 lg:relative lg:overflow-hidden lg:border-0 lg:p-0">
+        <div className="hidden lg:block">
+          <Image
+            src="/login.jpg"
+            alt=""
+            fill
+            className="object-cover object-[50%_45%]"
+          />
 
-        <div className="absolute inset-x-0 bottom-0 px-11 pb-11">
-          <p className="max-w-[20ch] font-display text-3xl font-semibold leading-tight">
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(12,18,32,0.7) 0%, rgba(12,18,32,0.14) 44%, rgba(12,18,32,0.9) 100%)",
+            }}
+          />
+        </div>
+
+        <div className="lg:absolute lg:inset-x-0 lg:bottom-0 lg:px-11 lg:pb-11">
+          <p className="max-w-[24ch] font-display text-xl font-semibold leading-tight sm:text-2xl lg:max-w-[20ch] lg:text-3xl">
             Quem vende o próprio imóvel não vende sozinho.
           </p>
 
-          <div className="horizonte mt-6" />
+          <div className="horizonte mt-4 lg:mt-6" />
 
-          <p className="mt-5 max-w-[44ch] text-sm leading-relaxed text-foreground/80">
+          <p className="mt-4 max-w-[44ch] text-sm leading-relaxed text-foreground/80 lg:mt-5">
             Três anúncios por mês, de graça, e uma equipe que atende quando você
             pede ajuda para vender.
           </p>
@@ -93,13 +102,16 @@ export default function LoginForm() {
           </h1>
 
           <p className="mt-4 leading-relaxed text-muted-foreground">
-            Sua conta guarda seus anúncios, seus favoritos e os pedidos de apoio à
-            venda.
+            Sua conta guarda seus anúncios, seus favoritos e os pedidos de apoio
+            à venda.
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-10">
             <div>
-              <label htmlFor="email" className="mb-2 block text-sm text-foreground/85">
+              <label
+                htmlFor="email"
+                className="mb-2 block text-sm text-foreground/85"
+              >
                 E-mail
               </label>
 
@@ -112,7 +124,10 @@ export default function LoginForm() {
               />
 
               {errors.email && (
-                <p className="mt-2 text-sm font-medium text-destructive" role="alert">
+                <p
+                  className="mt-2 text-sm font-medium text-destructive"
+                  role="alert"
+                >
                   {errors.email.message}
                 </p>
               )}
@@ -140,7 +155,10 @@ export default function LoginForm() {
               />
 
               {errors.password && (
-                <p className="mt-2 text-sm font-medium text-destructive" role="alert">
+                <p
+                  className="mt-2 text-sm font-medium text-destructive"
+                  role="alert"
+                >
                   {errors.password.message}
                 </p>
               )}
@@ -166,7 +184,6 @@ export default function LoginForm() {
           </form>
         </div>
       </div>
-
     </div>
   );
 }

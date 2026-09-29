@@ -86,31 +86,30 @@ export default function BuscaHero() {
           conteúdo dos dois lados, e a fotografia fica sendo a luz que passa
           entre eles em vez de disputar espaço com um dos dois.
         */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,18,32,0.72) 0%, rgba(12,18,32,0.34) 40%, rgba(12,18,32,0.52) 72%, #0C1220 100%)",
-          }}
-        />
+        <div className="veu-vertical absolute inset-0" />
 
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(90deg, rgba(12,18,32,0.9) 0%, rgba(12,18,32,0.55) 32%, rgba(12,18,32,0.3) 50%, rgba(12,18,32,0.68) 74%, rgba(12,18,32,0.88) 100%)",
-          }}
-        />
+        <div className="veu-lateral absolute inset-0" />
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-7xl items-center gap-14 px-4 py-24 sm:px-6 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-20">
-        {/*
-          Os campos vão empilhados, um por linha: onde, em que bairro, que
-          tipo, e então a ação.
-        */}
+      {/*
+        No celular a ordem é manchete, busca, e só depois o parágrafo de apoio.
+
+        Com o parágrafo antes do formulário, o botão "Buscar" começava em 929px
+        numa dobra de 844: a ação da porta de entrada ficava fora da tela. O
+        parágrafo é detalhe e pode esperar uma rolagem; o botão não.
+
+        No desktop nada disso se aplica — lá são duas colunas, e a colocação
+        explícita de linha e coluna recompõe manchete e parágrafo juntos à
+        direita, com o formulário à esquerda.
+      */}
+      <div className="relative mx-auto grid w-full max-w-7xl items-center gap-8 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:grid-rows-[auto_auto] lg:gap-x-20 lg:gap-y-7 lg:py-24">
+        <h1 className="order-1 max-w-[20ch] font-display text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[0.94] lg:order-none lg:col-start-2 lg:row-start-1 lg:self-end">
+          Toda imobiliária aqui passou por uma pessoa antes de passar por você.
+        </h1>
+
         <form
           onSubmit={buscar}
-          className="order-2 flex flex-col gap-4 lg:order-1"
+          className="order-2 flex flex-col gap-4 lg:order-none lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:self-center"
         >
           <CampoComSugestoes
             id="busca-cidade"
@@ -170,18 +169,11 @@ export default function BuscaHero() {
           </button>
         </form>
 
-        <div className="order-1 lg:order-2">
-          <h1 className="max-w-[20ch] font-display text-[clamp(2.5rem,6vw,5rem)] font-semibold leading-[0.94]">
-            Toda imobiliária aqui passou por uma pessoa antes de passar por
-            você.
-          </h1>
-
-          <p className="mt-7 max-w-[56ch] text-lg leading-relaxed text-foreground/85">
-            CRECI conferido, razão social conferida, responsável legal
-            conferido. Quem não passa, não publica. E quem vende o próprio
-            imóvel tem uma equipe do lado.
-          </p>
-        </div>
+        <p className="order-3 max-w-[56ch] text-lg leading-relaxed text-foreground/85 lg:order-none lg:col-start-2 lg:row-start-2 lg:self-start">
+          CRECI conferido, razão social conferida, responsável legal conferido.
+          Quem não passa, não publica. E quem vende o próprio imóvel tem uma
+          equipe do lado.
+        </p>
       </div>
     </section>
   );

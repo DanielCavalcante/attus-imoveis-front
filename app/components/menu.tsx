@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   LayoutList,
@@ -9,128 +11,166 @@ import {
   Megaphone,
   Briefcase,
   ShieldCheck,
+  Menu as Hamburguer,
+  X,
 } from "lucide-react";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@/components/ui/navigation-menu";
+
 import { useAuth } from "../contexts/auth-context";
 import { UserMenu } from "./user-menu";
 
-const ITEM =
-  "flex items-center gap-2 whitespace-nowrap px-3 py-2 text-sm text-foreground/80 transition-colors hover:text-foreground sm:px-4";
+type Item = {
+  href: string;
+  rotulo: string;
+  Icone: typeof Building2;
+};
 
 export function Menu() {
   const { user } = useAuth();
+  const caminho = usePathname();
+  const [aberto, setAberto] = useState(false);
+
+  // Navegar fecha a gaveta: sem isso ela fica por cima da tela nova.
+  useEffect(() => {
+    setAberto(false);
+  }, [caminho]);
+
+  const itens: Item[] = [
+    ...(user
+      ? [
+          {
+            href: "/portal/dashboard",
+            rotulo: "Dashboard",
+            Icone: LayoutDashboard,
+          },
+        ]
+      : []),
+    { href: "/imoveis", rotulo: "Imóveis", Icone: Building2 },
+    ...(user
+      ? [
+          {
+            href: "/portal/anuncios",
+            rotulo: "Meus anúncios",
+            Icone: LayoutList,
+          },
+          { href: "/anuncie", rotulo: "Anuncie", Icone: Megaphone },
+        ]
+      : []),
+    ...(user?.accountType === "PJ"
+      ? [{ href: "/portal/empresa", rotulo: "Empresa", Icone: Briefcase }]
+      : []),
+    ...(user?.role === "INTERNO"
+      ? [{ href: "/portal/backoffice", rotulo: "Painel", Icone: ShieldCheck }]
+      : []),
+  ];
 
   return (
-    <header className="bg-background">
-      {/*
-        flex-wrap + a nav em linha própria no mobile: logo, navegação e menu do
-        usuário somavam 555px num viewport de 375 e o mx-auto centralizava o
-        excesso, cortando o logo e criando scroll horizontal.
-      */}
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-y-3 px-4 py-4 sm:px-6">
-        <Link href="/" className="flex items-baseline gap-3">
-          {/*
-            Marca como texto, não como raster: o logotipo.png é escuro sobre
-            fundo claro e desaparece neste chão. O gate liberou nome e logotipo.
-          */}
+    /*
+      Gaveta no celular, barra no desktop.
+
+      A barra horizontal media 467px num viewport de 390 e empurrava a página
+      inteira: o `overflow-x-auto` estava na lista, mas o invólucro do
+      NavigationMenu não era contido, e TODAS as telas rolavam de lado. A
+      gaveta resolve isso e o alvo de toque junto — os links tinham 36px de
+      altura, abaixo do piso de 44.
+    */
+    <header className="relative z-40 bg-background">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+        <Link href="/" className="flex shrink-0 items-baseline gap-3 py-2">
           <span className="font-display text-2xl font-bold tracking-[-0.03em]">
             Encontrei
           </span>
 
-          <span className="text-[11px] font-medium tracking-[0.14em] text-muted-foreground">
+          <span className="hidden text-[11px] font-medium tracking-[0.14em] text-muted-foreground sm:inline">
             PARAÍBA
           </span>
         </Link>
 
-        <NavigationMenu className="order-last w-full max-w-none justify-start sm:order-none sm:w-auto">
-          <NavigationMenuList className="flex w-full gap-1 overflow-x-auto sm:w-auto sm:gap-2">
-            {user && (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/portal/dashboard" className={ITEM}>
-                    <LayoutDashboard className="h-4 w-4" aria-hidden />
-                    Dashboard
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )}
-
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link href="/imoveis" className={ITEM}>
-                  <Building2 className="h-4 w-4" aria-hidden />
-                  Imóveis
+        <nav aria-label="Navegação principal" className="hidden lg:block">
+          <ul className="flex items-center gap-1">
+            {itens.map(({ href, rotulo, Icone }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className="flex min-h-11 items-center gap-2 whitespace-nowrap px-3 text-sm text-foreground/80 transition-colors hover:text-foreground"
+                >
+                  <Icone className="h-4 w-4" aria-hidden />
+                  {rotulo}
                 </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-            {user && (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/portal/anuncios" className={ITEM}>
-                    <LayoutList className="h-4 w-4" aria-hidden />
-                    Meus anúncios
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
+        <div className="flex items-center gap-2">
+          <div className="hidden lg:block">
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Link
+                href="/portal/auth/login"
+                className="flex min-h-11 items-center gap-2 border border-border px-4 text-sm font-medium transition-colors hover:border-foreground/40 hover:bg-card"
+              >
+                <LogIn className="h-4 w-4" aria-hidden />
+                Entrar
+              </Link>
             )}
+          </div>
 
-            {user && (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/anuncie" className={ITEM}>
-                    <Megaphone className="h-4 w-4" aria-hidden />
-                    Anuncie
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )}
-
-            {user?.accountType === "PJ" && (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/portal/empresa" className={ITEM}>
-                    <Briefcase className="h-4 w-4" aria-hidden />
-                    Empresa
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )}
-
-            {user?.role === "INTERNO" && (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild>
-                  <Link href="/portal/backoffice" className={ITEM}>
-                    <ShieldCheck className="h-4 w-4" aria-hidden />
-                    Painel
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )}
-          </NavigationMenuList>
-        </NavigationMenu>
-
-        {user ? (
-          <UserMenu />
-        ) : (
-          /*
-            Sem âmbar aqui de propósito: a cor marca UMA ação comprometida por
-            vista, e nas telas públicas essa ação é buscar ou anunciar.
-          */
-          <Link
-            href="/portal/auth/login"
-            className="flex min-h-11 items-center gap-2 border border-border px-4 text-sm font-medium transition-colors hover:border-foreground/40 hover:bg-card"
+          <button
+            type="button"
+            onClick={() => setAberto((estava) => !estava)}
+            aria-expanded={aberto}
+            aria-controls="gaveta-de-navegacao"
+            aria-label={aberto ? "Fechar menu" : "Abrir menu"}
+            className="flex h-12 w-12 items-center justify-center border border-border transition-colors hover:border-foreground/40 lg:hidden"
           >
-            <LogIn className="h-4 w-4" aria-hidden />
-            Entrar
-          </Link>
-        )}
+            {aberto ? (
+              <X className="h-5 w-5" aria-hidden />
+            ) : (
+              <Hamburguer className="h-5 w-5" aria-hidden />
+            )}
+          </button>
+        </div>
       </div>
+
+      {aberto && (
+        <nav
+          id="gaveta-de-navegacao"
+          aria-label="Navegação principal"
+          className="border-t border-border bg-background lg:hidden"
+        >
+          <ul className="mx-auto max-w-7xl px-4 py-2 sm:px-6">
+            {itens.map(({ href, rotulo, Icone }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className="flex min-h-14 items-center gap-3 border-b border-border text-base transition-colors hover:text-primary"
+                >
+                  <Icone
+                    className="h-5 w-5 text-muted-foreground"
+                    aria-hidden
+                  />
+                  {rotulo}
+                </Link>
+              </li>
+            ))}
+
+            <li className="py-4">
+              {user ? (
+                <UserMenu />
+              ) : (
+                <Link
+                  href="/portal/auth/login"
+                  className="flex min-h-14 items-center justify-center gap-2 bg-primary px-6 font-medium text-primary-foreground"
+                >
+                  <LogIn className="h-4 w-4" aria-hidden />
+                  Entrar
+                </Link>
+              )}
+            </li>
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }

@@ -52,34 +52,41 @@ export default function RegisterPage() {
 
   return (
     <div className="grid lg:grid-cols-[34rem_minmax(0,1fr)]">
-      <div className="relative hidden overflow-hidden lg:block">
-        <Image
-          src="/register.jpg"
-          alt=""
-          fill
-          priority
-          className="object-cover object-[54%_46%]"
-        />
+      {/*
+        No celular este painel vira faixa de texto no topo, sem a foto — as
+        duas frases que são a posição do produto sumiam no aparelho onde mais
+        gente cria conta. Sem `priority`, a imagem só é buscada quando o painel
+        de fato aparece, em vez de ser baixada e descartada.
+      */}
+      <div className="border-b border-border px-4 py-6 sm:px-10 lg:relative lg:overflow-hidden lg:border-0 lg:p-0">
+        <div className="hidden lg:block">
+          <Image
+            src="/register.jpg"
+            alt=""
+            fill
+            className="object-cover object-[54%_46%]"
+          />
 
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(180deg, rgba(12,18,32,0.74) 0%, rgba(12,18,32,0.16) 42%, rgba(12,18,32,0.88) 100%)",
-          }}
-        />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(12,18,32,0.74) 0%, rgba(12,18,32,0.16) 42%, rgba(12,18,32,0.88) 100%)",
+            }}
+          />
+        </div>
 
-        <div className="absolute inset-x-0 bottom-0 px-11 pb-11">
-          <p className="max-w-[22ch] font-display text-3xl font-semibold leading-tight">
+        <div className="lg:absolute lg:inset-x-0 lg:bottom-0 lg:px-11 lg:pb-11">
+          <p className="max-w-[26ch] font-display text-xl font-semibold leading-tight sm:text-2xl lg:max-w-[22ch] lg:text-3xl">
             Imobiliária passa pela análise. Pessoa física publica hoje.
           </p>
 
-          <div className="horizonte mt-6" />
+          <div className="horizonte mt-4 lg:mt-6" />
 
-          <p className="mt-5 max-w-[46ch] text-sm leading-relaxed text-foreground/80">
-            Nenhuma imobiliária publica antes de alguém da equipe conferir CRECI,
-            razão social e responsável legal. É por isso que quem busca confia no
-            que vê aqui.
+          <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-foreground/80 lg:mt-5">
+            Nenhuma imobiliária publica antes de alguém da equipe conferir
+            CRECI, razão social e responsável legal. É por isso que quem busca
+            confia no que vê aqui.
           </p>
         </div>
       </div>
@@ -92,8 +99,8 @@ export default function RegisterPage() {
           </h1>
 
           <p className="mt-4 max-w-[54ch] leading-relaxed text-muted-foreground">
-            O tipo de conta muda a regra do anúncio, nunca o que você pode fazer.
-            Qualquer conta busca, favorita e anuncia.
+            O tipo de conta muda a regra do anúncio, nunca o que você pode
+            fazer. Qualquer conta busca, favorita e anuncia.
           </p>
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-10">
@@ -236,7 +243,9 @@ export default function RegisterPage() {
                 disabled={createUserMutation.isPending}
                 className="flex min-h-14 items-center bg-primary px-9 font-medium text-primary-foreground transition-colors hover:bg-brand-light disabled:pointer-events-none disabled:opacity-60"
               >
-                {createUserMutation.isPending ? "Criando conta…" : "Criar conta"}
+                {createUserMutation.isPending
+                  ? "Criando conta…"
+                  : "Criar conta"}
               </button>
 
               <p className="text-muted-foreground">
@@ -286,7 +295,9 @@ function Escolha({
     <label
       htmlFor={id}
       className={`block cursor-pointer bg-card p-6 transition-colors ${
-        marcado ? "border border-primary" : "border border-border hover:border-input"
+        marcado
+          ? "border border-primary"
+          : "border border-border hover:border-input"
       }`}
     >
       <span className="flex items-center gap-3">

@@ -191,6 +191,56 @@ select {
 }
 
 /*
+  Os dois veus do heroi, por largura de tela.
+
+  A fotografia e a unica fonte de luz do produto, e por isso o veu precisa
+  abrir uma janela para ela. No desktop a composicao e de duas colunas e a
+  janela fica no meio, entre formulario e manchete. No celular ha uma coluna
+  so: a mesma janela horizontal nao existe, e escurecer as duas bordas apagava
+  a foto inteira -- o heroi virava uma caixa escura com texto.
+
+  No celular a janela passa a ser vertical: claro no meio da altura, escuro em
+  cima (atras do cabecalho) e embaixo (onde o conteudo assenta no chao).
+*/
+.veu-vertical {
+  background: linear-gradient(
+    180deg,
+    rgba(12, 18, 32, 0.82) 0%,
+    rgba(12, 18, 32, 0.3) 34%,
+    rgba(12, 18, 32, 0.46) 62%,
+    #0c1220 100%
+  );
+}
+
+.veu-lateral {
+  /* Celular: sem escurecimento lateral, senao nao sobra foto. */
+  background: none;
+}
+
+@media (min-width: 1024px) {
+  .veu-vertical {
+    background: linear-gradient(
+      180deg,
+      rgba(12, 18, 32, 0.72) 0%,
+      rgba(12, 18, 32, 0.34) 40%,
+      rgba(12, 18, 32, 0.52) 72%,
+      #0c1220 100%
+    );
+  }
+
+  .veu-lateral {
+    background: linear-gradient(
+      90deg,
+      rgba(12, 18, 32, 0.9) 0%,
+      rgba(12, 18, 32, 0.55) 32%,
+      rgba(12, 18, 32, 0.3) 50%,
+      rgba(12, 18, 32, 0.68) 74%,
+      rgba(12, 18, 32, 0.88) 100%
+    );
+  }
+}
+
+/*
   Entrada unica e autorizada da pagina: a foto do primeiro viewport revela em
   ease-out exponencial, a partir de um estado ja visivel. Nenhuma outra secao
   repete a mesma entrada.
