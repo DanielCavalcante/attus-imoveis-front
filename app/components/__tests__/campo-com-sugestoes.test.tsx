@@ -169,3 +169,165 @@ describe("campo com sugestoes (spec 21)", () => {
     expect(aoSubmeter).toHaveBeenCalledWith("Manaíra");
   });
 });
+
+function CampoEstrito({
+  sugestoes = BAIRROS,
+  aoSubmeter,
+  desabilitado = false,
+}: {
+  sugestoes?: string[];
+  aoSubmeter?: (valor: string) => void;
+  desabilitado?: boolean;
+}) {
+  const [valor, setValor] = useState("");
+
+  return (
+    <form
+      onSubmit={(evento) => {
+        evento.preventDefault();
+        aoSubmeter?.(valor);
+      }}
+    >
+      <CampoComSugestoes
+        id="bairro"
+        rotulo="BAIRRO"
+        valor={valor}
+        onChange={setValor}
+        sugestoes={sugestoes}
+        estrito
+        desabilitado={desabilitado}
+        motivoDesabilitado="Escolha a cidade primeiro"
+      />
+      <button type="submit">Buscar</button>
+    </form>
+  );
+}
+
+describe("seletor estrito de bairro (spec 26)", () => {
+  it("C1 - abre a lista sem que nada seja digitado", async () => {
+    const usuario = userEvent.setup();
+
+    render(<CampoEstrito />);
+
+    await usuario.click(screen.getByRole("combobox"));
+
+    expect(screen.getByRole("listbox")).toBeInTheDocument();
+    expect(screen.getAllByRole("option")).toHaveLength(BAIRROS.length);
+  });
+
+  it("C2 - digitar filtra as opcoes", async () => {
+    const usuario = userEvent.setup();
+
+    render(<CampoEstrito />);
+
+    await usuario.type(screen.getByRole("combobox"), "bes");
+
+    expect(screen.getAllByRole("option")).toHaveLength(1);
+    expect(screen.getByRole("option", { name: "Bessa" })).toBeInTheDocument();
+  });
+
+  it("C3 - opcao escolhida e enviada na consulta", async () => {
+    const usuario = userEvent.setup();
+    const aoSubmeter = vi.fn();
+
+    render(<CampoEstrito aoSubmeter={aoSubmeter} />);
+
+    await usuario.type(screen.getByRole("combobox"), "tam");
+    await usuario.click(screen.getByRole("option", { name: "Tambaú" }));
+    await usuario.click(screen.getByRole("button", { name: "Buscar" }));
+
+    expect(aoSubmeter).toHaveBeenCalledWith("Tambaú");
+  });
+
+  it("C4 - texto sem correspondencia NAO e enviado", async () => {
+    const usuario = userEvent.setup();
+    const aoSubmeter = vi.fn();
+
+    render(<CampoEstrito aoSubmeter={aoSubmeter} />);
+
+    await usuario.type(screen.getByRole("combobox"), "Bairro Que Nao Existe");
+    await usuario.click(screen.getByRole("button", { name: "Buscar" }));
+
+    expect(aoSubmeter).toHaveBeenCalledWith("");
+  });
+
+  it("C5 - sem correspondencia, a lista diz que nenhum bairro casa", async () => {
+    const usuario = userEvent.setup();
+
+    render(<CampoEstrito />);
+
+    await usuario.type(screen.getByRole("combobox"), "zzz");
+
+    expect(screen.getByRole("listbox")).toHaveTextContent(
+      /nenhum bairro com esse nome/i,
+    );
+  });
+
+  it("C6 e C7 - limpar a escolha zera o valor enviado", async () => {
+    const usuario = userEvent.setup();
+    const aoSubmeter = vi.fn();
+
+    render(<CampoEstrito aoSubmeter={aoSubmeter} />);
+
+    await usuario.type(screen.getByRole("combobox"), "bes");
+    await usuario.click(screen.getByRole("option", { name: "Bessa" }));
+
+    await usuario.click(screen.getByRole("button", { name: /limpar bairro/i }));
+
+    expect(screen.getByRole("combobox")).toHaveValue("");
+
+    await usuario.click(screen.getByRole("button", { name: "Buscar" }));
+
+    expect(aoSubmeter).toHaveBeenCalledWith("");
+  });
+
+  it("C8 - a opcao escolhida fica visivel no campo", async () => {
+    const usuario = userEvent.setup();
+
+    render(<CampoEstrito />);
+
+    await usuario.type(screen.getByRole("combobox"), "man");
+    await usuario.click(screen.getByRole("option", { name: "Manaíra" }));
+
+    expect(screen.getByRole("combobox")).toHaveValue("Manaíra");
+  });
+
+  it("C9 - teclado percorre e escolhe", async () => {
+    const usuario = userEvent.setup();
+    const aoSubmeter = vi.fn();
+
+    render(<CampoEstrito aoSubmeter={aoSubmeter} />);
+
+    await usuario.click(screen.getByRole("combobox"));
+    await usuario.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+
+    expect(screen.getByRole("combobox")).toHaveValue(BAIRROS[1]);
+
+    await usuario.click(screen.getByRole("button", { name: "Buscar" }));
+
+    expect(aoSubmeter).toHaveBeenCalledWith(BAIRROS[1]);
+  });
+
+  it("C10 - o campo informa se a lista esta aberta", async () => {
+    const usuario = userEvent.setup();
+
+    render(<CampoEstrito />);
+
+    const campo = screen.getByRole("combobox");
+
+    expect(campo).toHaveAttribute("aria-expanded", "false");
+
+    await usuario.click(campo);
+
+    expect(campo).toHaveAttribute("aria-expanded", "true");
+  });
+
+  it("sem cidade, o campo fica inerte e diz por que", () => {
+    render(<CampoEstrito desabilitado />);
+
+    const campo = screen.getByRole("combobox");
+
+    expect(campo).toBeDisabled();
+    expect(campo).toHaveAttribute("placeholder", "Escolha a cidade primeiro");
+  });
+});

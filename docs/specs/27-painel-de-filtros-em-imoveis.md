@@ -6,6 +6,8 @@ A listagem ganha um painel de filtros à esquerda: quem chegou pela home refina 
 ## Depende de
 26-seletor-pesquisavel-de-bairro
 
+> **Aprovada no gate humano em 2026-09-29.** Todos os critérios aceitos.
+
 ## Critérios
 - [ ] **C1** `experiencia` — `/imoveis` mostra um painel de filtros à esquerda da lista, no desktop.
 - [ ] **C2** `experiencia` — No celular o painel abre por um controle próprio, em vez de ocupar a tela antes da lista.

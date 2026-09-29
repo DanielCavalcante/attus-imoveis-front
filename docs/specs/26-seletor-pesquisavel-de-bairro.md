@@ -6,6 +6,8 @@ O bairro deixa de ser texto livre e passa a ser escolha numa lista pesquisável 
 ## Depende de
 25-catalogo-de-bairros
 
+> **Aprovada no gate humano em 2026-09-29.** Todos os critérios aceitos.
+
 ## Critérios
 - [ ] **C1** `experiencia` — O campo de bairro abre a lista de opções sem que nada seja digitado.
 - [ ] **C2** `experiencia` — Digitar no campo filtra as opções da lista.

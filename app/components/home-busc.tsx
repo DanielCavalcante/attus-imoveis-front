@@ -46,6 +46,18 @@ export default function BuscaHero() {
   const cidades = useCidades();
   const bairros = useBairros(cidade);
 
+  /**
+   * Trocar a cidade zera o bairro.
+   *
+   * Sem isso um bairro de João Pessoa ficaria preso no filtro depois de a
+   * pessoa mudar para Recife, e a busca voltaria vazia sem explicar por quê.
+   */
+  function trocarCidade(nova: string) {
+    setCidade(nova);
+
+    if (bairro) setBairro("");
+  }
+
   function buscar(evento: React.FormEvent) {
     evento.preventDefault();
 
@@ -116,11 +128,16 @@ export default function BuscaHero() {
             name="city"
             rotulo="CIDADE"
             valor={cidade}
-            onChange={setCidade}
+            onChange={trocarCidade}
             sugestoes={cidades.data ?? []}
             placeholder="Onde você procura"
           />
 
+          {/*
+            Estrito: o bairro sai da lista, e só. A cidade continua livre logo
+            acima, porque só João Pessoa tem catálogo — travar a cidade numa
+            lista impediria procurar em qualquer outra.
+          */}
           <CampoComSugestoes
             id="busca-bairro"
             name="neighborhood"
@@ -129,6 +146,9 @@ export default function BuscaHero() {
             onChange={setBairro}
             sugestoes={bairros.data ?? []}
             placeholder="Qualquer bairro"
+            estrito
+            desabilitado={!cidade.trim()}
+            motivoDesabilitado="Escolha a cidade primeiro"
           />
 
           <div>
