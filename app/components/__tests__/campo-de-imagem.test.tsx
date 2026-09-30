@@ -113,7 +113,7 @@ describe("campo de envio de imagem (spec 33)", () => {
 
     expect(screen.getByAltText(/foto 1 do imóvel/i)).toHaveAttribute(
       "src",
-      "http://localhost:8080/api/v1/imagens/abc.png",
+      "/api/v1/imagens/abc.png",
     );
   });
 
@@ -226,10 +226,7 @@ describe("campo de envio de imagem (spec 33)", () => {
     const miniaturas = screen.getAllByAltText(/foto \d do imóvel/i);
 
     expect(miniaturas).toHaveLength(2);
-    expect(miniaturas[0]).toHaveAttribute(
-      "src",
-      "http://localhost:8080/api/v1/imagens/a.png",
-    );
+    expect(miniaturas[0]).toHaveAttribute("src", "/api/v1/imagens/a.png");
   });
 
   it("C3 e C4 (spec 35) - da para eleger a capa, e ela fica marcada", async () => {
@@ -308,10 +305,11 @@ describe("campo de envio de imagem (spec 33)", () => {
     );
   });
 
-  it("C12 - caminho de imagem enviada vira endereco absoluto da API", () => {
-    expect(urlDaImagem("/api/v1/imagens/abc.png")).toBe(
-      "http://localhost:8080/api/v1/imagens/abc.png",
-    );
+  it("C12 - caminho de imagem enviada fica na propria origem", () => {
+    // Mudou com a spec 42: o site virou o unico ponto de entrada, e a foto
+    // deixou de vir de um host da API para vir do proprio dominio. O caminho
+    // relativo resolve contra ele.
+    expect(urlDaImagem("/api/v1/imagens/abc.png")).toBe("/api/v1/imagens/abc.png");
 
     // O que já era absoluto continua absoluto: derrubar os antigos seria
     // apagar a foto de quem já anuncia.

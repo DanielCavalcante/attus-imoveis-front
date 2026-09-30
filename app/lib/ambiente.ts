@@ -32,13 +32,22 @@ export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 /**
- * Onde o NAVEGADOR alcança a API.
+ * Onde o NAVEGADOR alcança a API: a própria origem do site.
  *
- * Em desenvolvimento, a própria API. Em produção vira caminho relativo, com o
- * site como único ponto de entrada -- é a spec 42 que constrói esse caminho.
+ * Relativo, e não um host: em produção a API não tem entrada da internet, e o
+ * site é o único ponto de entrada. O pedido sai para o próprio domínio e o
+ * servidor do site o encaminha.
+ *
+ * Isso também encerra o CORS como assunto -- mesma origem não dispara
+ * verificação nenhuma.
  */
-export const API_DO_NAVEGADOR =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1";
+export const API_DO_NAVEGADOR = "/api/v1";
 
-/** De onde as fotos do acervo são carregadas. */
-export const ORIGEM_DAS_IMAGENS = API_DO_NAVEGADOR.replace(/\/api\/v1\/?$/, "");
+/**
+ * De onde as fotos do acervo são carregadas: também a própria origem.
+ *
+ * Vazio de propósito. `urlDaImagem` concatena com o caminho guardado no
+ * anúncio (`/api/v1/imagens/...`), e o resultado relativo resolve contra o
+ * domínio do site.
+ */
+export const ORIGEM_DAS_IMAGENS = "";
