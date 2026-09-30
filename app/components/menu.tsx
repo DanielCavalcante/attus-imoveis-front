@@ -68,31 +68,40 @@ export function Menu() {
     */
     <header className="relative z-40 bg-background">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-        <Link href="/" className="flex shrink-0 items-baseline gap-3 py-2">
-          <span className="font-display text-2xl font-bold tracking-[-0.03em]">
-            Encontrei
-          </span>
+        {/*
+          Marca e navegacao andam juntas, encostadas a esquerda.
 
-          <span className="hidden text-[11px] font-medium tracking-[0.14em] text-muted-foreground sm:inline">
-            PARAÍBA
-          </span>
-        </Link>
+          Soltas como irmas diretas de um `justify-between` de tres filhos, a
+          navegacao era empurrada para o centro da barra -- longe da marca, a
+          que ela pertence, e longe do canto por onde a leitura comeca.
+        */}
+        <div className="flex items-center gap-2 lg:gap-8">
+          <Link href="/" className="flex shrink-0 items-baseline gap-3 py-2">
+            <span className="font-display text-2xl font-bold tracking-[-0.03em]">
+              Encontrei
+            </span>
 
-        <nav aria-label="Navegação principal" className="hidden lg:block">
-          <ul className="flex items-center gap-1">
-            {itens.map(({ href, rotulo, Icone }) => (
-              <li key={href}>
-                <Link
-                  href={href}
-                  className="flex min-h-11 items-center gap-2 whitespace-nowrap px-3 text-sm text-foreground/80 transition-colors hover:text-foreground"
-                >
-                  <Icone className="h-4 w-4" aria-hidden />
-                  {rotulo}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+            <span className="hidden text-[11px] font-medium tracking-[0.14em] text-muted-foreground sm:inline">
+              PARAÍBA
+            </span>
+          </Link>
+
+          <nav aria-label="Navegação principal" className="hidden lg:block">
+            <ul className="flex items-center gap-1">
+              {itens.map(({ href, rotulo, Icone }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    className="flex min-h-11 items-center gap-2 whitespace-nowrap px-3 text-sm text-foreground/80 transition-colors hover:text-foreground"
+                  >
+                    <Icone className="h-4 w-4" aria-hidden />
+                    {rotulo}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </div>
 
         <div className="flex items-center gap-2">
           <div className="hidden lg:block">
