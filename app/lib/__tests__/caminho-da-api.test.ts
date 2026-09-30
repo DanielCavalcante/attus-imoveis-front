@@ -62,6 +62,30 @@ describe("o site como único ponto de entrada (spec 42)", () => {
     );
   });
 
+  it("a origem do navegador não atravessa o caminho", async () => {
+    const espiao = vi.fn(async () => new Response("{}", { status: 200 }));
+
+    globalThis.fetch = espiao as unknown as typeof fetch;
+
+    await POST(
+      new Request("http://site/api/v1/users", {
+        method: "POST",
+        headers: { Origin: "https://site.exemplo", Referer: "https://site.exemplo/x" },
+      }),
+      contexto("users"),
+    );
+
+    const [, opcoes] = espiao.mock.calls[0] as [string, RequestInit];
+    const cabecalhos = opcoes.headers as Headers;
+
+    // Este salto é servidor para servidor: não há origem cruzada nele. Com o
+    // `Origin` repassado, a API recusava com "Invalid CORS request" -- e em
+    // produção, onde a lista de origens é vazia de propósito, isso derrubava o
+    // cadastro de conta.
+    expect(cabecalhos.get("Origin")).toBeNull();
+    expect(cabecalhos.get("Referer")).toBeNull();
+  });
+
   // ---------- C6: os cabeçalhos da imagem ----------
 
   it("C6 - Content-Type e nosniff sobrevivem ao caminho", async () => {

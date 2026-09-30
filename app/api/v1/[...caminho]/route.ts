@@ -21,6 +21,13 @@ const NAO_REPASSAR = new Set([
   "content-length",
   "accept-encoding",
   "transfer-encoding",
+  // `origin` descreve de onde o NAVEGADOR falou, e este salto não tem
+  // navegador: é servidor para servidor, e não existe origem cruzada nele.
+  // Repassado, ele fazia a API acreditar que a requisição vinha de outro site
+  // e recusá-la com "Invalid CORS request" -- em produção, onde a lista de
+  // origens é vazia de propósito, isso derrubava o cadastro de conta.
+  "origin",
+  "referer",
 ]);
 
 async function repassar(requisicao: Request, contexto: Contexto) {
