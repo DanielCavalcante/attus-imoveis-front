@@ -1,5 +1,26 @@
 const BASE_URL = "http://localhost:8080/api/v1";
 
+/**
+ * A sessão acabou: o token venceu, foi revogado ou nunca valeu.
+ *
+ * Tipo próprio porque o tratamento é outro. Insistir numa requisição recusada
+ * por sessão é esperar por algo que não vai mudar — e o JWT dura 1h sem
+ * refresh, então isso acontece com quem simplesmente ficou um tempo na tela.
+ *
+ * O servidor responde 403 e não 401 a token vencido (é o Spring Security
+ * decidindo), então os dois contam.
+ */
+export class SessaoExpirada extends Error {
+  constructor(mensagem?: string) {
+    super(mensagem || "Sua sessão expirou. Entre de novo para continuar.");
+    this.name = "SessaoExpirada";
+  }
+}
+
+export function ehSessaoExpirada(erro: unknown): erro is SessaoExpirada {
+  return erro instanceof SessaoExpirada;
+}
+
 type RequestOptions = RequestInit & {
   auth?: boolean;
 };
@@ -28,6 +49,10 @@ export async function api<T>(
   });
 
   if (!response.ok) {
+    if (options?.auth && (response.status === 401 || response.status === 403)) {
+      throw new SessaoExpirada(await mensagemDeErro(response));
+    }
+
     throw new Error((await mensagemDeErro(response)) ?? "Erro na requisição");
   }
 

@@ -24,7 +24,7 @@ export default function MeusAnunciosPage() {
 }
 
 function Gerenciamento() {
-  const { data, isLoading } = useMyAnnouncements();
+  const { data, isLoading, isError, error, refetch } = useMyAnnouncements();
   const quota = useMyQuota();
 
   const inativar = useInativarAnuncio();
@@ -104,7 +104,19 @@ function Gerenciamento() {
         </div>
       )}
 
-      {!isLoading && anuncios.length === 0 && <SemAnuncios />}
+      {/*
+        Erro nao e lista vazia, e a diferenca importa: com a consulta falhando,
+        a tela dizia "Voce ainda nao anunciou" para uma conta com 18 anuncios.
+        Mentir sobre o acervo de alguem e pior que nao mostrar nada.
+      */}
+      {!isLoading && isError && (
+        <FalhouAoCarregar
+          mensagem={error instanceof Error ? error.message : undefined}
+          aoTentarDeNovo={() => refetch()}
+        />
+      )}
+
+      {!isLoading && !isError && anuncios.length === 0 && <SemAnuncios />}
 
       {anuncios.length > 0 && (
         <div className="pt-2">
@@ -133,6 +145,43 @@ function Gerenciamento() {
 }
 
 /**
+ * A lista nao carregou.
+ *
+ * Diz o que aconteceu e oferece tentar de novo, em vez de deixar a pessoa
+ * concluir que os anuncios dela sumiram.
+ */
+function FalhouAoCarregar({
+  mensagem,
+  aoTentarDeNovo,
+}: {
+  mensagem?: string;
+  aoTentarDeNovo: () => void;
+}) {
+  return (
+    <div
+      role="alert"
+      className="flex flex-col items-center justify-center border border-dashed border-border py-20 text-center"
+    >
+      <h2 className="font-display text-2xl font-semibold">
+        Não foi possível carregar seus anúncios
+      </h2>
+
+      <p className="mt-3 max-w-md text-muted-foreground">
+        {mensagem || "Tente de novo em instantes."}
+      </p>
+
+      <button
+        type="button"
+        onClick={aoTentarDeNovo}
+        className="mt-7 flex min-h-12 items-center border border-border px-6 text-sm font-medium transition-colors hover:border-foreground/40"
+      >
+        Tentar de novo
+      </button>
+    </div>
+  );
+}
+
+/**
  * O saldo aparece antes de faltar.
  *
  * Conta sem teto vê o que tem no ar e não um restante inventado: a spec 22
@@ -146,8 +195,18 @@ function Saldo({
   quota?: { ilimitado: boolean; limite: number | null; usados: number | null };
   carregando: boolean;
 }) {
-  if (carregando || !quota) {
+  if (carregando) {
     return <div className="h-14 w-48 animate-pulse bg-secondary" />;
+  }
+
+  // Sem dado e sem estar carregando, a consulta falhou. O esqueleto de antes
+  // ficava pulsando para sempre, prometendo um numero que nunca vinha.
+  if (!quota) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Não foi possível carregar o saldo.
+      </p>
+    );
   }
 
   if (quota.ilimitado) {

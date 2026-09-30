@@ -52,8 +52,20 @@ function PortaoDaAprovacao() {
 
   // Nada de formulário antes da resposta: mostrá-lo e recolhê-lo é pior que
   // esperar, porque quem já começou a digitar perde o que digitou.
-  if (quota.isPending) {
+  //
+  // `isLoading` e não `isPending`: com a consulta em erro, `isPending` continua
+  // verdadeiro enquanto houver tentativa em curso, e a tela ficava em esqueleto
+  // os sete segundos das três tentativas. Sessão vencida agora nem chega aqui
+  // -- ela é tratada no QueryProvider, que leva para o login.
+  if (quota.isLoading) {
     return <Carregando />;
+  }
+
+  // A quota não respondeu. O formulário abre assim mesmo: quem decide se a
+  // publicação passa é o servidor, e trancar a tela por uma leitura que falhou
+  // impediria de anunciar quem tem todo o direito.
+  if (quota.isError) {
+    return <FormularioDeAnuncio />;
   }
 
   const motivo = quota.data?.motivo;

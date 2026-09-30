@@ -57,3 +57,19 @@ export function mergeProfileIntoSession(
 
   return merged;
 }
+
+/**
+ * Apaga a sessão guardada no navegador.
+ *
+ * Mora aqui, e não só dentro do contexto de autenticação, porque quem descobre
+ * que a sessão acabou é a camada de rede — e ela não é componente para usar
+ * hook. As duas chamam o mesmo lugar em vez de cada uma apagar o que lembra.
+ */
+export function encerrarSessao() {
+  try {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  } catch {
+    // Navegador com armazenamento bloqueado: não há sessão para apagar.
+  }
+}

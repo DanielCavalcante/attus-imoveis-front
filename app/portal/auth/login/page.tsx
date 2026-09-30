@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
 import { useAuth } from "@/app/contexts/auth-context";
@@ -14,9 +15,27 @@ import { useLogin } from "@/app/hooks/use-login";
 const CAMPO =
   "min-h-13 w-full border border-input bg-card px-4 text-base outline-none placeholder:text-muted-foreground";
 
-export default function LoginForm() {
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
+  const parametros = useSearchParams();
+
+  /**
+   * Quem chegou aqui por sessão vencida precisa saber disso.
+   *
+   * Sem o aviso, a pessoa é despejada no login no meio do que estava fazendo
+   * e conclui que o site a deslogou sozinho, ou que perdeu o trabalho.
+   */
+  const expirou = parametros.get("expirou") === "1";
+  const voltarPara = parametros.get("voltar");
   const loginMutation = useLogin();
   const {
     register,
@@ -32,7 +51,8 @@ export default function LoginForm() {
 
       login(result.token);
       toast.success("Login realizado com sucesso!");
-      router.push("/portal/dashboard");
+      // De volta para onde a sessão venceu, e não para o começo.
+      router.push(voltarPara || "/portal/dashboard");
     } catch (error) {
       console.error(error);
       toast.error("E-mail ou senha inválidos");
@@ -105,6 +125,16 @@ export default function LoginForm() {
             Sua conta guarda seus anúncios, seus favoritos e os pedidos de apoio
             à venda.
           </p>
+
+          {expirou && (
+            <p
+              role="status"
+              className="mt-6 border-l-2 border-brand bg-card px-5 py-4 leading-relaxed"
+            >
+              Sua sessão expirou por tempo de uso. Entre de novo para continuar
+              de onde parou — nada do que você publicou foi perdido.
+            </p>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-10">
             <div>
