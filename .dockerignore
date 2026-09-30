@@ -1,0 +1,14 @@
+.git
+.gitignore
+node_modules
+.next
+out
+build
+.vscode
+Dockerfile
+.dockerignore
+README.md
+CLAUDE.md
+AGENTS.md
+npm-debug.log*
+.env*

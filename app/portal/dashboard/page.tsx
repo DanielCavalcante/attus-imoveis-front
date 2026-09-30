@@ -1,150 +1,77 @@
 "use client";
 
-import { useMyAnnouncements } from "@/app/hooks/use-my-announcements";
-import { Button } from "@/components/ui/button";
-import { Home, Plus } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { Megaphone, LayoutList } from "lucide-react";
+
+import { useMyAnnouncements, useMyQuota } from "@/app/hooks/use-my-announcements";
 import { PrivateRoute } from "@/app/components/private-route";
 
+/**
+ * O dashboard deixou de listar anúncios.
+ *
+ * A grade que morava aqui era a mesma do acervo público, sem as ações de quem
+ * é dono. Duas telas listando os mesmos anúncios com poderes diferentes é como
+ * alguém edita no lugar errado e não acha a ação que procura. Quem gerencia é
+ * /portal/anuncios; aqui ficam os caminhos.
+ */
 export default function DashboardPage() {
-  const { data, isLoading } = useMyAnnouncements();
-  const router = useRouter();
+  return (
+    <PrivateRoute>
+      <Painel />
+    </PrivateRoute>
+  );
+}
 
-  if (isLoading) {
-    return <p>Carregando imóveis...</p>;
-  }
+function Painel() {
+  const { data } = useMyAnnouncements();
+  const quota = useMyQuota();
 
-  const goToDetail = (id: number) => {
-    router.push(`/anuncie/detail/${id}`);
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(value);
-  };
+  const total = data?.totalElements ?? 0;
+  const noAr = quota.data?.usados ?? 0;
 
   return (
-      <PrivateRoute>
-    <div className="min-h-screen bg-muted/40">
-      <div className="container mx-auto px-4 py-8">
-        {!data?.length && (
-          <div className="flex min-h-[70vh] flex-col items-center justify-center px-4">
-            <div className="flex h-24 w-24 items-center justify-center rounded-full bg-muted">
-              <Home className="h-12 w-12 text-muted-foreground" />
-            </div>
+    <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+      <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
+        Sua conta
+      </h1>
 
-            <h1 className="mt-8 text-3xl font-bold">
-              Seu portfólio está vazio
-            </h1>
+      <p className="tabular mt-3 text-muted-foreground">
+        {total === 0
+          ? "Nenhum anúncio publicado ainda."
+          : `${total} ${total === 1 ? "anúncio" : "anúncios"} · ${noAr} no ar.`}
+      </p>
 
-            <p className="mt-3 max-w-lg text-center text-muted-foreground">
-              Você ainda não cadastrou nenhum imóvel. Crie seu primeiro anúncio
-              e comece a receber contatos de interessados.
-            </p>
+      <div className="mt-10 grid gap-5 sm:grid-cols-2">
+        <Link
+          href="/portal/anuncios"
+          className="flex flex-col border border-border p-7 transition-colors hover:border-foreground/40 hover:bg-card"
+        >
+          <LayoutList className="h-6 w-6 text-primary" aria-hidden />
 
-            <Button asChild className="mt-8 " size="lg">
-              <Link href="/anuncie">Criar anúncio</Link>
-            </Button>
-            <div className="mt-8 grid gap-3 text-sm text-muted-foreground">
-              <div>✓ Publique gratuitamente</div>
-              <div>✓ Fotos ilimitadas</div>
-              <div>✓ Gerencie seus imóveis em um único lugar</div>
-              <div>✓ Receba contatos de interessados</div>
-            </div>
-          </div>
-        )}
+          <h2 className="mt-5 font-display text-2xl font-semibold">
+            Meus anúncios
+          </h2>
 
-        {data?.length && (
-          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                Meus anúncios
-              </h1>
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            Editar, tirar do ar, voltar ao ar ou excluir.
+          </p>
+        </Link>
 
-              <p className="text-muted-foreground">
-                Veja sua lista de anúncios
-              </p>
-            </div>
+        <Link
+          href="/anuncie"
+          className="flex flex-col border border-border p-7 transition-colors hover:border-foreground/40 hover:bg-card"
+        >
+          <Megaphone className="h-6 w-6 text-primary" aria-hidden />
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                placeholder="Buscar imóvel..."
-                className="h-10 rounded-md border bg-background px-4 text-sm outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-              />
+          <h2 className="mt-5 font-display text-2xl font-semibold">
+            Criar anúncio
+          </h2>
 
-              <select className="h-10 rounded-md border bg-background px-4 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <option>Mais recentes</option>
-                <option>Maior preço</option>
-                <option>Menor preço</option>
-              </select>
-            </div>
-          </div>
-        )}
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {data?.map((item) => (
-            <div
-              key={item.id}
-              className="overflow-hidden rounded-2xl border bg-background shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-            >
-              <div className="relative h-60 overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="h-full w-full object-cover transition duration-300 hover:scale-105"
-                />
-
-                <span className="absolute left-4 top-4 rounded-full bg-black/80 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
-                  {item.reason == "RENT" ? "Alugar" : "Vender"}
-                </span>
-              </div>
-
-              <div className="space-y-4 p-5">
-                <div>
-                  <h2 className="line-clamp-1 text-xl font-semibold">
-                    {item.title}
-                  </h2>
-
-                  <p className="text-sm text-muted-foreground">{item.city}</p>
-                </div>
-
-                <div>
-                  <span className="text-2xl font-bold">{formatCurrency(item.price)}</span>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3 rounded-xl bg-muted/50 p-3 text-center text-sm">
-                  <div>
-                    <p className="font-semibold">{item.rooms}</p>
-
-                    <span className="text-muted-foreground">Quartos</span>
-                  </div>
-
-                  <div>
-                    <p className="font-semibold">{item.bathRooms}</p>
-
-                    <span className="text-muted-foreground">Banheiros</span>
-                  </div>
-
-                  <div>
-                    <p className="font-semibold">{item.area}</p>
-
-                    <span className="text-muted-foreground">Área</span>
-                  </div>
-                </div>
-                <Button
-                  onClick={() => goToDetail(item.id)}
-                  className="w-full"
-                >
-                  Ver detalhes
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            Publicar um imóvel novo.
+          </p>
+        </Link>
       </div>
     </div>
-      </PrivateRoute>
   );
 }

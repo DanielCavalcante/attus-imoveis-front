@@ -1,239 +1,125 @@
 "use client";
 
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { FileQuestion } from "lucide-react";
 
-import { ImagePlus, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-import { useRouter } from "next/navigation";
+import { PrivateRoute } from "@/app/components/private-route";
+import { FormularioDeAnuncio } from "@/app/components/formulario-de-anuncio";
+import { useAnnouncementDetail } from "@/app/hooks/use-detail-announcement";
+import { useUpdateAnnouncement } from "@/app/hooks/use-update-announcement";
 
-export default function RealEstatePages() {
+export default function EditAnnouncementPage() {
+  return (
+    <PrivateRoute>
+      <Edicao />
+    </PrivateRoute>
+  );
+}
+
+/**
+ * Editar é a mesma tela de criar, com os campos preenchidos.
+ *
+ * Antes era outro formulário, com outro vocabulário visual, que mostrava
+ * "Apartamento 203" fixo e não salvava nada. Um formulário só é o que faz as
+ * duas telas não divergirem de novo.
+ */
+function Edicao() {
+  const parametros = useParams<{ id: string }>();
+  const id = Number(parametros.id);
   const router = useRouter();
 
-  const goToDetail = (id: number) => {
-    router.push(`/anuncie/detail/${id}`);
-  };
+  const anuncio = useAnnouncementDetail(id);
+  const salvar = useUpdateAnnouncement(id);
+
+  // Nada de formulário antes dos dados: montá-lo vazio e preenchê-lo depois
+  // faria a pessoa ver campos em branco que não são os do anúncio dela.
+  if (anuncio.isLoading) {
+    return <Carregando />;
+  }
+
+  if (anuncio.isError || !anuncio.data) {
+    return <NaoEncontrado />;
+  }
+
+  const dados = anuncio.data;
+  const fotos = dados.imagens?.length ? dados.imagens : [dados.image];
+  const capa = Math.max(0, fotos.indexOf(dados.image));
+
+  /**
+   * `null` vira ausência.
+   *
+   * A API devolve `null` para campo não preenchido -- bairro e complemento --
+   * e `z.string().optional()` aceita `undefined`, não `null`. Passados como
+   * vieram, o formulário reprovava em campos que a pessoa nem vê, e o botão
+   * de salvar não fazia nada sem dizer por quê.
+   */
+  const valoresIniciais = Object.fromEntries(
+    Object.entries(dados).filter(([, valor]) => valor !== null),
+  );
 
   return (
-    <div className="min-h-screen bg-zinc-100 p-6">
-      <div className="mx-auto max-w-7xl space-y-12">
-        <AnnouncementEditPage />
+    <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+      <div className="border-b border-border pb-6">
+        <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
+          Editar anúncio
+        </h1>
 
-        <Separator />
+        <p className="mt-3 text-muted-foreground">
+          As alterações valem assim que você salvar.
+        </p>
       </div>
+
+      <FormularioDeAnuncio
+        valoresIniciais={valoresIniciais}
+        // A foto é o único campo que não se digita: sem trazê-la, abrir a
+        // edição e salvar sem tocar em nada apagaria a capa do anúncio.
+        fotosIniciais={fotos}
+        capaInicial={capa}
+        rotuloDoBotao="Salvar alterações"
+        rotuloSalvando="Salvando…"
+        aoSalvar={async (novos) => {
+          await salvar.mutateAsync(novos);
+
+          toast.success("Anúncio atualizado.");
+          router.push("/portal/anuncios");
+        }}
+      />
     </div>
   );
 }
 
-function AnnouncementEditPage() {
-  const [gallery] = useState([
-    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=1200&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
-  ]);
-
+function Carregando() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Editar anúncio</h1>
+    <div
+      className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6"
+      aria-busy="true"
+    >
+      <div className="h-12 w-80 animate-pulse bg-secondary" />
+      <div className="mt-4 h-5 w-52 animate-pulse bg-secondary" />
+      <div className="mt-10 h-64 w-full animate-pulse bg-secondary" />
+    </div>
+  );
+}
 
-        <p className="text-muted-foreground">
-          Atualize as informações do imóvel.
-        </p>
-      </div>
+/**
+ * Anúncio que não existe — ou que não é seu.
+ *
+ * A API responde 404 nos dois casos desde a spec 22, de propósito: dizer
+ * "existe, mas não é seu" contaria ao curioso que aquele id existe.
+ */
+function NaoEncontrado() {
+  return (
+    <div className="mx-auto flex w-full max-w-5xl flex-col items-center justify-center px-4 py-24 text-center sm:px-6">
+      <FileQuestion className="h-10 w-10 text-muted-foreground" aria-hidden />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
-          <Card className="rounded-3xl border-0 shadow-sm">
-            <CardHeader>
-              <CardTitle>Informações principais</CardTitle>
-              <CardDescription>Dados principais do imóvel.</CardDescription>
-            </CardHeader>
+      <h1 className="mt-6 font-display text-3xl font-semibold">
+        Anúncio não encontrado
+      </h1>
 
-            <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <Label>Título do anúncio</Label>
-                <Input defaultValue="Casa moderna com piscina" />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Descrição</Label>
-                <Textarea
-                  rows={6}
-                  defaultValue="Linda casa moderna localizada em condomínio fechado."
-                />
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Tipo do imóvel</Label>
-
-                  <Select defaultValue="HOUSE">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-
-                    <SelectContent>
-                      <SelectItem value="HOUSE">Casa</SelectItem>
-                      <SelectItem value="APARTMENT">Apartamento</SelectItem>
-                      <SelectItem value="CONDOMINIUM">Condomínio</SelectItem>
-                      <SelectItem value="LAND">Terreno</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Finalidade</Label>
-
-                  <Select defaultValue="SALE">
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-
-                    <SelectContent>
-                      <SelectItem value="SALE">Venda</SelectItem>
-                      <SelectItem value="RENT">Aluguel</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-4">
-                <div className="space-y-2">
-                  <Label>Quartos</Label>
-                  <Input type="number" defaultValue={3} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Banheiros</Label>
-                  <Input type="number" defaultValue={2} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Área</Label>
-                  <Input type="number" defaultValue={180} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Preço</Label>
-                  <Input type="number" defaultValue={850000} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-3xl border-0 shadow-sm">
-            <CardHeader>
-              <CardTitle>Endereço</CardTitle>
-            </CardHeader>
-
-            <CardContent className="space-y-5">
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>CEP</Label>
-                  <Input defaultValue="01010-000" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Rua</Label>
-                  <Input defaultValue="Rua das Palmeiras" />
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <Label>Número</Label>
-                  <Input defaultValue={120} />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Cidade</Label>
-                  <Input defaultValue="São Paulo" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Estado</Label>
-                  <Input defaultValue="SP" />
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label>Complemento</Label>
-                  <Input defaultValue="Apartamento 203" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="rounded-3xl border-0 shadow-sm">
-            <CardHeader>
-              <CardTitle>Imagens</CardTitle>
-              <CardDescription>
-                Faça upload das fotos do imóvel.
-              </CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                {gallery.map((image, index) => (
-                  <div
-                    key={index}
-                    className="overflow-hidden rounded-2xl border"
-                  >
-                    <img
-                      src={image}
-                      alt="Imóvel"
-                      className="h-40 w-full object-cover"
-                    />
-                  </div>
-                ))}
-
-                <button className="flex h-40 flex-col items-center justify-center rounded-2xl border border-dashed bg-muted transition hover:bg-zinc-200">
-                  <ImagePlus className="mb-2 h-8 w-8" />
-                  <span className="text-sm font-medium">Adicionar imagem</span>
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <Card className="sticky top-24 rounded-3xl border-0 shadow-sm">
-            <CardHeader>
-              <CardTitle>Publicação</CardTitle>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              <Button className="w-full gap-2 rounded-2xl">
-                <Save className="h-4 w-4" />
-                Salvar alterações
-              </Button>
-
-              <Button variant="outline" className="w-full rounded-2xl">
-                Visualizar anúncio
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <p className="mt-3 max-w-md text-muted-foreground">
+        Ele pode ter sido excluído, ou não ser um anúncio da sua conta.
+      </p>
     </div>
   );
 }

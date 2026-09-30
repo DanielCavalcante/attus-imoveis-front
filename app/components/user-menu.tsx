@@ -29,9 +29,10 @@ export function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Settings className="h-4 w-4" />
-          {user?.email}
+        <Button variant="outline" className="flex max-w-[14rem] items-center gap-2">
+          <Settings className="h-4 w-4 shrink-0" />
+
+          <span className="truncate">{user?.fullname || user?.email}</span>
         </Button>
       </DropdownMenuTrigger>
 

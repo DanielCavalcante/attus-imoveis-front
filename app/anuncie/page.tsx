@@ -1,423 +1,131 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useCreateAnnouncement } from "@/app/hooks/use-create-announcement";
-import {
-  announcementSchema,
-  AnnouncementFormData,
-} from "../schemas/announcement";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { toast } from "sonner";
-import { PrivateRoute } from "../components/private-route";
-import { ImagePlus, Save } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { PrivateRoute } from "../components/private-route";
+import {
+  CadastroEmAprovacao,
+  type MotivoDoBloqueio,
+} from "../components/cadastro-em-aprovacao";
+import { FormularioDeAnuncio } from "../components/formulario-de-anuncio";
+import { useCompany } from "../hooks/use-company";
+import { useMyQuota } from "../hooks/use-my-announcements";
+import { useCreateAnnouncement } from "@/app/hooks/use-create-announcement";
 
 export default function CreateAnnouncementPage() {
-  const createAnnouncementMutation = useCreateAnnouncement();
-  const router = useRouter();
-
-  const [gallery] = useState([
-    "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1200&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1570129477492-45c003edd2be?q=80&w=1200&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1200&auto=format&fit=crop",
-  ]);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<AnnouncementFormData>({
-    resolver: zodResolver(announcementSchema),
-  });
-
-  async function onSubmit(data: AnnouncementFormData) {
-    try {
-      await createAnnouncementMutation.mutateAsync(data);
-
-      toast.success("Anúncio criado com sucesso!");
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error?.message || "Erro ao criar anúncio");
-    }
-  }
-
   return (
     <PrivateRoute>
-      <div className="min-h-screen bg-zinc-100 p-6">
-        <div className="mx-auto max-w-7xl space-y-12">
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">
-                Criar anúncio
-              </h1>
-
-              <p className="text-muted-foreground">
-                Preencha as informações do imóvel.
-              </p>
-            </div>
-
-            <form
-              onSubmit={handleSubmit(onSubmit)}
-              className="grid gap-6 lg:grid-cols-3"
-            >
-              <div className="space-y-6 lg:col-span-2">
-                <Card className="rounded-3xl border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Informações principais</CardTitle>
-                    <CardDescription>
-                      Dados principais do imóvel.
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent className="space-y-5">
-                    <div className="space-y-2">
-                      <Label>Título do anúncio</Label>
-                      <Input
-                        {...register("title")}
-                        placeholder="Casa moderna com piscina"
-                      />
-                      {errors.title && (
-                        <p className="text-sm text-red-500">
-                          {errors.title.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Descrição</Label>
-                      <Textarea
-                        {...register("description")}
-                        rows={6}
-                        placeholder="Linda casa moderna localizada em condomínio fechado."
-                      />
-                      {errors.description && (
-                        <p className="text-sm text-red-500">
-                          {errors.description.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label>Tipo do imóvel</Label>
-
-                        <Select
-                          defaultValue="HOUSE"
-                          onValueChange={(value) =>
-                            setValue(
-                              "propertyType",
-                              value as AnnouncementFormData["propertyType"],
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-
-                          <SelectContent>
-                            <SelectItem value="HOUSE">Casa</SelectItem>
-                            <SelectItem value="APARTMENT">
-                              Apartamento
-                            </SelectItem>
-                            <SelectItem value="CONDOMINIUM">
-                              Condomínio
-                            </SelectItem>
-                            <SelectItem value="LAND">Terreno</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        {errors.propertyType && (
-                          <p className="text-sm text-red-500">
-                            {errors.propertyType.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Finalidade</Label>
-
-                        <Select
-                          defaultValue="SALE"
-                          onValueChange={(value) =>
-                            setValue(
-                              "reason",
-                              value as AnnouncementFormData["reason"],
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-
-                          <SelectContent>
-                            <SelectItem value="SALE">Venda</SelectItem>
-                            <SelectItem value="RENT">Aluguel</SelectItem>
-                          </SelectContent>
-                        </Select>
-
-                        {errors.reason && (
-                          <p className="text-sm text-red-500">
-                            {errors.reason.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-4">
-                      <div className="space-y-2">
-                        <Label>Quartos</Label>
-                        <Input
-                          {...register("rooms", {
-                            valueAsNumber: true,
-                          })}
-                          type="number"
-                          placeholder="2"
-                        />
-
-                        {errors.rooms && (
-                          <p className="text-sm text-red-500">
-                            {errors.rooms.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Banheiros</Label>
-                        <Input
-                          {...register("bathRooms", {
-                            valueAsNumber: true,
-                          })}
-                          type="number"
-                          placeholder="2"
-                        />
-
-                        {errors.bathRooms && (
-                          <p className="text-sm text-red-500">
-                            {errors.bathRooms.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Área</Label>
-                        <Input
-                          {...register("area", {
-                            valueAsNumber: true,
-                          })}
-                          type="number"
-                          placeholder="60"
-                        />
-
-                        {errors.area && (
-                          <p className="text-sm text-red-500">
-                            {errors.area.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Preço</Label>
-                        <Input
-                          {...register("price", {
-                            valueAsNumber: true,
-                          })}
-                          step="0.01"
-                          type="number"
-                          placeholder="1.200,000"
-                        />
-
-                        {errors.price && (
-                          <p className="text-sm text-red-500">
-                            {errors.price.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-3xl border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Endereço</CardTitle>
-                  </CardHeader>
-
-                  <CardContent className="space-y-5">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label>CEP</Label>
-                        <Input {...register("cep")} placeholder="01010-000" />
-
-                        {errors.cep && (
-                          <p className="text-sm text-red-500">
-                            {errors.cep.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Rua</Label>
-                        <Input
-                          {...register("street")}
-                          placeholder="Rua das Palmeiras"
-                        />
-
-                        {errors.street && (
-                          <p className="text-sm text-red-500">
-                            {errors.street.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-3">
-                      <div className="space-y-2">
-                        <Label>Número</Label>
-                        <Input
-                          {...register("streetNumber", {
-                            valueAsNumber: true,
-                          })}
-                          placeholder="120"
-                        />
-
-                        {errors.streetNumber && (
-                          <p className="text-sm text-red-500">
-                            {errors.streetNumber.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Cidade</Label>
-                        <Input
-                          {...register("city")}
-                          placeholder="João Pessoa"
-                        />
-
-                        {errors.city && (
-                          <p className="text-sm text-red-500">
-                            {errors.city.message}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Estado</Label>
-                        <Input {...register("state")} placeholder="PB" />
-
-                        {errors.state && (
-                          <p className="text-sm text-red-500">
-                            {errors.state.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label>Complemento</Label>
-                        <Input
-                          {...register("complement")}
-                          placeholder="Apartamento 203"
-                        />
-                        {errors.complement && (
-                          <p className="text-sm text-red-500">
-                            {errors.complement.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-3xl border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Imagens</CardTitle>
-                    <CardDescription>
-                      Faça upload das fotos do imóvel.
-                    </CardDescription>
-                  </CardHeader>
-
-                  <CardContent>
-                    <div className="space-y-2">
-                      <Label>Link da imagem</Label>
-                      <Input
-                        {...register("image")}
-                        placeholder="Insira o link da imagem aqui"
-                      />
-
-                      {errors.image && (
-                        <p className="text-sm text-red-500">
-                          {errors.image.message}
-                        </p>
-                      )}
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-3">
-                      {gallery.map((image, index) => (
-                        <div
-                          key={index}
-                          className="overflow-hidden rounded-2xl border"
-                        >
-                          <img
-                            src={image}
-                            alt="Imóvel"
-                            className="h-40 w-full object-cover"
-                          />
-                        </div>
-                      ))}
-
-                      <button className="flex h-40 flex-col items-center justify-center rounded-2xl border border-dashed bg-muted transition hover:bg-zinc-200">
-                        <ImagePlus className="mb-2 h-8 w-8" />
-                        <span className="text-sm font-medium">
-                          Adicionar imagem
-                        </span>
-                      </button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <div>
-                <Card className="sticky top-24 rounded-3xl border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Publicação</CardTitle>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4">
-                    <Button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full gap-2 rounded-2xl"
-                    >
-                      <Save className="h-4 w-4" />
-                      {isSubmitting ? "Criando anúncio..." : "Criar anúncio"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
+      <PortaoDaAprovacao />
     </PrivateRoute>
+  );
+}
+
+/**
+ * Quem pode anunciar vê o formulário; quem não pode vê o porquê.
+ *
+ * O portão de verdade é o servidor -- esta tela existe para a pessoa não
+ * preencher quinze campos antes de descobrir. Por isso ela pergunta à mesma
+ * rota que o servidor consulta (`podePublicar` e `motivo`), em vez de refazer
+ * a regra aqui e arriscar discordar dela.
+ *
+ * Quota cheia não entra: ali a conta PODE publicar, o que falta é vaga, e
+ * esconder o formulário por isso trocaria um 409 explicável por uma porta
+ * fechada sem explicação.
+ */
+function PortaoDaAprovacao() {
+  const quota = useMyQuota();
+
+  // Nada de formulário antes da resposta: mostrá-lo e recolhê-lo é pior que
+  // esperar, porque quem já começou a digitar perde o que digitou.
+  //
+  // `isLoading` e não `isPending`: com a consulta em erro, `isPending` continua
+  // verdadeiro enquanto houver tentativa em curso, e a tela ficava em esqueleto
+  // os sete segundos das três tentativas. Sessão vencida agora nem chega aqui
+  // -- ela é tratada no QueryProvider, que leva para o login.
+  if (quota.isLoading) {
+    return <Carregando />;
+  }
+
+  // A quota não respondeu. O formulário abre assim mesmo: quem decide se a
+  // publicação passa é o servidor, e trancar a tela por uma leitura que falhou
+  // impediria de anunciar quem tem todo o direito.
+  if (quota.isError) {
+    return <Criacao />;
+  }
+
+  const motivo = quota.data?.motivo;
+  const bloqueado =
+    !!motivo && (motivo.startsWith("EMPRESA_") || motivo === "SEM_PLANO");
+
+  if (!bloqueado) {
+    return <Criacao />;
+  }
+
+  return <TelaDoBloqueio motivo={motivo} />;
+}
+
+/**
+ * O motivo da quota vira a tela, e o texto da reprovação vem junto.
+ *
+ * A empresa só é consultada quando o motivo é reprovação: é o único caso em
+ * que há algo escrito para mostrar.
+ */
+function TelaDoBloqueio({ motivo }: { motivo: string }) {
+  const reprovada = motivo === "EMPRESA_REPROVADA";
+  const empresa = useCompany(reprovada);
+
+  const status = (
+    motivo === "SEM_PLANO" ? "SEM_PLANO" : motivo.replace("EMPRESA_", "")
+  ) as MotivoDoBloqueio;
+
+  return (
+    <CadastroEmAprovacao
+      status={status}
+      motivo={empresa.data?.rejectionReason}
+    />
+  );
+}
+
+function Carregando() {
+  return (
+    <div className="mx-auto w-full max-w-2xl px-4 py-20 sm:px-6" aria-busy="true">
+      <div className="h-10 w-10 animate-pulse bg-secondary" />
+      <div className="mt-6 h-12 w-full animate-pulse bg-secondary" />
+      <div className="mt-4 h-5 w-3/4 animate-pulse bg-secondary" />
+    </div>
+  );
+}
+
+/** A criação: o formulário compartilhado, com o que só vale aqui. */
+function Criacao() {
+  const criar = useCreateAnnouncement();
+  const router = useRouter();
+
+  return (
+    <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
+      <div className="border-b border-border pb-6">
+        <h1 className="font-display text-4xl font-semibold leading-[1.05] sm:text-5xl">
+          Criar anúncio
+        </h1>
+
+        <p className="mt-3 text-muted-foreground">
+          O anúncio nasce no ar e ocupa uma vaga da sua quota. Você pode tirá-lo
+          do ar depois, sem perdê-lo.
+        </p>
+      </div>
+
+      <FormularioDeAnuncio
+        rotuloDoBotao="Publicar anúncio"
+        rotuloSalvando="Publicando…"
+        rodape="Sem vaga na quota, a publicação é recusada e o anúncio não é gravado."
+        aoSalvar={async (dados) => {
+          await criar.mutateAsync(dados);
+
+          toast.success("Anúncio publicado.");
+          router.push("/portal/anuncios");
+        }}
+      />
+    </div>
   );
 }

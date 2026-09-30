@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { initials } from "@/app/lib/property";
 import { Camera } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/app/contexts/auth-context";
@@ -79,7 +80,7 @@ export default function ProfilePage() {
                 <div className="relative">
                   <Avatar className="h-28 w-28 border">
                     <AvatarImage src={watch("photo")} />
-                    <AvatarFallback>DC</AvatarFallback>
+                    <AvatarFallback>{initials(watch("fullname"))}</AvatarFallback>
                   </Avatar>
 
                   <label
@@ -152,7 +153,7 @@ export default function ProfilePage() {
 
               <Button
                 type="submit"
-                className="w-full bg-black text-white hover:bg-black/90"
+                className="w-full"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? "Salvando..." : "Salvar alterações"}

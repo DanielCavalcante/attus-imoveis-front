@@ -1,9 +1,9 @@
 import { api } from "./api";
 
+import { Announcement } from "../types/announcement";
+
 export async function getAnnouncementDetail(id: number) {
-  const response = await api(`/announcements/${id}`, {
+  return api<Announcement>(`/announcements/${id}`, {
     method: "GET",
   });
-
-  return response;
 }

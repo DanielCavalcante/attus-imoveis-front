@@ -3,71 +3,67 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  Mundo visual "Luz do Fim de Tarde".
+
+  A cena de uso que define a paleta: alguem rolando no celular a noite, na cama.
+  Dai o chao indigo de anoitecer e a regra que organiza tudo o mais — a foto do
+  imovel e a UNICA fonte de luz da tela, e por isso nunca entra dentro de um card
+  sombreado.
+
+  O ambar tem um significado so, "o ato humano", e mora em tres papeis nomeados
+  abaixo (--primary, --verified, --horizon) que compartilham o mesmo hex de
+  proposito: um hex, tres sentidos auditaveis. Fora deles, ambar e decoracao —
+  e decoracao aqui apaga o significado do selo de verificacao.
+
+  O produto e escuro por escolha, nao por tema: ha uma superficie so. A classe
+  `dark` no <html> existe para acionar as afordancias escuras do shadcn/ui
+  (fundo de input, por exemplo), nao para oferecer um segundo tema.
+*/
 :root {
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(222.2 84% 4.9%);
+  --background: #0c1220;
+  --foreground: #f2eee8;
 
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(222.2 84% 4.9%);
+  --card: #131c2f;
+  --card-foreground: #f2eee8;
 
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222.2 84% 4.9%);
+  --popover: #131c2f;
+  --popover-foreground: #f2eee8;
 
-  --primary: hsl(262 83% 58%);
-  --primary-foreground: hsl(0 0% 100%);
+  /* A acao comprometida da tela. Uma por vista, nunca duas. */
+  --primary: #ff9b3d;
+  --primary-foreground: #0c1220;
 
-  --secondary: hsl(210 40% 96.1%);
-  --secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --secondary: #1a2439;
+  --secondary-foreground: #f2eee8;
 
-  --muted: hsl(210 40% 96.1%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
+  --muted: #172034;
+  --muted-foreground: #9ba6bc;
 
-  --accent: hsl(210 40% 96.1%);
-  --accent-foreground: hsl(222.2 47.4% 11.2%);
+  --accent: #1a2439;
+  --accent-foreground: #f2eee8;
 
-  --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: hsl(210 40% 98%);
+  --destructive: #f4705f;
+  --destructive-foreground: #0c1220;
 
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(222.2 84% 4.9%);
+  --border: #222c42;
+  --input: #2c3752;
+  --ring: #ff9b3d;
 
-  --radius: 0.75rem;
+  --radius: 2px;
 
-  --brand: #7c3aed;
-  --brand-dark: #5b21b6;
-  --brand-light: #a78bfa;
-  --accent-brand: #f97316;
-}
+  /* A marca de que uma pessoa conferiu. Nunca em elemento sem verificacao. */
+  --verified: #ff9b3d;
+  /* O fio de horizonte: o corte entre o ceu (foto) e o chao (interface). */
+  --horizon: #ff9b3d;
 
-.dark {
-  --background: hsl(222.2 84% 4.9%);
-  --foreground: hsl(210 40% 98%);
+  --brand: #ff9b3d;
+  --brand-dark: #d97a26;
+  --brand-light: #ffb877;
+  --accent-brand: #ff9b3d;
 
-  --card: hsl(222.2 84% 4.9%);
-  --card-foreground: hsl(210 40% 98%);
-
-  --popover: hsl(222.2 84% 4.9%);
-  --popover-foreground: hsl(210 40% 98%);
-
-  --primary: hsl(210 40% 98%);
-  --primary-foreground: hsl(222.2 47.4% 11.2%);
-
-  --secondary: hsl(217.2 32.6% 17.5%);
-  --secondary-foreground: hsl(210 40% 98%);
-
-  --muted: hsl(217.2 32.6% 17.5%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-
-  --accent: hsl(217.2 32.6% 17.5%);
-  --accent-foreground: hsl(210 40% 98%);
-
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-
-  --border: hsl(217.2 32.6% 17.5%);
-  --input: hsl(217.2 32.6% 17.5%);
-  --ring: hsl(212.7 26.8% 83.9%);
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
 }
 
 @theme inline {
@@ -99,15 +95,21 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
+  --color-verified: var(--verified);
+  --color-horizon: var(--horizon);
+
   --color-brand: var(--brand);
   --color-brand-dark: var(--brand-dark);
   --color-brand-light: var(--brand-light);
   --color-accent-brand: var(--accent-brand);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 6px);
 }
 
 @layer base {
@@ -117,11 +119,162 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.03em;
   }
 }
 
+/*
+  `min-height`, nao `height`: com altura fixa o body media 855px embaixo de
+  2613px de conteudo, e caixa que nao contem o proprio conteudo e terreno ruim
+  para `position: sticky`, que se ancora na altura do ancestral.
+*/
 html,
 body {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
+}
+
+/* Superficies do browser: sem isso a selecao, o cursor e a barra de rolagem
+   ficam no padrao do sistema, que nao pertence a nenhum design system. */
+::selection {
+  background-color: var(--horizon);
+  color: var(--background);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+input,
+textarea,
+select {
+  caret-color: var(--horizon);
+}
+
+* {
+  scrollbar-color: var(--input) var(--background);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--input);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
+
+/* Preco e area sao coluna de numeros: sem isto os digitos dancam entre cards. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+  O fio de horizonte. Dispositivo estrutural do mundo: separa o ceu (a
+  fotografia) do chao (a interface), em altura constante na pagina.
+*/
+.horizonte {
+  height: 1px;
+  background-color: var(--horizon);
+}
+
+/*
+  Os dois veus do heroi, por largura de tela.
+
+  A fotografia e a unica fonte de luz do produto, e por isso o veu precisa
+  abrir uma janela para ela. No desktop a composicao e de duas colunas e a
+  janela fica no meio, entre formulario e manchete. No celular ha uma coluna
+  so: a mesma janela horizontal nao existe, e escurecer as duas bordas apagava
+  a foto inteira -- o heroi virava uma caixa escura com texto.
+
+  No celular a janela passa a ser vertical: claro no meio da altura, escuro em
+  cima (atras do cabecalho) e embaixo (onde o conteudo assenta no chao).
+*/
+.veu-vertical {
+  background: linear-gradient(
+    180deg,
+    rgba(12, 18, 32, 0.82) 0%,
+    rgba(12, 18, 32, 0.3) 34%,
+    rgba(12, 18, 32, 0.46) 62%,
+    #0c1220 100%
+  );
+}
+
+.veu-lateral {
+  /* Celular: sem escurecimento lateral, senao nao sobra foto. */
+  background: none;
+}
+
+@media (min-width: 1024px) {
+  .veu-vertical {
+    background: linear-gradient(
+      180deg,
+      rgba(12, 18, 32, 0.72) 0%,
+      rgba(12, 18, 32, 0.34) 40%,
+      rgba(12, 18, 32, 0.52) 72%,
+      #0c1220 100%
+    );
+  }
+
+  .veu-lateral {
+    background: linear-gradient(
+      90deg,
+      rgba(12, 18, 32, 0.9) 0%,
+      rgba(12, 18, 32, 0.55) 32%,
+      rgba(12, 18, 32, 0.3) 50%,
+      rgba(12, 18, 32, 0.68) 74%,
+      rgba(12, 18, 32, 0.88) 100%
+    );
+  }
+}
+
+/*
+  Entrada unica e autorizada da pagina: a foto do primeiro viewport revela em
+  ease-out exponencial, a partir de um estado ja visivel. Nenhuma outra secao
+  repete a mesma entrada.
+*/
+@keyframes revelar-luz {
+  from {
+    opacity: 0.55;
+    transform: scale(1.04);
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+.revelar-luz {
+  animation: revelar-luz 1100ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

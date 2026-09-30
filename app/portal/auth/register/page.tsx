@@ -1,22 +1,19 @@
 "use client";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
+
 import Link from "next/link";
-import { UserFormData, userSchema } from "@/app/schemas/user";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useCreateUser } from "@/app/hooks/use-create-user";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+
+import { UserFormData, userSchema } from "@/app/schemas/user";
+import { useCreateUser } from "@/app/hooks/use-create-user";
+
+const CAMPO =
+  "min-h-13 w-full border border-input bg-card px-4 text-base outline-none placeholder:text-muted-foreground";
+
+const ROTULO = "mb-2 block text-sm text-foreground/85";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -24,10 +21,19 @@ export default function RegisterPage() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
+    defaultValues: { accountType: "PF" },
   });
+
+  const accountType = watch("accountType");
+
+  function escolher(valor: UserFormData["accountType"]) {
+    setValue("accountType", valor, { shouldValidate: true });
+  }
 
   async function onSubmit(data: UserFormData) {
     try {
@@ -45,146 +51,280 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      <div className="relative hidden lg:flex">
-        <Image
-          src="/register.jpg"
-          alt="Imóveis"
-          fill
-          priority
-          className="absolute inset-0 h-full w-full object-cover"
-        />
+    <div className="grid lg:grid-cols-[34rem_minmax(0,1fr)]">
+      {/*
+        No celular este painel vira faixa de texto no topo, sem a foto — as
+        duas frases que são a posição do produto sumiam no aparelho onde mais
+        gente cria conta. Sem `priority`, a imagem só é buscada quando o painel
+        de fato aparece, em vez de ser baixada e descartada.
+      */}
+      <div className="border-b border-border px-4 py-6 sm:px-10 lg:relative lg:overflow-hidden lg:border-0 lg:p-0">
+        <div className="hidden lg:block">
+          <Image
+            src="/register.jpg"
+            alt=""
+            fill
+            className="object-cover object-[54%_46%]"
+          />
 
-        <div className="absolute inset-0 bg-black/60" />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(12,18,32,0.74) 0%, rgba(12,18,32,0.16) 42%, rgba(12,18,32,0.88) 100%)",
+            }}
+          />
+        </div>
 
-        <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <h1 className="text-5xl font-bold leading-tight">
-            Crie anúncios e
-            <br />
-            venda de forma rápida
-          </h1>
+        <div className="lg:absolute lg:inset-x-0 lg:bottom-0 lg:px-11 lg:pb-11">
+          <p className="max-w-[26ch] font-display text-xl font-semibold leading-tight sm:text-2xl lg:max-w-[22ch] lg:text-3xl">
+            Imobiliária passa pela análise. Pessoa física publica hoje.
+          </p>
 
-          <p className="mt-6 max-w-md text-lg text-zinc-200">
-            Compre, venda ou alugue imóveis de forma simples, rápida e segura.
+          <div className="horizonte mt-4 lg:mt-6" />
+
+          <p className="mt-4 max-w-[46ch] text-sm leading-relaxed text-foreground/80 lg:mt-5">
+            Nenhuma imobiliária publica antes de alguém da equipe conferir
+            CRECI, razão social e responsável legal. É por isso que quem busca
+            confia no que vê aqui.
           </p>
         </div>
       </div>
 
-      <div className="flex items-center justify-center bg-background px-4 py-8">
-        <Card className="w-full max-w-md shadow-xl">
-          <CardHeader className="space-y-2 text-center">
-            <CardTitle className="text-3xl font-bold">Criar Conta</CardTitle>
+      {/* Mesma regra do login: o formulario se centra na propria coluna. */}
+      <div className="flex items-center justify-center px-4 py-14 sm:px-10 lg:py-20">
+        <div className="w-full max-w-2xl">
+          <h1 className="font-display text-[clamp(2.25rem,5vw,3.25rem)] font-semibold leading-[1.02]">
+            Criar conta
+          </h1>
 
-            <CardDescription>
-              Preencha os dados abaixo para criar sua conta
-            </CardDescription>
-          </CardHeader>
+          <p className="mt-4 max-w-[54ch] leading-relaxed text-muted-foreground">
+            O tipo de conta muda a regra do anúncio, nunca o que você pode
+            fazer. Qualquer conta busca, favorita e anuncia.
+          </p>
 
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="fullname">Nome completo</Label>
+          <form onSubmit={handleSubmit(onSubmit)} className="mt-10">
+            <fieldset className="border-0 p-0">
+              <legend className="mb-4 text-xs font-medium tracking-[0.1em] text-muted-foreground">
+                SOU
+              </legend>
 
-                <Input
+              {/*
+                Radio nativo dentro de <label>: o cartão inteiro é a área de
+                clique e o Tab chega nele sem truque de div com onClick.
+              */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Escolha
+                  id="accountType-pf"
+                  valor="PF"
+                  marcado={accountType === "PF"}
+                  titulo="Pessoa física"
+                  descricao="Três anúncios por mês, de graça. Publica hoje mesmo e pode pedir apoio da equipe de venda em cada anúncio."
+                  onEscolher={escolher}
+                />
+
+                <Escolha
+                  id="accountType-pj"
+                  valor="PJ"
+                  marcado={accountType === "PJ"}
+                  titulo="Imobiliária"
+                  descricao="CNPJ e um contato criam a conta agora. O dossiê completo e a análise vêm depois, na área da empresa."
+                  onEscolher={escolher}
+                />
+              </div>
+
+              {errors.accountType && <Erro>{errors.accountType.message}</Erro>}
+            </fieldset>
+
+            <div className="mt-9 grid gap-6 sm:grid-cols-2">
+              <div>
+                <label htmlFor="fullname" className={ROTULO}>
+                  {accountType === "PJ" ? "Nome do contato" : "Nome completo"}
+                </label>
+
+                <input
                   {...register("fullname")}
                   id="fullname"
                   type="text"
-                  placeholder="Digite seu nome completo"
+                  className={CAMPO}
                 />
-                {errors.fullname && (
-                  <p className="text-red-500 text-sm font-semibold mt-1">
-                    {errors.fullname.message}
-                  </p>
-                )}
+
+                {errors.fullname && <Erro>{errors.fullname.message}</Erro>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+              <div>
+                <label htmlFor="email" className={ROTULO}>
+                  E-mail
+                </label>
 
-                <Input
+                <input
                   {...register("email")}
                   id="email"
                   type="email"
-                  placeholder="seuemail@exemplo.com"
+                  className={CAMPO}
                 />
-                {errors.email && (
-                  <p className="text-red-500 text-sm font-semibold mt-1">
-                    {errors.email.message}
-                  </p>
-                )}
+
+                {errors.email && <Erro>{errors.email.message}</Erro>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
+              <div>
+                <label htmlFor="phone" className={ROTULO}>
+                  Telefone
+                </label>
 
-                <Input
+                <input
                   {...register("phone")}
                   id="phone"
                   type="tel"
-                  placeholder="(83) 99999-9999"
+                  className={CAMPO}
                 />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm font-semibold mt-1">
-                    {errors.phone.message}
-                  </p>
-                )}
+
+                {errors.phone && <Erro>{errors.phone.message}</Erro>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="password">Senha</Label>
+              {accountType === "PJ" && (
+                <div>
+                  <label htmlFor="cnpj" className={ROTULO}>
+                    CNPJ
+                  </label>
 
-                <Input
+                  <input
+                    {...register("cnpj")}
+                    id="cnpj"
+                    type="text"
+                    className={CAMPO}
+                  />
+
+                  <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                    Os demais dados da empresa você completa depois, na área da
+                    empresa.
+                  </p>
+
+                  {errors.cnpj && <Erro>{errors.cnpj.message}</Erro>}
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="password" className={ROTULO}>
+                  Senha
+                </label>
+
+                <input
                   {...register("password")}
                   id="password"
                   type="password"
-                  placeholder="********"
+                  className={CAMPO}
                 />
-                {errors.password && (
-                  <p className="text-red-500 text-sm font-semibold mt-1">
-                    {errors.password.message}
-                  </p>
-                )}
+
+                {errors.password && <Erro>{errors.password.message}</Erro>}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar senha</Label>
+              <div>
+                <label htmlFor="confirmPassword" className={ROTULO}>
+                  Confirmar senha
+                </label>
 
-                <Input
+                <input
                   {...register("confirmPassword")}
                   id="confirmPassword"
                   type="password"
-                  placeholder="********"
+                  className={CAMPO}
                 />
+
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm font-semibold mt-1">
-                    {errors.confirmPassword.message}
-                  </p>
+                  <Erro>{errors.confirmPassword.message}</Erro>
                 )}
               </div>
+            </div>
 
-              <Button
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4">
+              <button
                 type="submit"
                 disabled={createUserMutation.isPending}
-                className="w-full"
+                className="flex min-h-14 items-center bg-primary px-9 font-medium text-primary-foreground transition-colors hover:bg-brand-light disabled:pointer-events-none disabled:opacity-60"
               >
                 {createUserMutation.isPending
-                  ? "Criando conta..."
+                  ? "Criando conta…"
                   : "Criar conta"}
-              </Button>
+              </button>
 
-              <p className="text-center text-sm text-muted-foreground">
-                Já possui uma conta?{" "}
+              <p className="text-muted-foreground">
+                Já tem conta?{" "}
                 <Link
                   href="/portal/auth/login"
-                  className="font-medium hover:underline"
+                  className="text-primary underline decoration-1 underline-offset-4 transition-colors hover:text-brand-light"
                 >
                   Entrar
                 </Link>
               </p>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+          </form>
+
+          {/*
+            O produto nao envia e-mail: nenhum provedor foi escolhido. Dizer isso
+            aqui evita a espera por uma confirmacao que nunca chega.
+          */}
+          <p className="mt-12 max-w-2xl border-t border-border pt-6 text-xs leading-relaxed text-muted-foreground">
+            Confirmação por e-mail ainda não existe no sistema: a conta nasce
+            ativa. Quando o envio existir, este passo entra aqui.
+          </p>
+        </div>
       </div>
     </div>
+  );
+}
+
+type EscolhaProps = {
+  id: string;
+  valor: UserFormData["accountType"];
+  marcado: boolean;
+  titulo: string;
+  descricao: string;
+  onEscolher: (valor: UserFormData["accountType"]) => void;
+};
+
+function Escolha({
+  id,
+  valor,
+  marcado,
+  titulo,
+  descricao,
+  onEscolher,
+}: EscolhaProps) {
+  return (
+    <label
+      htmlFor={id}
+      className={`block cursor-pointer bg-card p-6 transition-colors ${
+        marcado
+          ? "border border-primary"
+          : "border border-border hover:border-input"
+      }`}
+    >
+      <span className="flex items-center gap-3">
+        <input
+          id={id}
+          type="radio"
+          name="accountType"
+          value={valor}
+          checked={marcado}
+          onChange={() => onEscolher(valor)}
+          className="h-4 w-4 accent-[var(--primary)]"
+        />
+
+        <span className="font-display text-xl font-semibold">{titulo}</span>
+      </span>
+
+      <span className="mt-3 block text-sm leading-relaxed text-muted-foreground">
+        {descricao}
+      </span>
+    </label>
+  );
+}
+
+function Erro({ children }: { children?: React.ReactNode }) {
+  return (
+    <p className="mt-2 text-sm font-medium text-destructive" role="alert">
+      {children}
+    </p>
   );
 }
