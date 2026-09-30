@@ -20,6 +20,8 @@ que permite à API existir sem nenhuma entrada da internet.
 - [ ] **C9** `seguranca` — o caminho só alcança a API configurada; parâmetro de requisição não redireciona para outro endereço.
 - [ ] **C10** `dominio` — em desenvolvimento, `docker compose up` continua funcionando pelo mesmo caminho, sem credencial de serviço.
 - [ ] **C11** `dominio` — as telas continuam funcionando sem mudar nenhuma chamada: quem muda é o endereço base, não o código de cada tela.
+- [ ] **C12** `contrato-api` — o endereço base do navegador é relativo: nenhum host da API aparece no pacote servido.
+- [ ] **C13** `dominio` — as fotos do acervo são carregadas pela própria origem do site.
 
 ## Contrato técnico
 
@@ -44,9 +46,10 @@ C9 existe porque proxy que aceita destino de fora vira proxy aberto: alguém
 pediria `/api/v1/...` apontando para outro host e usaria nosso serviço como
 ponte. O destino é só o configurado.
 
-Com isto, `BASE_URL` no navegador passa a ser caminho relativo, e **a lista de
-origens do CORS deixa de ter função em produção** -- a requisição nunca é de
-outra origem.
+C12 e C13 nasceram na spec 41 e vieram para cá: lá eles dependiam deste
+mecanismo, que vem depois -- critério que depende de spec posterior nunca
+fecha. Com eles, **a lista de origens do CORS deixa de ter função em
+produção**, porque a requisição nunca é de outra origem.
 
 ## Fora de escopo
 

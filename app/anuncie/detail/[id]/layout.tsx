@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { API_INTERNA, ORIGEM_DAS_IMAGENS } from "@/app/lib/ambiente";
 import { SITE } from "@/app/lib/site";
 
 type Props = { params: Promise<{ id: string }> };
@@ -12,8 +13,7 @@ type Props = { params: Promise<{ id: string }> };
  * não o apartamento. E é aqui que está o valor de SEO de um portal: são as
  * páginas dos imóveis que alguém procura, uma por endereço.
  *
- * Roda no servidor, então busca pelo endereço interno da API: `localhost` em
- * contêiner é o próprio contêiner do web.
+ * Roda no servidor, então busca pelo endereço interno da API.
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
@@ -57,16 +57,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function absoluta(image: string) {
   if (image.startsWith("http://") || image.startsWith("https://")) return image;
 
-  const api = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api/v1";
-
-  return `${api.replace(/\/api\/v1\/?$/, "")}${image}`;
+  return `${ORIGEM_DAS_IMAGENS}${image}`;
 }
 
 async function buscar(id: string) {
-  const api =
-    process.env.ATTUS_API_INTERNA ??
-    process.env.NEXT_PUBLIC_API_URL ??
-    "http://localhost:8080/api/v1";
+  const api = API_INTERNA;
 
   try {
     const resposta = await fetch(`${api}/announcements/${id}`, {

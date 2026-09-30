@@ -1,5 +1,6 @@
-/** De onde a API serve. Espelha o BASE_URL de services/api.ts. */
-const API = "http://localhost:8080";
+import { ORIGEM_DAS_IMAGENS } from "./ambiente";
+
+const API = ORIGEM_DAS_IMAGENS;
 
 /**
  * O endereço de onde a imagem do anúncio é carregada.

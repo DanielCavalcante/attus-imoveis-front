@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 
+import { API_INTERNA } from "./lib/ambiente";
 import { SITE } from "./lib/site";
 
 /**
@@ -48,18 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 }
 
 async function anuncios(): Promise<MetadataRoute.Sitemap> {
-  /**
-   * O endereço da API visto DE DENTRO do servidor, que não é o do navegador.
-   *
-   * `NEXT_PUBLIC_API_URL` aponta para onde o navegador alcança a API. Este
-   * código roda no servidor, e em contêiner `localhost` é o próprio contêiner
-   * do web -- a busca falhava em silêncio e o sitemap saía sem nenhum anúncio,
-   * que é justamente o que ele tem de oferecer.
-   */
-  const api =
-    process.env.ATTUS_API_INTERNA ??
-    process.env.NEXT_PUBLIC_API_URL ??
-    "http://localhost:8080/api/v1";
+  const api = API_INTERNA;
 
   try {
     const resposta = await fetch(`${api}/announcements?size=200`, {

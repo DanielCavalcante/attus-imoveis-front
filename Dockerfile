@@ -1,9 +1,11 @@
 # ---- dependências ----
-# Não há lockfile commitado neste repo (yarn.lock foi removido), então é npm install.
+# `npm ci` a partir do lockfile: `npm install` resolvia versoes de novo a cada
+# build, e duas imagens do mesmo commit podiam levar arvores diferentes. O
+# comentario que dizia nao haver lockfile mentia desde o CICLO-02.
 FROM node:22-alpine AS deps
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 
 # ---- build ----
 FROM node:22-alpine AS build
@@ -16,8 +18,12 @@ COPY . .
 # no runtime nao tem efeito nenhum.
 ARG NEXT_PUBLIC_CONTATO_EMAIL
 ARG NEXT_PUBLIC_CONTATO_TELEFONE
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_CONTATO_EMAIL=$NEXT_PUBLIC_CONTATO_EMAIL
 ENV NEXT_PUBLIC_CONTATO_TELEFONE=$NEXT_PUBLIC_CONTATO_TELEFONE
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 RUN npm run build
 

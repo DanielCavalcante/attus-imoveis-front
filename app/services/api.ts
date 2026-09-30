@@ -1,4 +1,6 @@
-const BASE_URL = "http://localhost:8080/api/v1";
+import { API_DO_NAVEGADOR } from "../lib/ambiente";
+
+const BASE_URL = API_DO_NAVEGADOR;
 
 /**
  * A sessão acabou: o token venceu, foi revogado ou nunca valeu.

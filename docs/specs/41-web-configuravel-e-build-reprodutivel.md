@@ -10,16 +10,14 @@ nenhuma
 ## Critérios
 
 - [ ] **C1** `dominio` — nenhum arquivo de `app/` contém `localhost` fora de valor padrão de desenvolvimento declarado num lugar só.
-- [ ] **C2** `contrato-api` — o navegador chama a API pela própria origem do site, sem endereço externo embutido no bundle.
-- [ ] **C3** `contrato-api` — o endereço que o servidor usa para a API vem do ambiente, no momento da execução.
-- [ ] **C4** `dominio` — as fotos do acervo são carregadas pela própria origem do site, e não de um host fixo.
-- [ ] **C5** `dominio` — o endereço público do site vem do ambiente, e é ele que aparece em canonical, Open Graph e sitemap.
-- [ ] **C6** `seguranca` — o build de produção falha quando o endereço público do site não é informado.
-- [ ] **C7** `dominio` — a imagem é construída com `npm ci`, a partir do `package-lock.json`.
-- [ ] **C8** `dominio` — o mesmo commit e o mesmo lockfile produzem a mesma árvore de dependências.
-- [ ] **C9** `observabilidade` — existe rota de saúde que responde 200 sem depender da API.
-- [ ] **C10** `dominio` — a porta do servidor vem de `PORT`, com 3000 como padrão.
-- [ ] **C11** `dominio` — `docker compose up` continua funcionando sem ninguém exportar variável.
+- [ ] **C2** `contrato-api` — o endereço que o servidor usa para a API vem do ambiente, no momento da execução.
+- [ ] **C3** `dominio` — o endereço público do site vem do ambiente, e é ele que aparece em canonical, Open Graph e sitemap.
+- [ ] **C4** `seguranca` — o build de produção falha quando o endereço público do site não é informado.
+- [ ] **C5** `dominio` — a imagem é construída com `npm ci`, a partir do `package-lock.json`.
+- [ ] **C6** `dominio` — o mesmo commit e o mesmo lockfile produzem a mesma árvore de dependências.
+- [ ] **C7** `observabilidade` — existe rota de saúde que responde 200 sem depender da API.
+- [ ] **C8** `dominio` — a porta do servidor vem de `PORT`, com 3000 como padrão.
+- [ ] **C9** `dominio` — `docker compose up` continua funcionando sem ninguém exportar variável.
 
 ## Contrato técnico
 
@@ -31,16 +29,19 @@ nenhuma tela autenticada funciona. `app/lib/imagem.ts` tem
 `Dockerfile` roda `npm install` sob um comentário que diz não haver lockfile --
 e o `package-lock.json` está commitado desde o CICLO-02.
 
-**C2 e C3 são dois endereços, não um, e só um deles existe.** Em produção a API
+**O endereço do servidor e o do navegador são coisas diferentes, e aqui só o
+primeiro existe.** Em produção a API
 não tem entrada da internet: o navegador não alcança nenhum endereço dela, e
 por isso o bundle não carrega nenhum. Quem alcança a API é o servidor do web,
 na execução, por endereço interno. Confundir os dois já custou um defeito nesta
 base -- o sitemap saía sem nenhum anúncio porque `localhost`, dentro do
 contêiner, é o próprio contêiner.
 
-O mecanismo que faz C2 e C4 serem verdade é a spec 42: o front como único ponto
-de entrada. Esta spec fixa o destino -- mesma origem, sem host fixo --, aquela
-constrói o caminho.
+Dois critérios saíram desta spec depois de escritos -- o navegador falar com a
+própria origem, e as fotos virem dela -- porque ambos só podem ser verdade com
+o proxy da spec 42, que vem DEPOIS. Critério que depende de spec posterior
+nunca fecha, e a regra existe justamente para isso não passar despercebido.
+Eles agora são C12 e C13 da 42.
 
 Efeito colateral bom: **CORS deixa de ser problema.** Mesma origem não dispara
 verificação de origem, e a lista de origens da API passa a existir só para o
