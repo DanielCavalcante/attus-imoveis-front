@@ -10,11 +10,11 @@ nenhuma
 ## Critérios
 
 - [ ] **C1** `dominio` — nenhum arquivo de `app/` contém `localhost` fora de valor padrão de desenvolvimento declarado num lugar só.
-- [ ] **C2** `contrato-api` — o endereço que o navegador usa para a API vem do ambiente, no momento do build.
+- [ ] **C2** `contrato-api` — o navegador chama a API pela própria origem do site, sem endereço externo embutido no bundle.
 - [ ] **C3** `contrato-api` — o endereço que o servidor usa para a API vem do ambiente, no momento da execução.
-- [ ] **C4** `dominio` — as fotos do acervo são carregadas do endereço configurado, e não de um host fixo.
+- [ ] **C4** `dominio` — as fotos do acervo são carregadas pela própria origem do site, e não de um host fixo.
 - [ ] **C5** `dominio` — o endereço público do site vem do ambiente, e é ele que aparece em canonical, Open Graph e sitemap.
-- [ ] **C6** `seguranca` — o build de produção falha quando o endereço da API não é informado.
+- [ ] **C6** `seguranca` — o build de produção falha quando o endereço público do site não é informado.
 - [ ] **C7** `dominio` — a imagem é construída com `npm ci`, a partir do `package-lock.json`.
 - [ ] **C8** `dominio` — o mesmo commit e o mesmo lockfile produzem a mesma árvore de dependências.
 - [ ] **C9** `observabilidade` — existe rota de saúde que responde 200 sem depender da API.
@@ -31,24 +31,32 @@ nenhuma tela autenticada funciona. `app/lib/imagem.ts` tem
 `Dockerfile` roda `npm install` sob um comentário que diz não haver lockfile --
 e o `package-lock.json` está commitado desde o CICLO-02.
 
-**C2 e C3 são dois endereços, não um.** O que o navegador alcança e o que o
-servidor alcança são coisas diferentes, e confundi-los já custou um defeito
-nesta base: o sitemap saía sem nenhum anúncio porque `localhost`, dentro do
-contêiner, é o próprio contêiner. `NEXT_PUBLIC_*` é embutido no bundle no
-build; o do servidor é lido na execução.
+**C2 e C3 são dois endereços, não um, e só um deles existe.** Em produção a API
+não tem entrada da internet: o navegador não alcança nenhum endereço dela, e
+por isso o bundle não carrega nenhum. Quem alcança a API é o servidor do web,
+na execução, por endereço interno. Confundir os dois já custou um defeito nesta
+base -- o sitemap saía sem nenhum anúncio porque `localhost`, dentro do
+contêiner, é o próprio contêiner.
 
-Disso decorre um fato que C2 obriga a encarar: **a imagem do web carrega o
-endereço com que foi construída.** Uma imagem por ambiente, e a spec 42 vai
-precisar saber disso para não tentar promover a mesma imagem de homologação
-para produção.
+O mecanismo que faz C2 e C4 serem verdade é a spec 42: o front como único ponto
+de entrada. Esta spec fixa o destino -- mesma origem, sem host fixo --, aquela
+constrói o caminho.
+
+Efeito colateral bom: **CORS deixa de ser problema.** Mesma origem não dispara
+verificação de origem, e a lista de origens da API passa a existir só para o
+desenvolvimento, onde o navegador de fato fala com `localhost:8080`.
 
 C6 existe porque a alternativa silenciosa é pior: sem a variável, o build
-embute o padrão de desenvolvimento e a imagem sobe funcionando para todo lado,
-menos para a API.
+embute o padrão de desenvolvimento e o site anuncia `localhost` em canonical,
+Open Graph e sitemap -- para o buscador, o site inteiro passa a morar na
+máquina de quem fez o deploy.
 
 ## Fora de escopo
 
-- **O Terraform e o pipeline de build.** É a spec 42, e ela depende desta.
+- **O proxy que torna a mesma origem possível.** É a spec 42, e ela é o
+  mecanismo desta: aqui se fixa que o navegador fala com a própria origem, lá
+  se constrói por onde.
+- **O Terraform.** São as specs 43 e 44, uma por repositório.
 - **Renderizar as páginas de imóvel no servidor.** Elas são componentes de
   cliente e entregam casca vazia ao rastreador; é o maior item de SEO que
   sobrou e é spec própria.
