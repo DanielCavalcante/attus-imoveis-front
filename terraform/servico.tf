@@ -27,7 +27,12 @@ resource "google_cloud_run_v2_service" "site" {
         subnetwork = local.rede.subnome
       }
 
-      egress = "PRIVATE_RANGES_ONLY"
+      # `ALL_TRAFFIC`, e nao `PRIVATE_RANGES_ONLY`: o endereco da API e um
+      # `run.app`, que e publico, e com saida so para faixas privadas a
+      # requisicao ia para a internet em vez de atravessar a VPC -- e voltava
+      # 404, recusada pela entrada interna da API. Quem faz `run.app` resolver
+      # para dentro e a zona DNS privada do repositorio da API.
+      egress = "ALL_TRAFFIC"
     }
 
     containers {
