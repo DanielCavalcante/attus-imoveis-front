@@ -16,6 +16,7 @@ import { PrivateRoute } from "../components/private-route";
 import { CampoDeImagem } from "../components/campo-de-imagem";
 import { CampoComSugestoes } from "../components/campo-com-sugestoes";
 import { useBairros } from "../hooks/use-locations";
+import { useEnderecoPorCep } from "../hooks/use-endereco";
 import {
   CadastroEmAprovacao,
   type MotivoDoBloqueio,
@@ -132,6 +133,24 @@ function FormularioDeAnuncio() {
   } = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementSchema),
     defaultValues: { propertyType: "HOUSE", reason: "SALE" },
+  });
+
+  /**
+   * O CEP preenche o resto do endereço.
+   *
+   * Só o que o servidor sabe entra; campo que ele devolve vazio fica como
+   * está, porque cidade com CEP único não tem bairro e apagar o que a pessoa
+   * digitou seria pior que não preencher.
+   */
+  const endereco = useEnderecoPorCep((achado) => {
+    const preencher = (campo: "street" | "neighborhood" | "city" | "state", valor?: string | null) => {
+      if (valor) setValue(campo, valor, { shouldValidate: true });
+    };
+
+    preencher("street", achado.logradouro);
+    preencher("neighborhood", achado.bairro);
+    preencher("city", achado.cidade);
+    preencher("state", achado.uf);
   });
 
   // As sugestões de bairro seguem a cidade que está no formulário.
@@ -307,11 +326,25 @@ function FormularioDeAnuncio() {
             </label>
 
             <input
-              {...register("cep")}
+              {...register("cep", {
+                onChange: (evento) => endereco.aoDigitar(evento.target.value),
+              })}
               id="cep"
               className={CAMPO}
               placeholder="58038-000"
+              aria-describedby="estado-do-cep"
             />
+
+            {/*
+              `role="status"` para o preenchimento ser anunciado a quem usa
+              leitor de tela: quatro campos mudam de valor sem a pessoa tocar
+              em nenhum deles, e sem isso ela não fica sabendo.
+            */}
+            <p id="estado-do-cep" role="status" className="mt-2 text-sm text-muted-foreground">
+              {endereco.buscando && "Buscando o endereço…"}
+              {endereco.naoEncontrado &&
+                "Não encontramos esse CEP. Preencha o endereço à mão."}
+            </p>
 
             <Erro>{errors.cep?.message}</Erro>
           </div>
