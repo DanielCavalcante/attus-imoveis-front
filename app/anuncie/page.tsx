@@ -14,6 +14,8 @@ import {
 } from "../schemas/announcement";
 import { PrivateRoute } from "../components/private-route";
 import { CampoDeImagem } from "../components/campo-de-imagem";
+import { CampoComSugestoes } from "../components/campo-com-sugestoes";
+import { useBairros } from "../hooks/use-locations";
 import {
   CadastroEmAprovacao,
   type MotivoDoBloqueio,
@@ -125,11 +127,17 @@ function FormularioDeAnuncio() {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<AnnouncementFormData>({
     resolver: zodResolver(announcementSchema),
     defaultValues: { propertyType: "HOUSE", reason: "SALE" },
   });
+
+  // As sugestões de bairro seguem a cidade que está no formulário.
+  const cidade = watch("city");
+  const bairro = watch("neighborhood");
+  const bairros = useBairros(cidade ?? "");
 
   async function onSubmit(data: AnnouncementFormData) {
     try {
@@ -367,6 +375,31 @@ function FormularioDeAnuncio() {
             />
 
             <Erro>{errors.city?.message}</Erro>
+          </div>
+
+          {/*
+            Sugestões, sem modo estrito.
+
+            Estrito trancaria quem anuncia em cidade sem catálogo: a lista dela
+            sai do `distinct` sobre os anúncios, que começa vazia, e a pessoa
+            não teria como informar bairro nenhum. É o oposto do que este campo
+            existe para resolver.
+          */}
+          <div>
+            <input type="hidden" {...register("neighborhood")} />
+
+            <CampoComSugestoes
+              id="neighborhood"
+              rotulo="Bairro"
+              valor={bairro ?? ""}
+              onChange={(valor) =>
+                setValue("neighborhood", valor, { shouldValidate: true })
+              }
+              sugestoes={bairros.data ?? []}
+              placeholder="Manaíra"
+            />
+
+            <Erro>{errors.neighborhood?.message}</Erro>
           </div>
 
           <div>

@@ -30,6 +30,20 @@ export const announcementSchema = z.object({
     .min(1, "Cidade é obrigatória")
     .max(40, "Cidade deve ter no máximo 40 caracteres"),
 
+  /**
+   * O bairro que quem anuncia informa.
+   *
+   * Opcional porque a spec 19 decidiu que bairro é recorte de busca, não dado
+   * essencial do imóvel, e não bloqueia publicação. O servidor deriva do CEP
+   * quando vem vazio -- mas derivar depende de serviço de terceiro, e é por
+   * isso que o campo existe.
+   */
+  neighborhood: z
+    .string()
+    .trim()
+    .max(60, "Bairro deve ter no máximo 60 caracteres")
+    .optional(),
+
   /** Duas letras bastam: é a sigla, e é o que o card imprime. */
   state: z
     .string()
