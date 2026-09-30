@@ -71,5 +71,5 @@ passa também o tráfego das fotos, que atravessam o site em fluxo desde a spec
 
 ## Perguntas em aberto
 
-Nenhuma própria. Herda a da spec 43, sobre o que "o usuário tem acesso apenas
-ao cadastro do usuário" restringe.
+Nenhuma. A que era herdada da spec 43 foi respondida: "o usuário mexe apenas no
+seu usuário" é regra do produto, virou a spec 45, e não muda a infraestrutura.
